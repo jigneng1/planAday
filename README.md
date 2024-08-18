@@ -1,4 +1,4 @@
-# plan_a_day
+# PlanAday
 
 A new Flutter project.
 
