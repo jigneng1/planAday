@@ -48,8 +48,13 @@ class _MainLayoutState extends State<MainLayout> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
+        selectedItemColor: Colors.orange[900],
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home_filled), label: "Home"),
+          BottomNavigationBarItem(
+              icon: Icon(
+                Icons.home_filled,
+              ),
+              label: "Home"),
           BottomNavigationBarItem(
             icon: Icon(Icons.account_circle),
             label: 'Profile',
