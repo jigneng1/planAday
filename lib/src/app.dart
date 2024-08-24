@@ -1,6 +1,7 @@
 // Layout widget
 
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
@@ -15,7 +16,7 @@ class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
   // put the screen widget here
-  final List<Widget> _children = [HomeScreen(), ProfileScreen()];
+  final List<Widget> _children = [HomeScreen(), ProfileScreen(), CreatePlanScreen()];
 
   void onTabTapped(int index) {
     setState(() {
@@ -35,7 +36,13 @@ class _MainLayoutState extends State<MainLayout> {
         child: FloatingActionButton(
           backgroundColor: Colors.orange[900],
           elevation: 0,
-          onPressed: () => debugPrint("Add"),
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => const CreatePlanScreen(),
+              ),
+            );
+          },
           shape: RoundedRectangleBorder(
               side: const BorderSide(width: 3, color: Colors.transparent),
               borderRadius: BorderRadius.circular(100)),
@@ -48,7 +55,7 @@ class _MainLayoutState extends State<MainLayout> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: onTabTapped,
-        selectedItemColor: Colors.orange[900],
+        selectedItemColor: Theme.of(context).primaryColor,
         items: const [
           BottomNavigationBarItem(
               icon: Icon(
