@@ -18,8 +18,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Cafe',
     'Food and Drink',
     'Shopping',
-    'Entertainment',
     'Sport',
+    'Entertainment',
     'Museum',
     'Services'
   ];
@@ -44,17 +44,41 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   }
 
   Future<void> _selectStartTime(BuildContext context) async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
-    if (picked != null) {
-      final formattedTime = picked.format(context);
-      setState(() {
-        _startTimeController.text = formattedTime;
-      });
-    }
+  final TimeOfDay? picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+    builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+          colorScheme: ColorScheme.light(
+            primary: Theme.of(context).primaryColor, // Header background color
+            onPrimary: Colors.white, // Header text color
+            onSurface: Theme.of(context).primaryColor, // Time picker dial color
+          ),
+          textButtonTheme: TextButtonThemeData(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).primaryColor, // Button text color
+            ),
+          ),
+          timePickerTheme: const TimePickerThemeData(
+            helpTextStyle: TextStyle(
+              fontSize: 24, // Increase the size of the "Select time" text
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+        child: child!,
+      );
+    },
+  );
+  if (picked != null) {
+    final formattedTime = picked.format(context);
+    setState(() {
+      _startTimeController.text = formattedTime;
+    });
   }
+
+}
 
   void _incrementNumberOfPlaces() {
     final currentValue = int.tryParse(_numberOfPlacesController.text) ?? 1;
@@ -76,7 +100,7 @@ Widget build(BuildContext context) {
 
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Create new plan'),
+      title: const Text('Create new plan', style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600)),
       centerTitle: true,
       leading: IconButton(
         icon: const Icon(Icons.close),
@@ -103,7 +127,7 @@ Widget build(BuildContext context) {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Wrap(
-            spacing: 10,
+            spacing: 15,
             runSpacing: 10,
             children: _activities.map((activity) {
               final isSelected = _selectedActivities.contains(activity);
@@ -127,7 +151,7 @@ Widget build(BuildContext context) {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
           const SizedBox(height: 12),
           Container(
-            height: 150,
+            height: 220,
             width: double.infinity,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(8),
@@ -150,21 +174,22 @@ Widget build(BuildContext context) {
                         labelText: 'Start time',
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.access_time),
+                        contentPadding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 16.0),
                       ),
                     ),
                 ),
               ),
               const SizedBox(height: 40),
               const Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Text('Number of places',
                       style: TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.w600)),
-                  SizedBox(width: 5),
+                          fontSize: 20, fontWeight: FontWeight.w600)),
+                  SizedBox(width: 8),
                   Text('(optional)',
-                      style: TextStyle(fontSize: 10, color: Colors.grey)),
+                      style: TextStyle(fontSize: 15, color: Colors.grey)),
                 ],
               ),
               const SizedBox(height: 12),
@@ -175,7 +200,7 @@ Widget build(BuildContext context) {
                     onPressed: _decrementNumberOfPlaces,
                   ),
                   SizedBox(
-                    width: 100, // Fixed width for number of places input
+                    width: 80, // Fixed width for number of places input
                     child: TextField(
                       controller: _numberOfPlacesController,
                       decoration: const InputDecoration(
