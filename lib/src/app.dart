@@ -52,6 +52,8 @@ class _MainLayoutState extends State<MainLayout> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
+        shape: const CircularNotchedRectangle(),
+        notchMargin: 10,
         child: Container(
           margin: const EdgeInsets.only(left: 12.0, right: 12.0),
           child: Row(
@@ -61,7 +63,7 @@ class _MainLayoutState extends State<MainLayout> {
                 onPressed: () {
                   onTabTapped(0);
                 },
-                iconSize: 30.0,
+                iconSize: _currentIndex == 0 ? 40 : 30,
                 icon: Icon(
                   Icons.home_filled,
                   color: _currentIndex == 0
@@ -74,7 +76,7 @@ class _MainLayoutState extends State<MainLayout> {
                 onPressed: () {
                   onTabTapped(1);
                 },
-                iconSize: 30.0,
+                iconSize: _currentIndex == 1 ? 40 : 30,
                 icon: Icon(
                   Icons.person,
                   color: _currentIndex == 1
