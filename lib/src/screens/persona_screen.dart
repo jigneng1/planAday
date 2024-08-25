@@ -106,19 +106,11 @@ class _PersonaScreenState extends State<PersonaScreen> {
             _selectedInterests.remove(label);
           } else if (_selectedInterests.length < maxSelection) {
             _selectedInterests.add(label);
-          } else {
-            // Optionally show a message to the user
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text('You can select up to 4 interests only.'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          }
+          } 
         });
       },
       child: Card(
-        color: isSelected ? const Color.fromARGB(255, 255, 140, 91) : const Color(0xFFFDF6EC), // Highlight if selected
+        color: isSelected ? const Color.fromARGB(255, 255, 140, 91) : const Color(0xFFFDF6EC), 
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
