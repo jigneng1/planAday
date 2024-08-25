@@ -12,6 +12,7 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  int _indexBeforeCreate = 0;
 
   late final List<Widget> _children;
 
@@ -33,7 +34,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToHomeScreen() {
     setState(() {
-      _currentIndex = 0; // Assuming HomeScreen is at index 0
+      _currentIndex = _indexBeforeCreate; // Assuming HomeScreen is at index 0
     });
   }
 
@@ -50,6 +51,9 @@ class _MainLayoutState extends State<MainLayout> {
           backgroundColor: Colors.orange[900],
           elevation: 0,
           onPressed: () {
+            setState(() {
+              _indexBeforeCreate = _currentIndex;
+            });
             onTabTapped(2);
           },
           shape: RoundedRectangleBorder(
