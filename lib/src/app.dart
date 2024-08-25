@@ -15,7 +15,7 @@ class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
   // put the screen widget here
-  final List<Widget> _children = [HomeScreen(), ProfileScreen()];
+  final List<Widget> _children = [HomeScreen(selectedInterests: [],), ProfileScreen()];
 
   void onTabTapped(int index) {
     setState(() {
