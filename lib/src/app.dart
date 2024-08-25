@@ -13,16 +13,27 @@ class MainLayout extends StatefulWidget {
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
 
-  // put the screen widget here
-  final List<Widget> _children = [
-    const HomeScreen(),
-    ProfileScreen(),
-    const CreatePlanScreen()
-  ];
+  late final List<Widget> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      const HomeScreen(),
+      ProfileScreen(),
+      CreatePlanScreen(onClose: _goToHomeScreen), // Pass the callback
+    ];
+  }
 
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+    });
+  }
+
+  void _goToHomeScreen() {
+    setState(() {
+      _currentIndex = 1; // Assuming HomeScreen is at index 0
     });
   }
 
