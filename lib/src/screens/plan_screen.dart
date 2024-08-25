@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatelessWidget {
   const PlanScreen({super.key});
@@ -20,8 +21,8 @@ class PlanScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             // Example of plan details
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.calendar_today, size: 30),
                 SizedBox(width: 10),
                 Text(
@@ -31,8 +32,8 @@ class PlanScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 10),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Icon(Icons.timer, size: 30),
                 SizedBox(width: 10),
                 Text(
@@ -47,6 +48,25 @@ class PlanScreen extends StatelessWidget {
               style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 10),
+            // PlaceDetailCard example
+            PlaceDetailCard(
+              imageUrl: 'https://picsum.photos/id/42/3456/2304',
+              title: 'Visit the Basketball Court',
+              subtitle: 'Enjoy a game of basketball with friends.',
+            ),
+            const SizedBox(height: 10),
+            PlaceDetailCard(
+              imageUrl: 'https://source.unsplash.com/3tYZjGSBwbk',
+              title: 'Have a Coffee at the Local Cafe',
+              subtitle: 'Relax and enjoy a coffee break.',
+            ),
+            const SizedBox(height: 10),
+            PlaceDetailCard(
+              imageUrl: 'https://example.com/image3.jpg',
+              title: 'Explore the Art Museum',
+              subtitle: 'Discover beautiful art exhibits.',
+            ),
+            const SizedBox(height: 20),
             Expanded(
               child: ListView(
                 children: const [
