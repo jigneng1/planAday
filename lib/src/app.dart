@@ -33,7 +33,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToHomeScreen() {
     setState(() {
-      _currentIndex = 1; // Assuming HomeScreen is at index 0
+      _currentIndex = 0; // Assuming HomeScreen is at index 0
     });
   }
 
