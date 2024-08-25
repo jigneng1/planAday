@@ -8,19 +8,24 @@ class PlanScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Your Plan'),
+        title: const Text('Plan name', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),),
+        backgroundColor: Colors.white,
+        centerTitle: true,
+        toolbarHeight: 80,
+        leading: IconButton(
+          icon: const Icon(
+            Icons.arrow_back_ios,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Your Plan Summary',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            // Example of plan details
             const Row(
               children: [
                 Icon(Icons.calendar_today, size: 30),
@@ -56,36 +61,17 @@ class PlanScreen extends StatelessWidget {
             ),
             const SizedBox(height: 10),
             PlaceDetailCard(
-              imageUrl: 'https://source.unsplash.com/3tYZjGSBwbk',
+              imageUrl: 'https://picsum.photos/id/163/3456/2304',
               title: 'Have a Coffee at the Local Cafe',
               subtitle: 'Relax and enjoy a coffee break.',
             ),
             const SizedBox(height: 10),
             PlaceDetailCard(
-              imageUrl: 'https://example.com/image3.jpg',
+              imageUrl: 'https://picsum.photos/id/180/3456/2304',
               title: 'Explore the Art Museum',
               subtitle: 'Discover beautiful art exhibits.',
             ),
             const SizedBox(height: 20),
-            Expanded(
-              child: ListView(
-                children: const [
-                  ListTile(
-                    leading: Icon(Icons.sports_basketball),
-                    title: Text('Visit the Basketball Court'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.local_cafe),
-                    title: Text('Have a coffee at the local cafe'),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.museum),
-                    title: Text('Explore the Art Museum'),
-                  ),
-                  // Add more activities here
-                ],
-              ),
-            ),
           ],
         ),
       ),

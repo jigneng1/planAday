@@ -13,6 +13,8 @@ class PlaceDetailCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final primaryColor = Theme.of(context).primaryColor;
+
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -27,28 +29,44 @@ class PlaceDetailCard extends StatelessWidget {
               child: Image.network(
                 imageUrl,
                 width: double.infinity,
-                height: 150,
+                height: 100,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Text('Image not available'));
+                  return const Center(child: Text('Image not available', style: TextStyle(fontWeight: FontWeight.bold),));
                 },
               )),
           Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
               children: [
-                Text(
-                  title,
-                  // style: Theme.of(context).textTheme.headline6,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        subtitle,
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  // style: Theme.of(context).textTheme.subtitle1,
+                Icon(
+                  Icons.place,
+                  color: primaryColor,
                 ),
               ],
-            ),
+            )
           ),
         ],
       ),
