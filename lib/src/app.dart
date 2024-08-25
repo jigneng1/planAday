@@ -32,7 +32,7 @@ class _MainLayoutState extends State<MainLayout> {
       body: _children[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(top: 10),
+        margin: const EdgeInsets.only(top: 30),
         height: 64,
         width: 64,
         child: FloatingActionButton(
@@ -52,25 +52,27 @@ class _MainLayoutState extends State<MainLayout> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        shape: const CircularNotchedRectangle(),
-        notchMargin: 10,
+        color: Colors.white10,
         child: Container(
           margin: const EdgeInsets.only(left: 12.0, right: 12.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              IconButton(
-                onPressed: () {
-                  onTabTapped(0);
-                },
-                iconSize: _currentIndex == 0 ? 40 : 30,
-                icon: Icon(
-                  Icons.home_filled,
-                  color: _currentIndex == 0
-                      ? Colors.orange.shade900
-                      : Colors.grey.shade400,
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                child: IconButton(
+                  onPressed: () {
+                    onTabTapped(0);
+                  },
+                  iconSize: _currentIndex == 0 ? 40 : 30,
+                  icon: Icon(
+                    Icons.home_filled,
+                    color: _currentIndex == 0
+                        ? Colors.orange.shade900
+                        : Colors.grey.shade400,
+                  ),
+                  //padding: const EdgeInsets.only(bottom: 10),
                 ),
-                //padding: const EdgeInsets.only(bottom: 10),
               ),
               IconButton(
                 onPressed: () {
