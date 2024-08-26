@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/screens/createplan_screen.dart';
+import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
@@ -12,17 +12,29 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  int _indexBeforeCreate = 0;
 
-  // put the screen widget here
-  final List<Widget> _children = [
-    const HomeScreen(),
-    ProfileScreen(),
-    const CreatePlanScreen()
-  ];
+  late final List<Widget> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      const HomeScreen(),
+      ProfileScreen(),
+      CreatePlanScreen(onClose: _goToHomeScreen), // Pass the callback
+    ];
+  }
 
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+    });
+  }
+
+  void _goToHomeScreen() {
+    setState(() {
+      _currentIndex = _indexBeforeCreate; // Assuming HomeScreen is at index 0
     });
   }
 
@@ -39,6 +51,9 @@ class _MainLayoutState extends State<MainLayout> {
           backgroundColor: Colors.orange[900],
           elevation: 0,
           onPressed: () {
+            setState(() {
+              _indexBeforeCreate = _currentIndex;
+            });
             onTabTapped(2);
           },
           shape: RoundedRectangleBorder(
