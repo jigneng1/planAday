@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:plan_a_day/src/screens/plan_screen.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
+  final VoidCallback onGeneratePlan;
 
-  const CreatePlanScreen({super.key, required this.onClose});
+  const CreatePlanScreen({super.key, required this.onClose, required this.onGeneratePlan});
 
   @override
   State<CreatePlanScreen> createState() => _CreatePlanScreenState();
@@ -114,10 +116,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             widget.onClose();
           },
         ),
+        toolbarHeight: 80,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(30),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -248,19 +251,18 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Handle plan generation logic
-                  },
+                  onPressed: () => widget.onGeneratePlan(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                   ),
                   child: const Text(
                     'Generate plan',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
