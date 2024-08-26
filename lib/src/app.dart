@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -22,7 +23,8 @@ class _MainLayoutState extends State<MainLayout> {
     _children = [
       const HomeScreen(),
       ProfileScreen(),
-      CreatePlanScreen(onClose: _goToHomeScreen), // Pass the callback
+      CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
+      PlanScreen(onClose: _goToHomeScreen,),
     ];
   }
 
@@ -35,6 +37,12 @@ class _MainLayoutState extends State<MainLayout> {
   void _goToHomeScreen() {
     setState(() {
       _currentIndex = _indexBeforeCreate; // Assuming HomeScreen is at index 0
+    });
+  }
+
+  void _goToPlanScreen() {
+    setState(() {
+      _currentIndex = 3; // Assuming HomeScreen is at index 0
     });
   }
 

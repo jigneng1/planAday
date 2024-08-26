@@ -4,8 +4,9 @@ import 'package:plan_a_day/src/screens/plan_screen.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
+  final VoidCallback onGeneratePlan;
 
-  const CreatePlanScreen({super.key, required this.onClose});
+  const CreatePlanScreen({super.key, required this.onClose, required this.onGeneratePlan});
 
   @override
   State<CreatePlanScreen> createState() => _CreatePlanScreenState();
@@ -250,13 +251,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) => const PlanScreen(),
-                      ),
-                    );
-                  },
+                  onPressed: () => widget.onGeneratePlan(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
                     padding: const EdgeInsets.all(20),

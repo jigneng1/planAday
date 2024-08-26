@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatelessWidget {
-  const PlanScreen({super.key});
+  final VoidCallback onClose;
+
+  const PlanScreen({super.key, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,7 @@ class PlanScreen extends StatelessWidget {
             Icons.arrow_back_ios,
           ),
           onPressed: () {
-            Navigator.pop(context);
+            onClose();
           },
         ),
         actions: [
@@ -80,8 +82,8 @@ class PlanScreen extends StatelessWidget {
               '10:00 AM',
               PlaceDetailCard(
                 imageUrl: 'https://picsum.photos/id/163/3456/2304',
-                title: 'Have a Coffee at the Local Cafe',
-                subtitle: 'Relax and enjoy a coffee break.',
+                title: 'Coffee Cafe',
+                subtitle: 'Cafe | Food and Drink',
               ),
             ),
             buildRouting(
@@ -89,8 +91,8 @@ class PlanScreen extends StatelessWidget {
               '11:00 AM',
               PlaceDetailCard(
                 imageUrl: 'https://picsum.photos/id/180/3456/2304',
-                title: 'Explore the Art Museum',
-                subtitle: 'Discover beautiful art exhibits.',
+                title: 'Art Museum',
+                subtitle: 'Museum',
               ),
             ),
             const SizedBox(height: 50),
@@ -116,15 +118,15 @@ class PlanScreen extends StatelessWidget {
                 child: Icon(Icons.map, size: 100, color: Colors.grey),
               ),
             ),
-            const SizedBox(height: 80),
+            const SizedBox(height: 50),
             Column(
               children: [
                 const Text('Want to adjust plan?',
                     style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.w600,
                         color: Colors.grey)),
-                const SizedBox(height: 20),
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -137,10 +139,10 @@ class PlanScreen extends StatelessWidget {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 35, vertical: 15),
+                            horizontal: 30, vertical: 12),
                         child: Text(
                           'Edit Plan',
-                          style: TextStyle(color: primaryColor, fontSize: 16),
+                          style: TextStyle(color: primaryColor, fontSize: 14),
                         ),
                       ),
                     ),
@@ -153,10 +155,10 @@ class PlanScreen extends StatelessWidget {
                           backgroundColor: primaryColor),
                       child: const Padding(
                         padding:
-                            EdgeInsets.symmetric(horizontal: 35, vertical: 15),
+                            EdgeInsets.symmetric(horizontal: 30, vertical: 12),
                         child: Text(
                           'Regenerate',
-                          style: TextStyle(color: Colors.white, fontSize: 16),
+                          style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ),
                     )
