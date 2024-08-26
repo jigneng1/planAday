@@ -105,7 +105,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create new plan',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
         centerTitle: true,
         backgroundColor: Colors.white,
         leading: IconButton(
