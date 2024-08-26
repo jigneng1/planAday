@@ -46,7 +46,7 @@ class PlaceDetailCard extends StatelessWidget {
                       Text(
                         title,
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -54,17 +54,21 @@ class PlaceDetailCard extends StatelessWidget {
                       Text(
                         subtitle,
                         style: const TextStyle(
-                          fontSize: 10,
+                          fontSize: 12,
                           color: Colors.grey,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Icon(
+                Row(children: [
+                  Icon(
                   Icons.place,
                   color: primaryColor,
                 ),
+                const SizedBox(width: 5),
+                Text('2 km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
+                ],)
               ],
             )
           ),

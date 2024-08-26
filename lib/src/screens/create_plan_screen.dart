@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:plan_a_day/src/screens/plan_screen.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
@@ -105,7 +106,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create new plan',
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600)),
+            style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
         centerTitle: true,
         backgroundColor: Colors.white,
         leading: IconButton(
@@ -114,6 +115,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             widget.onClose();
           },
         ),
+        toolbarHeight: 80,
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -249,7 +251,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () {
-                    // Handle plan generation logic
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const PlanScreen(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
