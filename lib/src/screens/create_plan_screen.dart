@@ -120,7 +120,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(30),
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -254,14 +254,15 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   onPressed: () => widget.onGeneratePlan(),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: primaryColor,
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.symmetric(vertical: 20),
                   ),
                   child: const Text(
                     'Generate plan',
-                    style: TextStyle(fontSize: 20, color: Colors.white),
+                    style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
               ),
+              const SizedBox(height: 50),
             ],
           ),
         ),
