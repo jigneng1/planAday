@@ -1,7 +1,7 @@
-// Layout widget
-
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -13,13 +13,36 @@ class MainLayout extends StatefulWidget {
 
 class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
+  int _indexBeforeCreate = 0;
 
-  // put the screen widget here
-  final List<Widget> _children = [HomeScreen(selectedInterests: [],), ProfileScreen()];
+  late final List<Widget> _children;
+
+  @override
+  void initState() {
+    super.initState();
+    _children = [
+      const HomeScreen(),
+      ProfileScreen(),
+      CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
+      PlanScreen(onClose: _goToHomeScreen,),
+    ];
+  }
 
   void onTabTapped(int index) {
     setState(() {
       _currentIndex = index;
+    });
+  }
+
+  void _goToHomeScreen() {
+    setState(() {
+      _currentIndex = _indexBeforeCreate; // Assuming HomeScreen is at index 0
+    });
+  }
+
+  void _goToPlanScreen() {
+    setState(() {
+      _currentIndex = 3; // Assuming HomeScreen is at index 0
     });
   }
 
@@ -29,37 +52,67 @@ class _MainLayoutState extends State<MainLayout> {
       body: _children[_currentIndex],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(top: 10),
+        margin: const EdgeInsets.only(top: 30),
         height: 64,
         width: 64,
         child: FloatingActionButton(
           backgroundColor: Colors.orange[900],
           elevation: 0,
-          onPressed: () => debugPrint("Add"),
+          onPressed: () {
+            setState(() {
+              _indexBeforeCreate = _currentIndex;
+            });
+            onTabTapped(2);
+          },
           shape: RoundedRectangleBorder(
               side: const BorderSide(width: 3, color: Colors.transparent),
               borderRadius: BorderRadius.circular(100)),
           child: const Icon(
+            size: 40,
             Icons.add,
             color: Colors.white,
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: onTabTapped,
-        selectedItemColor: Colors.orange[900],
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(
-                Icons.home_filled,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white10,
+        child: Container(
+          margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                child: IconButton(
+                  onPressed: () {
+                    onTabTapped(0);
+                  },
+                  iconSize: _currentIndex == 0 ? 40 : 30,
+                  icon: Icon(
+                    Icons.home_filled,
+                    color: _currentIndex == 0
+                        ? Colors.orange.shade900
+                        : Colors.grey.shade400,
+                  ),
+                  //padding: const EdgeInsets.only(bottom: 10),
+                ),
               ),
-              label: "Home"),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle),
-            label: 'Profile',
+              IconButton(
+                onPressed: () {
+                  onTabTapped(1);
+                },
+                iconSize: _currentIndex == 1 ? 40 : 30,
+                icon: Icon(
+                  Icons.person,
+                  color: _currentIndex == 1
+                      ? Colors.orange.shade900
+                      : Colors.grey.shade400,
+                ),
+                //padding: const EdgeInsets.only(bottom: 10),
+              )
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
