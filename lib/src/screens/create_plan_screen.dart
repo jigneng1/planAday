@@ -6,7 +6,8 @@ class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onGeneratePlan;
 
-  const CreatePlanScreen({super.key, required this.onClose, required this.onGeneratePlan});
+  const CreatePlanScreen(
+      {super.key, required this.onClose, required this.onGeneratePlan});
 
   @override
   State<CreatePlanScreen> createState() => _CreatePlanScreenState();
@@ -152,7 +153,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                             color: isSelected ? Colors.white : primaryColor)),
                     selected: isSelected,
                     selectedColor: primaryColor,
-                    checkmarkColor: Colors.white,
+                    // checkmarkColor: Colors.white,
+                    showCheckmark: false,
                     side: BorderSide(
                         color: isSelected ? primaryColor : primaryColor),
                     onSelected: (bool selected) {
