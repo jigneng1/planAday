@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
@@ -24,7 +25,7 @@ class _MainLayoutState extends State<MainLayout> {
       const HomeScreen(),
       ProfileScreen(),
       CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
-      PlanScreen(onClose: _goToHomeScreen,),
+      PlanScreen(onClose: _goToHomeScreen,), PersonaScreen()
     ];
   }
 
@@ -99,7 +100,7 @@ class _MainLayoutState extends State<MainLayout> {
               ),
               IconButton(
                 onPressed: () {
-                  onTabTapped(1);
+                  onTabTapped(4);
                 },
                 iconSize: _currentIndex == 1 ? 40 : 30,
                 icon: Icon(
