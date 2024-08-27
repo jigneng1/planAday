@@ -21,7 +21,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Container(
-                padding: const EdgeInsets.only(left: 24.0, top: 16.0),
+                padding: const EdgeInsets.only(top: 18.0),
                 width: double.infinity,
                 child: const Text(
                   'Choose your interests',
@@ -30,14 +30,14 @@ class _PersonaScreenState extends State<PersonaScreen> {
                     fontWeight: FontWeight.w600,
                     color: Color.fromARGB(255, 254, 109, 64),
                   ),
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                 ),
               ),
               LayoutBuilder(
                 builder: (context, constraints) {
                   int crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
                   return Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 40.0),
+                    padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 32.0),
                     child: GridView.count(
                       crossAxisCount: crossAxisCount,
                       crossAxisSpacing: 10,
@@ -60,19 +60,19 @@ class _PersonaScreenState extends State<PersonaScreen> {
                 },
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(40, 0, 40, 24),
+                padding: const EdgeInsets.fromLTRB(36, 0, 36, 24),
                 child: SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomeScreen(
-                            selectedInterests: _selectedInterests,
-                          ),
-                        ),
-                      );
+                      onPressed: () {
+                    //   Navigator.push(
+                    //     context,
+                    //     MaterialPageRoute(
+                    //       builder: (context) => HomeScreen(
+                    //         selectedInterests: _selectedInterests,
+                    //       ),
+                    //     ),
+                    //   );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 254, 109, 64),
