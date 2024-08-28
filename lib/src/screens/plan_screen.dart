@@ -15,7 +15,8 @@ class PlanScreen extends StatelessWidget {
           'Plan name',
           style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
@@ -62,6 +63,21 @@ class PlanScreen extends StatelessWidget {
                 ),
                 const Text(
                   '3 hours',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.calendar_today, size: 25, color: primaryColor),
+                const SizedBox(width: 10),
+                const Text(
+                  'Start date  ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const Text(
+                  '22 August 2024',
                   style: TextStyle(fontSize: 16),
                 ),
               ],
