@@ -162,57 +162,75 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const SizedBox(height: 50),
-                  // Change to Row with alignment to start
-                  Container(
-                    // color: Colors.grey,
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.,
-                    ),
-                    child: Column(children: [
-                      const SizedBox(height: 20),
-                      const Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                  Column(
                     children: [
-                      SizedBox(width: 30), // Add some padding from the left
-                      Text(
-                        'Recent Plans',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // const SizedBox(
+                            //     width: 40), // Add some padding from the left
+                            const Text(
+                              'Recent Plans',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                // Handle see all action
+                              },
+                              child: const Text(
+                                'See all',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  shadows: [
+                                    Shadow(
+                                        color: Colors.grey,
+                                        offset: Offset(0, -5))
+                                  ],
+                                  color: Colors.transparent,
+                                  decoration: TextDecoration.underline,
+                                  decorationColor: Colors.grey,
+                                  decorationThickness: 2,
+                                ),
+                              ),
+                            )
+                          ],
                         ),
                       ),
+                      const SizedBox(height: 20),
+                      Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                          child: Column(
+                            children: [
+                              PlaceDetailCard(
+                                imageUrl:
+                                    'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
+                                title: 'Vinyl Museum',
+                                subtitle: 'Museum',
+                              ),
+                              const SizedBox(height: 20),
+                              PlaceDetailCard(
+                                imageUrl:
+                                    'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
+                                title: 'Vinyl Museum',
+                                subtitle: 'Museum',
+                              ),
+                              const SizedBox(height: 20),
+                              PlaceDetailCard(
+                                imageUrl:
+                                    'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
+                                title: 'Vinyl Museum',
+                                subtitle: 'Museum',
+                              ),
+                              const SizedBox(height: 50),
+                            ],
+                          )),
                     ],
                   ),
-                  const SizedBox(height: 20),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        children: [
-                          PlaceDetailCard(
-                            imageUrl:
-                                'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                            title: 'Vinyl Museum',
-                            subtitle: 'Museum',
-                          ),
-                          const SizedBox(height: 20),
-                          PlaceDetailCard(
-                            imageUrl:
-                                'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                            title: 'Vinyl Museum',
-                            subtitle: 'Museum',
-                          ),
-                          const SizedBox(height: 20),
-                          PlaceDetailCard(
-                            imageUrl:
-                                'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                            title: 'Vinyl Museum',
-                            subtitle: 'Museum',
-                          ),
-                        ],
-                      )),
-                    ],),),
-                      const SizedBox(height: 50),
                 ],
               ),
               // Overlay container
@@ -229,7 +247,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Colors.white,
                       elevation: 5.0,
                       child: SizedBox(
-                        height: 80.0,
+                        height: 70.0,
                         width: MediaQuery.of(context).size.width,
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -265,7 +283,7 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: 3, // Number of cards in the carousel
       itemBuilder: (BuildContext context, int index, int realIndex) {
         return Card(
-          margin: EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
           ),
@@ -302,18 +320,18 @@ class _HomeScreenState extends State<HomeScreen> {
                   ],
                 ),
               ),
-              Positioned(
-                bottom: 16,
-                right: 16,
-                child: ElevatedButton(
-                  onPressed: () {},
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFFF6838),
-                  ),
-                  child: const Text('Detail',
-                      style: TextStyle(color: Colors.white)),
-                ),
-              ),
+              // Positioned(
+              //   bottom: 16,
+              //   right: 16,
+              //   child: ElevatedButton(
+              //     onPressed: () {},
+              //     style: ElevatedButton.styleFrom(
+              //       backgroundColor: Colors.grey,
+              //     ),
+              //     child: const Text('Detail',
+              //         style: TextStyle(color: Colors.black)),
+              //   ),
+              // ),
             ],
           ),
         );
