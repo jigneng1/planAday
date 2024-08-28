@@ -22,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
   void initState() {
     super.initState();
     _children = [
-      const HomeScreen(),
+      HomeScreen(onCreatePlan: _goToCreatePlanScreen),
       ProfileScreen(),
       CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
       PlanScreen(onClose: _goToHomeScreen,), PersonaScreen()
@@ -43,7 +43,13 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToPlanScreen() {
     setState(() {
-      _currentIndex = 3; // Assuming HomeScreen is at index 0
+      _currentIndex = 3; 
+    });
+  }
+
+  void _goToCreatePlanScreen() {
+    setState(() {
+      _currentIndex = 2; 
     });
   }
 

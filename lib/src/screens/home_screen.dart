@@ -1,14 +1,21 @@
 import 'package:flutter/material.dart';
 
-class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  final VoidCallback onCreatePlan;
 
+  const HomeScreen({super.key, required this.onCreatePlan});
+
+  @override
+  _HomeScreenState createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
-      backgroundColor: primaryColor,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Stack(
           children: [
@@ -16,23 +23,55 @@ class HomeScreen extends StatelessWidget {
             Column(
               children: [
                 Container(
+                  decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(40),
+                        bottomRight: Radius.circular(40),
+                      ),
+                    ),
                   height: 240.0, // Fixed height for the top container
                   child: Column(
                     children: [
                       const SizedBox(height: 15),
                       Row(
                         children: [
-                          const SizedBox(width: 25),
-                          const Expanded(
+                          const SizedBox(width: 60),
+                          Expanded(
                             child: Center(
-                              child: Text(
-                                'PlanADay',
-                                style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  fontFamily: 'Ubuntu',
-                                  color: Colors.orange,
-                                ),
+                              child: Stack(
+                                children: [
+                                  // Stroked text as border.
+                                  Text(
+                                    'PlanADay',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Ubuntu',
+                                      foreground: Paint()
+                                        ..style = PaintingStyle.stroke
+                                        ..strokeWidth = 4 // Adjust the stroke width
+                                        ..color = const Color.fromARGB(255, 255, 255, 255),
+                                      shadows: const [
+                                        Shadow(
+                                          offset: Offset(4.0, 4.0),
+                                          blurRadius: 4.0,
+                                          color: Color.fromARGB(188, 0, 0, 0),
+                                        ),
+                                      ], // Stroke color
+                                    ),
+                                  ),
+                                  // Solid text as fill.
+                                  Text(
+                                    'PlanADay',
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.bold,
+                                      fontFamily: 'Ubuntu',
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -42,9 +81,10 @@ class HomeScreen extends StatelessWidget {
                               color: Colors.white,
                             ),
                             onPressed: () {
-                              // Handle profile action
+                              // Handle notification action
                             },
                           ),
+                          const SizedBox(width: 20),
                         ],
                       ),
                       const SizedBox(height: 20),
@@ -62,27 +102,28 @@ class HomeScreen extends StatelessWidget {
                             Text(
                               'Go?',
                               style: TextStyle(
-                                fontSize: 50,
+                                fontSize: 55,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                fontFamily: 'SourceCodePro'
+                                fontFamily: 'SourceCodePro',
+                                shadows: [
+                                        Shadow(
+                                          offset: Offset(4.0, 4.0),
+                                          blurRadius: 4.0,
+                                          color: Color.fromARGB(178, 60, 60, 60),
+                                        ),
+                                      ],
                               ),
+                              
                             ),
                           ],
                         ),
-                        )
+                      ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: Container(
-                    decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(60),
-                      topRight: Radius.circular(60),
-                    ),
-                  ),
                     padding: const EdgeInsets.all(16.0),
                     child: const Center(
                       child: Text('test'),
@@ -93,19 +134,36 @@ class HomeScreen extends StatelessWidget {
             ),
             // Overlay container
             Positioned(
-              top: 180.0, // Adjust this based on the height of the top container and desired overlap
+              top: 200.0, // Adjust this based on the height of the top container and desired overlap
               left: 0,
               right: 0,
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 10.0),
-                child: Card(
-                  color: Colors.white,
-                  elevation: 4.0,
-                  child: SizedBox(
-                    height: 100.0,
-                    width: MediaQuery.of(context).size.width,
-                    child: Center(
-                      child: Text('Create new plan', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: primaryColor),),
+              child: GestureDetector(
+                onTap: widget.onCreatePlan, // Use widget to access the parent widget's properties
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                  child: Card(
+                    color: Colors.white,
+                    elevation: 4.0,
+                    child: SizedBox(
+                      height: 80.0,
+                      width: MediaQuery.of(context).size.width,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Icon(Icons.add, size: 35, color: primaryColor),
+                          const SizedBox(width: 10),
+                          Text(
+                            'Create new plan',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                              color: primaryColor,
+                            ),
+                          ),
+                          const SizedBox(width: 11),
+                        ],
+                      ),
                     ),
                   ),
                 ),
