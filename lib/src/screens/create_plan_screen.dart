@@ -16,6 +16,7 @@ class CreatePlanScreen extends StatefulWidget {
 class _CreatePlanScreenState extends State<CreatePlanScreen> {
   final TextEditingController _planNameController = TextEditingController();
   final TextEditingController _startTimeController = TextEditingController();
+  final TextEditingController _startDateController = TextEditingController(); // New date controller
   final TextEditingController _numberOfPlacesController =
       TextEditingController(text: '1');
   final List<String> _activities = [
@@ -34,6 +35,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   void dispose() {
     _planNameController.dispose();
     _startTimeController.dispose();
+    _startDateController.dispose(); // Dispose the date controller
     _numberOfPlacesController.dispose();
     super.dispose();
   }
@@ -56,16 +58,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary:
-                  Theme.of(context).primaryColor, // Header background color
+              primary: Theme.of(context).primaryColor, // Header background color
               onPrimary: Colors.white, // Header text color
-              onSurface:
-                  Theme.of(context).primaryColor, // Time picker dial color
+              onSurface: Theme.of(context).primaryColor, // Time picker dial color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor:
-                    Theme.of(context).primaryColor, // Button text color
+                foregroundColor: Theme.of(context).primaryColor, // Button text color
               ),
             ),
             timePickerTheme: const TimePickerThemeData(
@@ -83,6 +82,33 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       final formattedTime = picked.format(context);
       setState(() {
         _startTimeController.text = formattedTime;
+      });
+    }
+  }
+
+  Future<void> _selectStartDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).primaryColor, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface: Theme.of(context).primaryColor, // Calendar picker color
+            ),
+          ),
+          child: child!,
+        );
+      },
+    );
+    if (picked != null) {
+      final formattedDate = "${picked.day}/${picked.month}/${picked.year}";
+      setState(() {
+        _startDateController.text = formattedDate;
       });
     }
   }
@@ -110,7 +136,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         title: const Text('Create new plan',
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.w600)),
         centerTitle: true,
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () {
@@ -139,7 +166,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 ),
               ),
               const SizedBox(height: 30),
-              const Text('Select activity/plan',
+              const Text('Select place',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
               const SizedBox(height: 12),
               Wrap(
@@ -153,7 +180,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                             color: isSelected ? Colors.white : primaryColor)),
                     selected: isSelected,
                     selectedColor: primaryColor,
-                    // checkmarkColor: Colors.white,
                     showCheckmark: false,
                     side: BorderSide(
                         color: isSelected ? primaryColor : primaryColor),
@@ -179,73 +205,91 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 ),
               ),
               const SizedBox(height: 40),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              Row(
                 children: [
-                  GestureDetector(
-                    onTap: () => _selectStartTime(context),
-                    child: AbsorbPointer(
-                      child: TextField(
-                        controller: _startTimeController,
-                        decoration: const InputDecoration(
-                          labelText: 'Start time',
-                          border: OutlineInputBorder(),
-                          prefixIcon: Icon(Icons.access_time),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 20.0, horizontal: 16.0),
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectStartDate(context),
+                      child: AbsorbPointer(
+                        child: TextField(
+                          controller: _startDateController,
+                          decoration: const InputDecoration(
+                            labelText: 'Start date',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.calendar_today),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 16.0),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 40),
-                  const Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text('Number of places',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.w600)),
-                      SizedBox(width: 8),
-                      Text('(optional)',
-                          style: TextStyle(fontSize: 15, color: Colors.grey)),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.remove),
-                        onPressed: _decrementNumberOfPlaces,
-                      ),
-                      SizedBox(
-                        width: 80, // Fixed width for number of places input
+                  const SizedBox(width: 16), // Adds space between the two fields
+                  Expanded(
+                    child: GestureDetector(
+                      onTap: () => _selectStartTime(context),
+                      child: AbsorbPointer(
                         child: TextField(
-                          controller: _numberOfPlacesController,
+                          controller: _startTimeController,
                           decoration: const InputDecoration(
+                            labelText: 'Start time',
                             border: OutlineInputBorder(),
-                            contentPadding:
-                                EdgeInsets.symmetric(horizontal: 16),
+                            prefixIcon: Icon(Icons.access_time),
+                            contentPadding: EdgeInsets.symmetric(
+                                vertical: 20.0, horizontal: 16.0),
                           ),
-                          keyboardType: TextInputType.number,
-                          textAlign: TextAlign.center,
-                          inputFormatters: [
-                            FilteringTextInputFormatter.digitsOnly,
-                          ],
-                          onChanged: (value) {
-                            final newValue = int.tryParse(value) ?? 1;
-                            if (newValue < 1) {
-                              _numberOfPlacesController.text = '1';
-                            } else if (newValue > 10) {
-                              _numberOfPlacesController.text = '10';
-                            }
-                          },
                         ),
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.add),
-                        onPressed: _incrementNumberOfPlaces,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 30),
+              const Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Text('Number of places',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
+                  SizedBox(width: 8),
+                  Text('(optional)',
+                      style: TextStyle(fontSize: 15, color: Colors.grey)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.remove),
+                    onPressed: _decrementNumberOfPlaces,
+                  ),
+                  SizedBox(
+                    width: 80, // Fixed width for number of places input
+                    child: TextField(
+                      controller: _numberOfPlacesController,
+                      decoration: const InputDecoration(
+                        border: OutlineInputBorder(),
+                        contentPadding: EdgeInsets.symmetric(horizontal: 16),
                       ),
-                    ],
+                      keyboardType: TextInputType.number,
+                      textAlign: TextAlign.center,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                      ],
+                      onChanged: (value) {
+                        final newValue = int.tryParse(value) ?? 1;
+                        if (newValue < 1) {
+                          _numberOfPlacesController.text = '1';
+                        } else if (newValue > 10) {
+                          _numberOfPlacesController.text = '10';
+                        }
+                      },
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    onPressed: _incrementNumberOfPlaces,
                   ),
                 ],
               ),
