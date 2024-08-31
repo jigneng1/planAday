@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
@@ -16,7 +18,8 @@ class CreatePlanScreen extends StatefulWidget {
 class _CreatePlanScreenState extends State<CreatePlanScreen> {
   final TextEditingController _planNameController = TextEditingController();
   final TextEditingController _startTimeController = TextEditingController();
-  final TextEditingController _startDateController = TextEditingController(); // New date controller
+  final TextEditingController _startDateController =
+      TextEditingController(); // New date controller
   final TextEditingController _numberOfPlacesController =
       TextEditingController(text: '1');
   final List<String> _activities = [
@@ -30,6 +33,15 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Services'
   ];
   final Set<String> _selectedActivities = {}; // Initially empty
+  GoogleMapController? _mapController; // Controller for Google Map
+  LatLng? _selectedLocation; // Variable to store the selected location
+  LatLng? _currentLocation; // Variable to store the current location
+
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
 
   @override
   void dispose() {
@@ -37,6 +49,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     _startTimeController.dispose();
     _startDateController.dispose(); // Dispose the date controller
     _numberOfPlacesController.dispose();
+    _mapController?.dispose(); // Dispose the map controller
     super.dispose();
   }
 
@@ -58,13 +71,16 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor, // Header background color
+              primary:
+                  Theme.of(context).primaryColor, // Header background color
               onPrimary: Colors.white, // Header text color
-              onSurface: Theme.of(context).primaryColor, // Time picker dial color
+              onSurface:
+                  Theme.of(context).primaryColor, // Time picker dial color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor, // Button text color
+                foregroundColor:
+                    Theme.of(context).primaryColor, // Button text color
               ),
             ),
             timePickerTheme: const TimePickerThemeData(
@@ -96,9 +112,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor, // Header background color
+              primary:
+                  Theme.of(context).primaryColor, // Header background color
               onPrimary: Colors.white, // Header text color
-              onSurface: Theme.of(context).primaryColor, // Calendar picker color
+              onSurface:
+                  Theme.of(context).primaryColor, // Calendar picker color
             ),
           ),
           child: child!,
@@ -125,6 +143,61 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     if (currentValue > 1) {
       _numberOfPlacesController.text = (currentValue - 1).toString();
     }
+  }
+
+  Future<void> _getCurrentLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    // Check if location services are enabled
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      // Location services are not enabled, do not continue
+      return Future.error('Location services are disabled.');
+    }
+
+    // Check for location permissions
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        // Permissions are denied, do not continue
+        return Future.error('Location permissions are denied.');
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      // Permissions are permanently denied, handle appropriately
+      return Future.error('Location permissions are permanently denied.');
+    }
+
+    // Get the current location
+    final position = await Geolocator.getCurrentPosition();
+    setState(() {
+      _currentLocation = LatLng(position.latitude, position.longitude);
+    });
+
+    // Move the camera to the current location
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(_currentLocation!),
+      );
+    }
+  }
+
+  void _onMapCreated(GoogleMapController controller) {
+    _mapController = controller;
+    if (_currentLocation != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(_currentLocation!),
+      );
+    }
+  }
+
+  void _onMapTap(LatLng location) {
+    setState(() {
+      _selectedLocation = location;
+    });
   }
 
   @override
@@ -171,7 +244,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               const SizedBox(height: 12),
               Wrap(
                 spacing: 10,
-                runSpacing: 10,
+                runSpacing: 8,
                 children: _activities.map((activity) {
                   final isSelected = _selectedActivities.contains(activity);
                   return FilterChip(
@@ -193,6 +266,17 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
               const Text('Location area',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600)),
               const SizedBox(height: 12),
+              // Container(
+              //   height: 220,
+              //   width: double.infinity,
+              //   decoration: BoxDecoration(
+              //     borderRadius: BorderRadius.circular(8),
+              //     color: Colors.grey.shade300,
+              //   ),
+              //   child: const Center(
+              //     child: Icon(Icons.map, size: 100, color: Colors.grey),
+              //   ),
+              // ),
               Container(
                 height: 220,
                 width: double.infinity,
@@ -200,10 +284,50 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.grey.shade300,
                 ),
-                child: const Center(
-                  child: Icon(Icons.map, size: 100, color: Colors.grey),
-                ),
+                child: _currentLocation == null
+                    ? const Center(child: CircularProgressIndicator())
+                    : GoogleMap(
+                        onMapCreated: _onMapCreated,
+                        initialCameraPosition: CameraPosition(
+                          target: _currentLocation!,
+                          zoom: 14.0,
+                        ),
+                        markers: _selectedLocation != null
+                            ? {
+                                Marker(
+                                  markerId: const MarkerId('selected_location'),
+                                  position: _selectedLocation!,
+                                ),
+                              }
+                            : {},
+                        onTap: _onMapTap,
+                      ),
               ),
+              const SizedBox(height: 12),
+              if (_selectedLocation != null)
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Icon(Icons.location_on, color: primaryColor),
+                      const SizedBox(width: 10),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                        Text('Selected location',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.w600, color: primaryColor)),
+                        Text(
+                            'Latitude: ${_selectedLocation!.latitude.toStringAsFixed(6)}\n'
+                            'Longitude: ${_selectedLocation!.longitude.toStringAsFixed(6)}',
+                            style: TextStyle(fontSize: 14, color: Colors.grey)),
+                      ],)
+                    ],
+                  )
+                ),
               const SizedBox(height: 40),
               Row(
                 children: [
@@ -224,7 +348,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16), // Adds space between the two fields
+                  const SizedBox(
+                      width: 16), // Adds space between the two fields
                   Expanded(
                     child: GestureDetector(
                       onTap: () => _selectStartTime(context),
