@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
+import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
@@ -25,7 +26,9 @@ class _MainLayoutState extends State<MainLayout> {
       const HomeScreen(),
       ProfileScreen(),
       CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
-      PlanScreen(onClose: _goToHomeScreen,), PersonaScreen()
+      PlanScreen(onClose: _goToHomeScreen, onEditPlan: _goToEditPlanScreen,), 
+      PersonaScreen(),
+      EditPlanScreen(),
     ];
   }
 
@@ -44,6 +47,12 @@ class _MainLayoutState extends State<MainLayout> {
   void _goToPlanScreen() {
     setState(() {
       _currentIndex = 3; // Assuming HomeScreen is at index 0
+    });
+  }
+
+  void _goToEditPlanScreen() {
+    setState(() {
+      _currentIndex = 5; // Assuming HomeScreen is at index 0
     });
   }
 

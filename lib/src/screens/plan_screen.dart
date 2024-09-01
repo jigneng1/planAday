@@ -3,8 +3,9 @@ import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatelessWidget {
   final VoidCallback onClose;
+  final VoidCallback onEditPlan;
 
-  const PlanScreen({super.key, required this.onClose});
+  const PlanScreen({super.key, required this.onClose, required this.onEditPlan});
 
   @override
   Widget build(BuildContext context) {
@@ -155,6 +156,7 @@ class PlanScreen extends StatelessWidget {
                         OutlinedButton(
                           onPressed: () {
                             // Handle edit plan action
+                            onEditPlan();
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),
