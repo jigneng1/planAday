@@ -118,11 +118,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
           },
         ),
         toolbarHeight: 80,
-        toolbarHeight: 80,
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
