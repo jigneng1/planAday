@@ -7,12 +7,14 @@ class EditPlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
   final Function(Map<String, dynamic>) onDone;
+  final Function(Map<String, dynamic>) onCancel;
 
   const EditPlanScreen({
     super.key,
     required this.onClose,
     required this.planData,
     required this.onDone,
+    required this.onCancel,
   });
 
   @override
@@ -21,6 +23,8 @@ class EditPlanScreen extends StatefulWidget {
 
 class _PlanScreenState extends State<EditPlanScreen> {
   late Map<String, dynamic> updatedPlan;
+  late Map<String, dynamic> originalPlan;
+  late List<Map<String, String>> dismissedPlaces;
 
   final List<Map<String, String>> placeDetails = [
     {
@@ -54,6 +58,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
     super.initState();
     // Initialize updatedPlan with current planData
     updatedPlan = Map<String, dynamic>.from(widget.planData);
+    originalPlan = Map<String, dynamic>.from(widget.planData);
+    dismissedPlaces = [];
   }
 
   void _editPlanName() async {
@@ -64,21 +70,21 @@ class _PlanScreenState extends State<EditPlanScreen> {
           text: updatedPlan['planName'] ?? '',
         );
         return AlertDialog(
-          title: Text('Edit Plan Name'),
+          title: const Text('Edit Plan Name'),
           content: TextField(
             controller: controller,
-            decoration: InputDecoration(hintText: 'Enter new plan name'),
+            decoration: const InputDecoration(hintText: 'Enter new plan name'),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pop(context, controller.text);
               },
-              child: Text('Save'),
+              child: const Text('Save'),
             ),
           ],
         );
@@ -108,6 +114,12 @@ class _PlanScreenState extends State<EditPlanScreen> {
         updatedPlan['startTime'] = newStartTime;
       });
     }
+  }
+
+  void _restoreDismissedPlaces() {
+    setState(() {
+      updatedPlan['selectedPlaces'] = List<Map<String, dynamic>>.from(originalPlan['selectedPlaces']);
+    });
   }
 
   @override
@@ -266,7 +278,10 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         OutlinedButton(
-                          onPressed: widget.onClose,
+                          onPressed: () {
+                            _restoreDismissedPlaces();
+                            widget.onCancel(originalPlan); // Close the screen
+                          },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),
                           ),

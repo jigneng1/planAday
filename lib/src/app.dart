@@ -33,6 +33,12 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _goToPlanScreen() {
+    setState(() {
+      _currentIndex = 3; // Assuming HomeScreen is at index 0
+    });
+  }
+
   void _handleGeneratePlan(Map<String, dynamic> planData) {
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
@@ -67,7 +73,8 @@ class _MainLayoutState extends State<MainLayout> {
       PersonaScreen(),
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
-        onClose: _goToHomeScreen,
+        onClose: _goToPlanScreen,
+        onCancel: _handleGeneratePlan,
         onDone: _handleGeneratePlan,
       ),
     ];
