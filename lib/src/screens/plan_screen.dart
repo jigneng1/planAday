@@ -2,18 +2,21 @@ import 'package:flutter/material.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatelessWidget {
+  final Map<String, dynamic> planData;
   final VoidCallback onClose;
 
-  const PlanScreen({super.key, required this.onClose});
+  const PlanScreen({super.key, required this.onClose, required this.planData});
 
   @override
   Widget build(BuildContext context) {
+    print('At plan Received plan data: $planData');
     final primaryColor = Theme.of(context).primaryColor;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Plan name',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+        title: Text(
+          planData['planName'],
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
         ),
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
@@ -85,7 +88,7 @@ class PlanScreen extends StatelessWidget {
             const SizedBox(height: 40),
             buildRouting(
               primaryColor,
-              '9:00 AM',
+              planData['startTime'],
               PlaceDetailCard(
                 imageUrl:
                     'https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1200,h_630/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/hpfkrhkwxohgg8tdq9xe/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%87%E0%B8%AD%E0%B8%81%20%E0%B8%AD%E0%B8%B4%E0%B8%99%20%E0%B8%97%E0%B8%B2%E0%B8%A7%E0%B8%99%E0%B9%8C%20(Dog%20In%20Town)%20%E0%B9%83%E0%B8%99%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%A1%E0%B8%B1%E0%B8%A2%20(Ekkamai)%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B9%8C%20(Ari).jpg',
