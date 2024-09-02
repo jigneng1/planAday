@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
 class EditPlanScreen extends StatefulWidget {
@@ -118,7 +119,28 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   void _restoreDismissedPlaces() {
     setState(() {
-      updatedPlan['selectedPlaces'] = List<Map<String, dynamic>>.from(originalPlan['selectedPlaces']);
+      updatedPlan['selectedPlaces'] =
+          List<Map<String, dynamic>>.from(originalPlan['selectedPlaces']);
+    });
+  }
+
+  void _generateMorePlaces() {
+    // Use getRandomizedPlaces function from place_details.dart
+    List<Map<String, String>> newPlaces =
+        getRandomizedPlaces(1); // Number of places to add
+
+    setState(() {
+      // Append new places to updatedPlan's selected places
+      if (updatedPlan['selectedPlaces'] == null) {
+        updatedPlan['selectedPlaces'] = [];
+      }
+      updatedPlan['selectedPlaces'].addAll(newPlaces.map((place) => {
+            'imageUrl': place['imageUrl']!,
+            'title': place['title']!,
+            'subtitle': place['subtitle']!,
+          }));
+      // Update the number of places in updatedPlan
+      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
     });
   }
 
@@ -242,6 +264,41 @@ class _PlanScreenState extends State<EditPlanScreen> {
             ),
             const SizedBox(height: 40),
             ...routingWidgets,
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              child: GestureDetector(
+                onTap: () {
+                  _generateMorePlaces(); // Function to generate more places
+                },
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Divider(
+                        thickness: 2,
+                        color: primaryColor,
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                      child: Text(
+                        'Generate more place?',
+                        style: TextStyle(
+                          color: primaryColor, // Customize text color
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Divider(
+                        thickness: 2,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
             const SizedBox(height: 50),
             const Row(
               children: [
@@ -354,14 +411,14 @@ class _PlanScreenState extends State<EditPlanScreen> {
       children: [
         Column(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 10,
-              backgroundColor: primaryColor,
+              backgroundColor: Colors.grey,
             ),
             Container(
-              height: isLast ? 200 : 270, // Height of the vertical line
+              height: isLast ? 190 : 220, // Height of the vertical line
               width: 2,
-              color: primaryColor,
+              color: Colors.grey,
             ),
           ],
         ),
@@ -396,31 +453,6 @@ class _PlanScreenState extends State<EditPlanScreen> {
               child: placeCard,
             ),
             const SizedBox(height: 16),
-            if (!isLast) ...[
-              const Row(
-                children: [
-                  Icon(Icons.directions_walk, size: 30, color: Colors.grey),
-                  SizedBox(width: 5),
-                  Text(
-                    '10 mins',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 20),
-                  Icon(Icons.directions_car, size: 30, color: Colors.grey),
-                  SizedBox(width: 5),
-                  Text(
-                    '5 mins',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              )
-            ],
           ],
         )),
       ],
