@@ -12,6 +12,14 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  bool _haveOngoingPlan = false; // State variable
+
+  void _startOngoingPlan() {
+    setState(() {
+      _haveOngoingPlan = !_haveOngoingPlan; // Toggle the state
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
@@ -91,6 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               onPressed: () {
                                 // Handle notification action
+                                _startOngoingPlan();
                               },
                             ),
                             const SizedBox(width: 20),
@@ -340,7 +349,7 @@ class _HomeScreenState extends State<HomeScreen> {
         height: 200,
         viewportFraction: 0.8,
         enlargeCenterPage: true,
-        // autoPlay: true,
+        autoPlay: true,
       ),
     );
   }
