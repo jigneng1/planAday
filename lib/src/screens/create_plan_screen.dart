@@ -48,20 +48,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     _getCurrentLocation();
   }
 
-  bool _hasTriedSubmitting = false; // Flag to track if user has attempted submission
-
- // Flag to track if user has attempted submission
-  GoogleMapController? _mapController; // Controller for Google Map
-  LatLng? _selectedLocation; // Variable to store the selected location
-  LatLng? _currentLocation; // Variable to store the current location
-  bool _hasTriedSubmitting = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _getCurrentLocation();
-  }
-
   @override
   void dispose() {
     _planNameController.dispose();

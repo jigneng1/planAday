@@ -19,18 +19,6 @@ class _MainLayoutState extends State<MainLayout> {
 
   late final List<Widget> _children;
 
-  @override
-  void initState() {
-    super.initState();
-    _children = [
-      const HomeScreen(),
-      ProfileScreen(),
-      CreatePlanScreen(onClose: _goToHomeScreen, onGeneratePlan: _goToPlanScreen,),
-      PlanScreen(onClose: _goToHomeScreen, onEditPlan: _goToEditPlanScreen,), 
-      PersonaScreen(),
-      EditPlanScreen(),
-    ];
-  }
   Map<String, dynamic> _planData = {}; // Store plan data
 
   void onTabTapped(int index) {
@@ -72,6 +60,7 @@ class _MainLayoutState extends State<MainLayout> {
       PlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
+        onEditPlan: _goToEditPlanScreen,
       ),
       PersonaScreen(),
     ];

@@ -7,7 +7,7 @@ class PlanScreen extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onEditPlan;
 
-  const PlanScreen({super.key, required this.onClose, required this.planData});
+  const PlanScreen({super.key, required this.onClose, required this.planData, required this.onEditPlan});
 
   @override
   _PlanScreenState createState() => _PlanScreenState();
@@ -182,7 +182,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         OutlinedButton(
                           onPressed: () {
                             // Handle edit plan action
-                            onEditPlan();
+                            widget.onEditPlan();
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),
