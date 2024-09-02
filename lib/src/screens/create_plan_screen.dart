@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
@@ -40,22 +39,42 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   GoogleMapController? _mapController; // Controller for Google Map
   LatLng? _selectedLocation; // Variable to store the selected location
   LatLng? _currentLocation; // Variable to store the current location
-  bool _hasTriedSubmitting = false; // Flag to track if user has attempted submission
+  bool _hasTriedSubmitting =
+      false; // Flag to track if user has attempted submission
 
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+
+    // Add listeners to update `_hasTriedSubmitting` when input changes
+    _planNameController.addListener(_onInputChange);
+    _startTimeController.addListener(_onInputChange);
+    _startDateController.addListener(_onInputChange);
+    _numberOfPlacesController.addListener(_onInputChange);
   }
 
   @override
   void dispose() {
+    _planNameController.removeListener(_onInputChange);
+    _startTimeController.removeListener(_onInputChange);
+    _startDateController.removeListener(_onInputChange);
+    _numberOfPlacesController.removeListener(_onInputChange);
+
     _planNameController.dispose();
     _startTimeController.dispose();
-    _startDateController.dispose(); // Dispose the date controller
+    _startDateController.dispose();
     _numberOfPlacesController.dispose();
-    _mapController?.dispose(); // Dispose the map controller
+    _mapController?.dispose();
     super.dispose();
+  }
+
+  void _onInputChange() {
+    if (_hasTriedSubmitting) {
+      setState(() {
+        _hasTriedSubmitting = false;
+      });
+    }
   }
 
   void _toggleActivity(String activity) {
@@ -76,13 +95,16 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
-              primary: Theme.of(context).primaryColor, // Header background color
+              primary:
+                  Theme.of(context).primaryColor, // Header background color
               onPrimary: Colors.white, // Header text color
-              onSurface: Theme.of(context).primaryColor, // Time picker dial color
+              onSurface:
+                  Theme.of(context).primaryColor, // Time picker dial color
             ),
             textButtonTheme: TextButtonThemeData(
               style: TextButton.styleFrom(
-                foregroundColor: Theme.of(context).primaryColor, // Button text color
+                foregroundColor:
+                    Theme.of(context).primaryColor, // Button text color
               ),
             ),
             timePickerTheme: const TimePickerThemeData(
@@ -211,6 +233,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
         'startTime': _startTimeController.text,
+        'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
         'selectedActivities': _selectedActivities.toList(),
       };
@@ -263,7 +286,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     ),
                   ),
                   validator: (value) {
-                    if (_hasTriedSubmitting && (value == null || value.isEmpty)) {
+                    if (_hasTriedSubmitting &&
+                        (value == null || value.isEmpty)) {
                       return 'Please enter a plan name';
                     }
                     return null;
@@ -310,83 +334,156 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     borderRadius: BorderRadius.circular(8),
                     color: Colors.grey.shade300,
                   ),
-                  child: const Center(
-                    child: Icon(Icons.map, size: 100, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(height: 40),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GestureDetector(
-                      onTap: () => _selectStartTime(context),
-                      child: AbsorbPointer(
-                        child: TextFormField(
-                          controller: _startTimeController,
-                          decoration: const InputDecoration(
-                            labelText: 'Start time',
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(20))
-                            ),
-                            prefixIcon: Icon(Icons.access_time),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 20.0, horizontal: 16.0),
+                  child: _currentLocation == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : GoogleMap(
+                          onMapCreated: _onMapCreated,
+                          initialCameraPosition: CameraPosition(
+                            target: _currentLocation!,
+                            zoom: 14.0,
                           ),
-                          validator: (value) {
-                            if (_hasTriedSubmitting && (value == null || value.isEmpty)) {
-                              return 'Please select a start time';
-                            }
-                            return null;
-                          },
+                          markers: _selectedLocation != null
+                              ? {
+                                  Marker(
+                                    markerId:
+                                        const MarkerId('selected_location'),
+                                    position: _selectedLocation!,
+                                  ),
+                                }
+                              : {},
+                          onTap: _onMapTap,
+                        ),
+                ),
+                const SizedBox(height: 12),
+                if (_selectedLocation != null)
+                  Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.location_on, color: primaryColor),
+                          const SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              Text('Selected location',
+                                  style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryColor)),
+                              Text(
+                                  'Latitude: ${_selectedLocation!.latitude.toStringAsFixed(6)}\n'
+                                  'Longitude: ${_selectedLocation!.longitude.toStringAsFixed(6)}',
+                                  style: const TextStyle(
+                                      fontSize: 14, color: Colors.grey)),
+                            ],
+                          )
+                        ],
+                      )),
+                const SizedBox(height: 30),
+                Row(
+                  children: [
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectStartDate(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _startDateController,
+                            decoration: const InputDecoration(
+                              labelText: 'Start date',
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              prefixIcon: Icon(Icons.calendar_today),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 20.0, horizontal: 16.0),
+                            ),
+                            // Validator for the start date
+                            validator: (value) {
+                              if (_hasTriedSubmitting &&
+                                  (value == null || value.isEmpty)) {
+                                return 'Please select a start date';
+                              }
+                              return null;
+                            },
+                          ),
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
-                    const Row(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Number of places',
-                          style:
-                              TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                        ),
-                        SizedBox(width: 8),
-                        Text(
-                          '(optional)',
-                          style: TextStyle(fontSize: 15, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.remove),
-                          onPressed: _decrementNumberOfPlaces,
-                        ),
-                        SizedBox(
-                          width: 80, // Fixed width for number of places input
-                          child: TextField(
-                            controller: _numberOfPlacesController,
+                    const SizedBox(
+                        width: 16), // Adds space between the two fields
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () => _selectStartTime(context),
+                        child: AbsorbPointer(
+                          child: TextFormField(
+                            controller: _startTimeController,
                             decoration: const InputDecoration(
-                              border: OutlineInputBorder(),
-                              contentPadding:
-                                  EdgeInsets.symmetric(horizontal: 16),
+                              labelText: 'Start time',
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(20))),
+                              prefixIcon: Icon(Icons.access_time),
+                              contentPadding: EdgeInsets.symmetric(
+                                  vertical: 20.0, horizontal: 16.0),
                             ),
-                            keyboardType: TextInputType.number,
-                            textAlign: TextAlign.center,
-                            inputFormatters: [
-                              FilteringTextInputFormatter.digitsOnly,
-                            ],
+                            validator: (value) {
+                              if (_hasTriedSubmitting &&
+                                  (value == null || value.isEmpty)) {
+                                return 'Please select a start time';
+                              }
+                              return null;
+                            },
                           ),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.add),
-                          onPressed: _incrementNumberOfPlaces,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 30),
+                const Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Number of places',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      '(optional)',
+                      style: TextStyle(fontSize: 15, color: Colors.grey),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: _decrementNumberOfPlaces,
+                    ),
+                    SizedBox(
+                      width: 80, // Fixed width for number of places input
+                      child: TextField(
+                        controller: _numberOfPlacesController,
+                        decoration: const InputDecoration(
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
                         ),
-                      ],
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.center,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: _incrementNumberOfPlaces,
                     ),
                   ],
                 ),
@@ -408,7 +505,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     ),
                     child: const Text(
                       'Generate Plan',
-                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),

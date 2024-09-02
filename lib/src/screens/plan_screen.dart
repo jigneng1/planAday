@@ -136,9 +136,9 @@ class _PlanScreenState extends State<PlanScreen> {
                   'Start date  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const Text(
-                  '22 August 2024',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  widget.planData['startDate'] ?? 'Today',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -253,7 +253,7 @@ class _PlanScreenState extends State<PlanScreen> {
             backgroundColor: primaryColor,
           ),
           Container(
-            height: isLast ? 200 : 270, // Height of the vertical line
+            height: isLast ? 190 : 270, // Height of the vertical line
             width: 2,
             color: primaryColor,
           ),
