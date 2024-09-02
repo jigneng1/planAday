@@ -41,8 +41,10 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _goToEditPlanScreen() {
+  void _handleEditPlan(Map<String, dynamic> planData) {
     setState(() {
+      _planData = planData; // Store the data from CreatePlanScreen
+      print('PlanScreen received plan data: $_planData');
       _currentIndex = 5; // Assuming HomeScreen is at index 0
     });
   }
@@ -60,9 +62,14 @@ class _MainLayoutState extends State<MainLayout> {
       PlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
-        onEditPlan: _goToEditPlanScreen,
+        onEditPlan: _handleEditPlan,
       ),
       PersonaScreen(),
+      EditPlanScreen(
+        planData: _planData, // Pass the updated plan data
+        onClose: _goToHomeScreen,
+        onDone: _handleGeneratePlan,
+      ),
     ];
 
     return Scaffold(

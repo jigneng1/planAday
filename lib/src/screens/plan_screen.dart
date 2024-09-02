@@ -5,7 +5,7 @@ import 'components/place_card.dart'; // Import the custom card widget
 class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
-  final VoidCallback onEditPlan;
+  final Function(Map<String, dynamic>) onEditPlan;
 
   const PlanScreen({super.key, required this.onClose, required this.planData, required this.onEditPlan});
 
@@ -14,7 +14,29 @@ class PlanScreen extends StatefulWidget {
 }
 
 class _PlanScreenState extends State<PlanScreen> {
-  final List<Map<String, String>> placeDetails = [
+  List<Map<String, String>>? selectedPlaces;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlan();
+  }
+
+  void _initializePlan() {
+  // Use existing selected places if available, otherwise randomize
+  if (widget.planData.containsKey('selectedPlaces')) {
+    selectedPlaces = List<Map<String, String>>.from(widget.planData['selectedPlaces']);
+  } else {
+    selectedPlaces = _randomizePlaces(widget.planData['numberOfPlaces']);
+    // Save the randomized places back to planData
+    widget.planData['selectedPlaces'] = selectedPlaces;
+  }
+}
+
+
+  List<Map<String, String>> _randomizePlaces(int numberOfPlaces) {
+    final random = Random();
+    final List<Map<String, String>> placeDetails = [
     {
       'imageUrl':
           'https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1200,h_630/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/hpfkrhkwxohgg8tdq9xe/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%87%E0%B8%AD%E0%B8%81%20%E0%B8%AD%E0%B8%B4%E0%B8%99%20%E0%B8%97%E0%B8%B2%E0%B8%A7%E0%B8%99%E0%B9%8C%20(Dog%20In%20Town)%20%E0%B9%83%E0%B8%99%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%A1%E0%B8%B1%E0%B8%A2%20(Ekkamai)%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B9%8C%20(Ari).jpg',
@@ -41,31 +63,48 @@ class _PlanScreenState extends State<PlanScreen> {
     },
     // Add more details as needed
   ];
+    
+    return List.generate(numberOfPlaces, (_) => placeDetails[random.nextInt(placeDetails.length)]);
+  }
+
+  void _handleEditPlan() {
+    final Map<String, dynamic> updatedPlanData = {
+      'planName': widget.planData['planName'],
+      'startTime': widget.planData['startTime'],
+      'numberOfPlaces': widget.planData['numberOfPlaces'],
+      'selectedPlaces': selectedPlaces,  // Use current selected places
+    };
+
+  widget.onEditPlan(updatedPlanData);
+}
+
 
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
-    final numberOfPlaces = widget.planData['numberOfPlaces'] as int;
 
-    // Generate random details for the number of places
-    final random = Random();
+    // Check if selectedPlaces is not null and has places to display
+  if (selectedPlaces == null) {
+    return const Center(child: CircularProgressIndicator());
+  }
 
-    List<Widget> routingWidgets = List.generate(numberOfPlaces, (index) {
-      final details = placeDetails[random.nextInt(placeDetails.length)];
-      final time = '${9 + index}:00 AM'; // Example time format
+  // Generate routing widgets based on the selected places
+  List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
+    final details = selectedPlaces![index];
+    final time = '${9 + index}:00 AM'; // Example time format
 
-      return buildRouting(
-        primaryColor,
-        time,
-        PlaceDetailCard(
-          imageUrl: details['imageUrl']!,
-          title: details['title']!,
-          subtitle: details['subtitle']!,
-        ),
-        index == numberOfPlaces - 1,
-      );
-    });
+    return buildRouting(
+      primaryColor,
+      time,
+      PlaceDetailCard(
+        imageUrl: details['imageUrl']!,
+        title: details['title']!,
+        subtitle: details['subtitle']!,
+      ),
+      index == selectedPlaces!.length - 1, // Check if it's the last place
+    );
+  });
 
     return Scaffold(
       appBar: AppBar(
@@ -182,7 +221,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         OutlinedButton(
                           onPressed: () {
                             // Handle edit plan action
-                            widget.onEditPlan();
+                            _handleEditPlan();
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),

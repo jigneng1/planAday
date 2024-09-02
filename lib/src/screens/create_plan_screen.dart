@@ -399,7 +399,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(30),
                       ),
                       padding: const EdgeInsets.symmetric(
                         vertical: 20,
@@ -412,7 +412,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 20),
+                const SizedBox(height: 30),
               ],
             ),
           ),
