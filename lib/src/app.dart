@@ -31,6 +31,7 @@ class _MainLayoutState extends State<MainLayout> {
       EditPlanScreen(),
     ];
   }
+  Map<String, dynamic> _planData = {}; // Store plan data
 
   void onTabTapped(int index) {
     setState(() {
@@ -44,9 +45,11 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _goToPlanScreen() {
+  void _handleGeneratePlan(Map<String, dynamic> planData) {
     setState(() {
-      _currentIndex = 3; // Assuming HomeScreen is at index 0
+      _planData = planData; // Store the data from CreatePlanScreen
+      print('PlanScreen received plan data: $_planData');
+      _currentIndex = 3; // Navigate to PlanScreen
     });
   }
 
@@ -58,8 +61,23 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    // Build the children dynamically to ensure PlanScreen gets the latest plan data
+    final List<Widget> children = [
+      const HomeScreen(),
+      ProfileScreen(),
+      CreatePlanScreen(
+        onClose: _goToHomeScreen,
+        onGeneratePlan: _handleGeneratePlan,
+      ),
+      PlanScreen(
+        planData: _planData, // Pass the updated plan data
+        onClose: _goToHomeScreen,
+      ),
+      PersonaScreen(),
+    ];
+
     return Scaffold(
-      body: _children[_currentIndex],
+      body: children[_currentIndex], // Use the latest list
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 30),
@@ -72,11 +90,12 @@ class _MainLayoutState extends State<MainLayout> {
             setState(() {
               _indexBeforeCreate = _currentIndex;
             });
-            onTabTapped(2);
+            onTabTapped(2); // Navigate to CreatePlanScreen
           },
           shape: RoundedRectangleBorder(
-              side: const BorderSide(width: 3, color: Colors.transparent),
-              borderRadius: BorderRadius.circular(100)),
+            side: const BorderSide(width: 3, color: Colors.transparent),
+            borderRadius: BorderRadius.circular(100),
+          ),
           child: const Icon(
             size: 40,
             Icons.add,
@@ -104,22 +123,20 @@ class _MainLayoutState extends State<MainLayout> {
                         ? Colors.orange.shade900
                         : Colors.grey.shade400,
                   ),
-                  //padding: const EdgeInsets.only(bottom: 10),
                 ),
               ),
               IconButton(
                 onPressed: () {
                   onTabTapped(4);
                 },
-                iconSize: _currentIndex == 1 ? 40 : 30,
+                iconSize: _currentIndex == 4 ? 40 : 30,
                 icon: Icon(
                   Icons.person,
-                  color: _currentIndex == 1
+                  color: _currentIndex == 4
                       ? Colors.orange.shade900
                       : Colors.grey.shade400,
                 ),
-                //padding: const EdgeInsets.only(bottom: 10),
-              )
+              ),
             ],
           ),
         ),
@@ -127,3 +144,4 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 }
+
