@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
@@ -56,21 +57,35 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   // Generate routing widgets based on the selected places
-  List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
-    final details = selectedPlaces![index];
-    final time = '${9 + index}:00 AM'; // Example time format
+List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
+  final details = selectedPlaces![index];
+  
+  // Parse the startTime from 'HH:mm' format
+  final startTimeString = widget.planData['startTime'];
+  DateTime startTime;
 
-    return buildRouting(
-      primaryColor,
-      time,
-      PlaceDetailCard(
-        imageUrl: details['imageUrl']!,
-        title: details['title']!,
-        subtitle: details['subtitle']!,
-      ),
-      index == selectedPlaces!.length - 1, // Check if it's the last place
-    );
-  });
+  try {
+    startTime = DateFormat('HH:mm').parse(startTimeString); // Parse the time as a DateTime object
+  } catch (e) {
+    startTime = DateTime(2024, 1, 1, 9, 0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
+    print('Error parsing start time: $e');
+  }
+
+  // Calculate the time for each place by adding index hours
+  final placeTime = startTime.add(Duration(hours: index));
+  final time = DateFormat('h:mm a').format(placeTime); // Format time in 12-hour format with AM/PM
+  
+  return buildRouting(
+    primaryColor,
+    time,
+    PlaceDetailCard(
+      imageUrl: details['imageUrl']!,
+      title: details['title']!,
+      subtitle: details['subtitle']!,
+    ),
+    index == selectedPlaces!.length - 1, // Check if it's the last place
+  );
+});
 
     return Scaffold(
       appBar: AppBar(
@@ -120,9 +135,11 @@ class _PlanScreenState extends State<PlanScreen> {
                   'Time duration  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const Text(
-                  '3 hours',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  widget.planData['numberOfPlaces'] != null
+                      ? '${widget.planData['numberOfPlaces']!} hours'
+                      : 'Unknown',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),

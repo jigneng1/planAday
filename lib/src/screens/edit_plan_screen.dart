@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
@@ -126,7 +127,24 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
     List<Widget> routingWidgets = List.generate(selectedPlaces.length, (index) {
       final details = selectedPlaces[index];
-      final time = '${9 + index}:00 AM'; // Example time format
+
+      // Parse the startTime from 'HH:mm' format
+      final startTimeString = widget.planData['startTime'];
+      DateTime startTime;
+
+      try {
+        startTime = DateFormat('HH:mm')
+            .parse(startTimeString); // Parse the time as a DateTime object
+      } catch (e) {
+        startTime = DateTime(2024, 1, 1, 9,
+            0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
+        print('Error parsing start time: $e');
+      }
+
+      // Calculate the time for each place by adding index hours
+      final placeTime = startTime.add(Duration(hours: index));
+      final time = DateFormat('h:mm a')
+          .format(placeTime); // Format time in 12-hour format with AM/PM
 
       return buildRouting(
         primaryColor,
@@ -137,7 +155,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
           subtitle: details['subtitle']!,
         ),
         index == selectedPlaces.length - 1, // Check if it's the last place
-        index, // Pass index to buildRouting
+        index, 
       );
     });
 
