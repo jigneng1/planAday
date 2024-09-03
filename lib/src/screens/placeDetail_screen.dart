@@ -1,28 +1,9 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
-
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      home: PlaceDetailPage(),
-      debugShowCheckedModeBanner: false,
-    );
-  }
-}
-
 class PlaceDetailPage extends StatelessWidget {
-  const PlaceDetailPage({super.key});
+  final VoidCallback onPlan;
+
+  const PlaceDetailPage({super.key, required this.onPlan});
 
   Widget _buildTag(String text) {
     return Container(
@@ -58,8 +39,9 @@ class PlaceDetailPage extends StatelessWidget {
               child: IconButton(
                 onPressed: () {
                   // Handle back button press
+                  onPlan();
                 },
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
               ),
             ),
             actions: const [

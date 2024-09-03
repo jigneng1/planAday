@@ -4,8 +4,9 @@ import 'package:plan_a_day/src/screens/components/place_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
+  final VoidCallback onPlan;
 
-  const HomeScreen({super.key, required this.onCreatePlan});
+  const HomeScreen({super.key, required this.onCreatePlan, required this.onPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -211,17 +212,20 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      const Padding(
+                      Padding(
                           padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             children: [
-                              PlaceDetailCard(
+                              GestureDetector(
+                                onTap: widget.onPlan,
+                                child: const PlaceDetailCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              SizedBox(height: 20),
+                              ),
+                              const SizedBox(height: 20),
                               PlaceDetailCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',

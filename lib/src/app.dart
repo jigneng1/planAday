@@ -3,6 +3,7 @@ import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
+import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 
@@ -45,6 +46,12 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _goToPlaceDetailScreen() {
+    setState(() {
+      _currentIndex = 6; 
+    });
+  }
+
   void _handleGeneratePlan(Map<String, dynamic> planData) {
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
@@ -65,7 +72,7 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     // Build the children dynamically to ensure PlanScreen gets the latest plan data
     final List<Widget> children = [
-      HomeScreen(onCreatePlan: _goToCreatePlanScreen,),
+      HomeScreen(onCreatePlan: _goToCreatePlanScreen,onPlan: _goToPlanScreen,),
       const ProfileScreen(),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
@@ -75,6 +82,7 @@ class _MainLayoutState extends State<MainLayout> {
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
         onEditPlan: _handleEditPlan,
+        onPlaceDetail: _goToPlaceDetailScreen,
       ),
       const PersonaScreen(),
       EditPlanScreen(
@@ -82,6 +90,9 @@ class _MainLayoutState extends State<MainLayout> {
         onClose: _goToPlanScreen,
         onCancel: _handleGeneratePlan,
         onDone: _handleGeneratePlan,
+      ),
+      PlaceDetailPage(
+        onPlan: _goToPlanScreen,
       ),
     ];
 

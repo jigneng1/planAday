@@ -6,9 +6,10 @@ import 'components/place_card.dart'; // Import the custom card widget
 class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
+  final VoidCallback onPlaceDetail;
   final Function(Map<String, dynamic>) onEditPlan;
 
-  const PlanScreen({super.key, required this.onClose, required this.planData, required this.onEditPlan});
+  const PlanScreen({super.key, required this.onClose, required this.planData, required this.onEditPlan, required this.onPlaceDetail});
 
   @override
   _PlanScreenState createState() => _PlanScreenState();
@@ -286,7 +287,10 @@ List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            placeCard,
+            GestureDetector(
+              onTap: widget.onPlaceDetail,
+              child: placeCard,
+            ),
             const SizedBox(height: 16),
             if (!isLast) ...[
               const Row(
