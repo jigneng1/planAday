@@ -5,7 +5,7 @@ class PlaceDetailCard extends StatelessWidget {
   final String title;
   final String subtitle;
 
-  PlaceDetailCard({
+  const PlaceDetailCard({super.key, 
     required this.imageUrl,
     required this.title,
     required this.subtitle,

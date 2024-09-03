@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/screens/home_screen.dart';
 
 class PersonaScreen extends StatefulWidget {
   const PersonaScreen({super.key});

@@ -66,7 +66,7 @@ class _MainLayoutState extends State<MainLayout> {
     // Build the children dynamically to ensure PlanScreen gets the latest plan data
     final List<Widget> children = [
       HomeScreen(onCreatePlan: _goToCreatePlanScreen,),
-      ProfileScreen(),
+      const ProfileScreen(),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
         onGeneratePlan: _handleGeneratePlan,
@@ -76,7 +76,7 @@ class _MainLayoutState extends State<MainLayout> {
         onClose: _goToHomeScreen,
         onEditPlan: _handleEditPlan,
       ),
-      PersonaScreen(),
+      const PersonaScreen(),
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToPlanScreen,

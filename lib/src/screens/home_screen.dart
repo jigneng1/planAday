@@ -211,8 +211,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 30),
+                      const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 30),
                           child: Column(
                             children: [
                               PlaceDetailCard(
@@ -221,21 +221,21 @@ class _HomeScreenState extends State<HomeScreen> {
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
                               PlaceDetailCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              const SizedBox(height: 20),
+                              SizedBox(height: 20),
                               PlaceDetailCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              const SizedBox(height: 50),
+                              SizedBox(height: 50),
                             ],
                           )),
                     ],
