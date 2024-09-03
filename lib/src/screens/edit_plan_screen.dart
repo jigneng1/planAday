@@ -317,7 +317,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
+                              horizontal: 14,
                               vertical: 12,
                             ),
                             child: SizedBox(
@@ -344,7 +344,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           ),
                           child: Padding(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 18,
+                              horizontal: 16,
                               vertical: 12,
                             ),
                             child: SizedBox(
