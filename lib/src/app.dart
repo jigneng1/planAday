@@ -35,7 +35,29 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToPlanScreen() {
     setState(() {
-      _currentIndex = 3; // Assuming HomeScreen is at index 0
+      _currentIndex = 3; 
+    });
+  }
+
+  void _goToCreatePlanScreen() {
+    setState(() {
+      _currentIndex = 2; 
+    });
+  }
+
+  void _handleGeneratePlan(Map<String, dynamic> planData) {
+    setState(() {
+      _planData = planData; // Store the data from CreatePlanScreen
+      print('PlanScreen received plan data: $_planData');
+      _currentIndex = 3; // Navigate to PlanScreen
+    });
+  }
+
+  void _handleEditPlan(Map<String, dynamic> planData) {
+    setState(() {
+      _planData = planData; // Store the data from CreatePlanScreen
+      print('PlanScreen received plan data: $_planData');
+      _currentIndex = 5; // Assuming HomeScreen is at index 0
     });
   }
 
