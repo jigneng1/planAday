@@ -1,30 +1,105 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
-class PlanScreen extends StatelessWidget {
+class PlanScreen extends StatefulWidget {
+  final Map<String, dynamic> planData;
   final VoidCallback onClose;
+  final Function(Map<String, dynamic>) onEditPlan;
 
-  const PlanScreen({super.key, required this.onClose});
+  const PlanScreen({super.key, required this.onClose, required this.planData, required this.onEditPlan});
+
+  @override
+  _PlanScreenState createState() => _PlanScreenState();
+}
+
+class _PlanScreenState extends State<PlanScreen> {
+  List<Map<String, String>>? selectedPlaces;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializePlan();
+  }
+
+  void _initializePlan() {
+    // Use existing selected places if available, otherwise randomize
+    if (widget.planData.containsKey('selectedPlaces')) {
+      selectedPlaces = List<Map<String, String>>.from(widget.planData['selectedPlaces']);
+    } else {
+      selectedPlaces = getRandomizedPlaces(widget.planData['numberOfPlaces']);
+      // Save the randomized places back to planData
+      widget.planData['selectedPlaces'] = selectedPlaces;
+    }
+  }
+
+  void _handleEditPlan() {
+    final Map<String, dynamic> updatedPlanData = {
+      'planName': widget.planData['planName'],
+      'startTime': widget.planData['startTime'],
+      'numberOfPlaces': widget.planData['numberOfPlaces'],
+      'selectedPlaces': selectedPlaces,  // Use current selected places
+    };
+
+  widget.onEditPlan(updatedPlanData);
+}
+
 
   @override
   Widget build(BuildContext context) {
+    print('At plan Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
+
+    // Check if selectedPlaces is not null and has places to display
+  if (selectedPlaces == null) {
+    return const Center(child: CircularProgressIndicator());
+  }
+
+  // Generate routing widgets based on the selected places
+List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
+  final details = selectedPlaces![index];
+  
+  // Parse the startTime from 'HH:mm' format
+  final startTimeString = widget.planData['startTime'];
+  DateTime startTime;
+
+  try {
+    startTime = DateFormat('HH:mm').parse(startTimeString); // Parse the time as a DateTime object
+  } catch (e) {
+    startTime = DateTime(2024, 1, 1, 9, 0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
+    print('Error parsing start time: $e');
+  }
+
+  // Calculate the time for each place by adding index hours
+  final placeTime = startTime.add(Duration(hours: index));
+  final time = DateFormat('h:mm a').format(placeTime); // Format time in 12-hour format with AM/PM
+  
+  return buildRouting(
+    primaryColor,
+    time,
+    PlaceDetailCard(
+      imageUrl: details['imageUrl']!,
+      title: details['title']!,
+      subtitle: details['subtitle']!,
+    ),
+    index == selectedPlaces!.length - 1, // Check if it's the last place
+  );
+});
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Plan name',
-          style: TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+        title: Text(
+          widget.planData['planName'] ?? 'Plan',
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
         ),
-        backgroundColor: Colors.white,
+        backgroundColor: Colors.transparent,
+        scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(
-            Icons.arrow_back_ios,
-          ),
-          onPressed: () {
-            onClose();
-          },
+          icon: const Icon(Icons.arrow_back_ios),
+          onPressed: widget.onClose,
         ),
         actions: [
           IconButton(
@@ -60,48 +135,38 @@ class PlanScreen extends StatelessWidget {
                   'Time duration  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
+                Text(
+                  widget.planData['numberOfPlaces'] != null
+                      ? '${widget.planData['numberOfPlaces']!} hours'
+                      : 'Unknown',
+                  style: const TextStyle(fontSize: 16),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Icon(Icons.calendar_today, size: 25, color: primaryColor),
+                const SizedBox(width: 10),
                 const Text(
-                  '3 hours',
-                  style: TextStyle(fontSize: 16),
+                  'Start date  ',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  widget.planData['startDate'] ?? 'Today',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
             const SizedBox(height: 40),
-            buildRouting(
-              primaryColor,
-              '9:00 AM',
-              PlaceDetailCard(
-                imageUrl:
-                    'https://res.klook.com/images/fl_lossy.progressive,q_65/c_fill,w_1200,h_630/w_80,x_15,y_15,g_south_west,l_Klook_water_br_trans_yhcmh3/activities/hpfkrhkwxohgg8tdq9xe/%E0%B8%A3%E0%B9%89%E0%B8%B2%E0%B8%99%E0%B8%94%E0%B9%87%E0%B8%AD%E0%B8%81%20%E0%B8%AD%E0%B8%B4%E0%B8%99%20%E0%B8%97%E0%B8%B2%E0%B8%A7%E0%B8%99%E0%B9%8C%20(Dog%20In%20Town)%20%E0%B9%83%E0%B8%99%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B9%80%E0%B8%AD%E0%B8%81%E0%B8%A1%E0%B8%B1%E0%B8%A2%20(Ekkamai)%20%E0%B9%81%E0%B8%A5%E0%B8%B0%E0%B8%A2%E0%B9%88%E0%B8%B2%E0%B8%99%E0%B8%AD%E0%B8%B2%E0%B8%A3%E0%B8%B5%E0%B8%A2%E0%B9%8C%20(Ari).jpg',
-                title: 'Dog in Town Cafe',
-                subtitle: 'Popular | Cafe | Food and Drink',
-              ),
-            ),
-            buildRouting(
-              primaryColor,
-              '10:00 AM',
-              PlaceDetailCard(
-                imageUrl: 'https://partyspacedesign.com/wp-content/uploads/2020/12/660D67D7-56B3-4513-ADB8-8F8D4F78F993.jpeg',
-                title: 'NANA Coffee Roasters',
-                subtitle: 'Cafe | Food and Drink',
-              ),
-            ),
-            buildRouting(
-              primaryColor,
-              '11:00 AM',
-              PlaceDetailCard(
-                imageUrl: 'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                title: 'Vinyl Museum',
-                subtitle: 'Museum',
-              ),
-            ),
+            ...routingWidgets,
             const SizedBox(height: 50),
             const Row(
               children: [
                 Icon(Icons.location_on, size: 30),
                 SizedBox(width: 8),
                 Text(
-                  'Map Routing',
+                  'Routing Path',
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
               ],
@@ -139,6 +204,7 @@ class PlanScreen extends StatelessWidget {
                         OutlinedButton(
                           onPressed: () {
                             // Handle edit plan action
+                            _handleEditPlan();
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),
@@ -193,39 +259,63 @@ class PlanScreen extends StatelessWidget {
     );
   }
 
-  Widget buildRouting(Color primaryColor, String time, Widget placeCard) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
+  Widget buildRouting(
+      Color primaryColor, String time, Widget placeCard, bool isLast) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Column(
+        children: [
+          CircleAvatar(
+            radius: 10,
+            backgroundColor: primaryColor,
+          ),
+          Container(
+            height: isLast ? 190 : 270, // Height of the vertical line
+            width: 2,
+            color: primaryColor,
+          ),
+        ],
+      ),
+      const SizedBox(width: 16), // Spacing between point and card
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 10,
-              backgroundColor: primaryColor,
+            Text(
+              time,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Container(
-              height: 220, // Height of the vertical line
-              width: 2,
-              color: primaryColor,
-            ),
+            const SizedBox(height: 8),
+            placeCard,
+            const SizedBox(height: 16),
+            if (!isLast) ...[
+              const Row(
+                children: [
+                  Icon(Icons.directions_walk, size: 30, color: Colors.grey),
+                  SizedBox(width: 5),
+                  Text(
+                    '10 mins',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 20),
+                  Icon(Icons.directions_car, size: 30, color: Colors.grey),
+                  SizedBox(width: 5),
+                  Text(
+                    '5 mins',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              )
+            ],
           ],
         ),
-        const SizedBox(width: 16), // Spacing between point and card
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                time,
-                style:
-                    const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              placeCard,
-            ],
-          ),
-        ),
-      ],
-    );
+      ),
+    ]);
   }
 }
