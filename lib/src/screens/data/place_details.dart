@@ -30,7 +30,7 @@ List<Map<String, String>> getRandomizedPlaces(int numberOfPlaces) {
     {
       'imageUrl':
           'https://ik.imagekit.io/tvlk/blog/2018/06/siam-800x450.jpg?tr=dpr-2,w-675',
-      'title': 'Iconsiam',
+      'title': 'Siam Paragon',
       'subtitle': 'Popular | Shopping',
     },
     {
