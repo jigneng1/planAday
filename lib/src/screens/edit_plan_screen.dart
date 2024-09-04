@@ -2,7 +2,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
-import 'components/place_card.dart'; // Import the custom card widget
+import 'components/place_card.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 
 class EditPlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
@@ -391,30 +392,29 @@ class _PlanScreenState extends State<EditPlanScreen> {
     );
   }
 
-  Widget buildRouting(Color primaryColor, String time, Widget placeCard,
-      bool isLast, int index) {
-    // Fetch the current place data
-    final place = updatedPlan['selectedPlaces'][index];
+  Widget buildRouting(Color primaryColor, String time, Widget placeCard, bool isLast, int index) {
+  // Fetch the current place data
+  final place = updatedPlan['selectedPlaces'][index];
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
-          children: [
-            const CircleAvatar(
-              radius: 10,
-              backgroundColor: Colors.grey,
-            ),
-            Container(
-              height: isLast ? 190 : 220, // Height of the vertical line
-              width: 2,
-              color: Colors.grey,
-            ),
-          ],
-        ),
-        const SizedBox(width: 16), // Spacing between point and card
-        Expanded(
-            child: Column(
+  return Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Column(
+        children: [
+          const CircleAvatar(
+            radius: 10,
+            backgroundColor: Colors.grey,
+          ),
+          Container(
+            height: isLast ? 190 : 220, // Height of the vertical line
+            width: 2,
+            color: Colors.grey,
+          ),
+        ],
+      ),
+      const SizedBox(width: 16), // Spacing between point and card
+      Expanded(
+        child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -423,29 +423,56 @@ class _PlanScreenState extends State<EditPlanScreen> {
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            Dismissible(
+            Slidable(
               key: ValueKey('${place['title']}_$index'), // Unique key
-              direction: DismissDirection.endToStart, // Swipe direction
-              onDismissed: (direction) {
-                // Update state to remove the dismissed place
-                setState(() {
-                  updatedPlan['selectedPlaces'].removeAt(index);
-                  updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces']
-                      .length; // Update the number of places
-                });
-              },
-              background: Container(
-                color: Colors.red,
-                alignment: Alignment.centerRight,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: const Icon(Icons.delete, color: Colors.white),
+              // Use DrawerMotion to keep the card in place
+              endActionPane: ActionPane(
+                motion: const DrawerMotion(), // or StretchMotion()
+                children: [
+                  SlidableAction(
+                    onPressed: (context) {
+                      // Regenerate place logic
+                      List<Map<String, String>> newPlace = getRandomizedPlaces(1);
+                      setState(() {
+                        updatedPlan['selectedPlaces'][index] = {
+                          'imageUrl': newPlace.first['imageUrl']!,
+                          'title': newPlace.first['title']!,
+                          'subtitle': newPlace.first['subtitle']!,
+                        };
+                      });
+                    },
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    icon: Icons.refresh,
+                    label: 'Regenerate',
+                  ),
+                  SlidableAction(
+                    onPressed: (context) {
+                      // Delete place logic
+                      setState(() {
+                        updatedPlan['selectedPlaces'].removeAt(index);
+                        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+                      });
+                    },
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete,
+                    label: 'Delete',
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(12.0),
+                      bottomRight: Radius.circular(12.0),
+                    ),
+                  ),
+                ],
               ),
               child: placeCard,
             ),
             const SizedBox(height: 16),
           ],
-        )),
-      ],
-    );
-  }
+        ),
+      ),
+    ],
+  );
+}
+
 }
