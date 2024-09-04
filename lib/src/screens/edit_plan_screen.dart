@@ -444,7 +444,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                     backgroundColor: primaryColor,
                     foregroundColor: Colors.white,
                     icon: Icons.refresh,
-                    label: 'Regenerate',
+                    // label: 'Regenerate',
                   ),
                   SlidableAction(
                     onPressed: (context) {
@@ -457,7 +457,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                     icon: Icons.delete,
-                    label: 'Delete',
+                    // label: 'Delete',
                     borderRadius: const BorderRadius.only(
                       topRight: Radius.circular(12.0),
                       bottomRight: Radius.circular(12.0),
