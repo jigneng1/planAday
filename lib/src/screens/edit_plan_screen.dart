@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
@@ -31,7 +30,6 @@ class _PlanScreenState extends State<EditPlanScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize updatedPlan with current planData
     updatedPlan = Map<String, dynamic>.from(widget.planData);
     originalPlan = Map<String, dynamic>.from(widget.planData);
     dismissedPlaces = [];
@@ -99,12 +97,10 @@ class _PlanScreenState extends State<EditPlanScreen> {
   }
 
   void _generateMorePlaces() {
-    // Use getRandomizedPlaces function from place_details.dart
     List<Map<String, String>> newPlaces =
         getRandomizedPlaces(1); // Number of places to add
 
     setState(() {
-      // Append new places to updatedPlan's selected places
       if (updatedPlan['selectedPlaces'] == null) {
         updatedPlan['selectedPlaces'] = [];
       }
@@ -113,52 +109,21 @@ class _PlanScreenState extends State<EditPlanScreen> {
             'title': place['title']!,
             'subtitle': place['subtitle']!,
           }));
-      // Update the number of places in updatedPlan
       updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+    });
+  }
+
+  void _onReorder(int oldIndex, int newIndex) {
+    setState(() {
+      if (newIndex > oldIndex) newIndex -= 1; // Adjust for reordering
+      final place = updatedPlan['selectedPlaces'].removeAt(oldIndex);
+      updatedPlan['selectedPlaces'].insert(newIndex, place);
     });
   }
 
   @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
-
-    // Extract selected places from planData
-    final selectedPlaces =
-        updatedPlan['selectedPlaces'] as List<dynamic>? ?? [];
-
-    List<Widget> routingWidgets = List.generate(selectedPlaces.length, (index) {
-      final details = selectedPlaces[index];
-
-      // Parse the startTime from 'HH:mm' format
-      final startTimeString = widget.planData['startTime'];
-      DateTime startTime;
-
-      try {
-        startTime = DateFormat('HH:mm')
-            .parse(startTimeString); // Parse the time as a DateTime object
-      } catch (e) {
-        startTime = DateTime(2024, 1, 1, 9,
-            0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
-        print('Error parsing start time: $e');
-      }
-
-      // Calculate the time for each place by adding index hours
-      final placeTime = startTime.add(Duration(hours: index));
-      final time = DateFormat('h:mm a')
-          .format(placeTime); // Format time in 12-hour format with AM/PM
-
-      return buildRouting(
-        primaryColor,
-        time,
-        PlaceDetailCard(
-          imageUrl: details['imageUrl']!,
-          title: details['title']!,
-          subtitle: details['subtitle']!,
-        ),
-        index == selectedPlaces.length - 1, // Check if it's the last place
-        index, 
-      );
-    });
 
     return Scaffold(
       appBar: AppBar(
@@ -254,14 +219,64 @@ class _PlanScreenState extends State<EditPlanScreen> {
               ],
             ),
             const SizedBox(height: 40),
-            ...routingWidgets,
+            ReorderableListView(
+              shrinkWrap: true,
+              physics:
+                  const NeverScrollableScrollPhysics(), // Prevent scroll conflicts
+              onReorder: _onReorder,
+              buildDefaultDragHandles:
+                  false, // Disable default drag handles on the right
+              children:
+                  List.generate(updatedPlan['selectedPlaces'].length, (index) {
+                final details = updatedPlan['selectedPlaces'][index];
+                final startTimeString = widget.planData['startTime'];
+                DateTime startTime;
+
+                try {
+                  startTime = DateFormat('HH:mm').parse(startTimeString);
+                } catch (e) {
+                  startTime = DateTime(2024, 1, 1, 9, 0);
+                }
+
+                final placeTime = startTime.add(Duration(hours: index));
+                final time = DateFormat('h:mm a').format(placeTime);
+
+                // Add the key directly to the widget
+                return KeyedSubtree(
+                  key: Key('place_$index'), // Add the unique key here
+                  child: Row(
+                    children: [
+                      // Reorder icon placed in front
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: const Icon(
+                          Icons.drag_handle,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      Expanded(
+                        child: buildRouting(
+                          primaryColor,
+                          time,
+                          PlaceDetailCard(
+                            imageUrl: details['imageUrl']!,
+                            title: details['title']!,
+                            subtitle: details['subtitle']!,
+                          ),
+                          index == updatedPlan['selectedPlaces'].length - 1,
+                          index,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              }),
+            ),
             const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: GestureDetector(
-                onTap: () {
-                  _generateMorePlaces(); // Function to generate more places
-                },
+                onTap: _generateMorePlaces,
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -275,7 +290,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       child: Text(
                         'Generate more place?',
                         style: TextStyle(
-                          color: primaryColor, // Customize text color
+                          color: primaryColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -306,11 +321,15 @@ class _PlanScreenState extends State<EditPlanScreen> {
               height: 220,
               width: double.infinity,
               decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade300,
+                borderRadius: BorderRadius.circular(20),
+                color: Colors.grey.shade200,
               ),
-              child: const Center(
-                child: Icon(Icons.map, size: 100, color: Colors.grey),
+              child: const Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.map, size: 80),
+                  const SizedBox(height: 16),
+                ],
               ),
             ),
             const SizedBox(height: 50),
@@ -392,87 +411,90 @@ class _PlanScreenState extends State<EditPlanScreen> {
     );
   }
 
-  Widget buildRouting(Color primaryColor, String time, Widget placeCard, bool isLast, int index) {
-  // Fetch the current place data
-  final place = updatedPlan['selectedPlaces'][index];
+  Widget buildRouting(Color primaryColor, String time, Widget placeCard,
+      bool isLast, int index) {
+    // Fetch the current place data
+    final place = updatedPlan['selectedPlaces'][index];
 
-  return Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: [
-      Column(
-        children: [
-          const CircleAvatar(
-            radius: 10,
-            backgroundColor: Colors.grey,
-          ),
-          Container(
-            height: isLast ? 190 : 220, // Height of the vertical line
-            width: 2,
-            color: Colors.grey,
-          ),
-        ],
-      ),
-      const SizedBox(width: 16), // Spacing between point and card
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
           children: [
-            Text(
-              time,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            const CircleAvatar(
+              radius: 10,
+              backgroundColor: Colors.grey,
             ),
-            const SizedBox(height: 8),
-            Slidable(
-              key: ValueKey('${place['title']}_$index'), // Unique key
-              // Use DrawerMotion to keep the card in place
-              endActionPane: ActionPane(
-                motion: const DrawerMotion(), // or StretchMotion()
-                children: [
-                  SlidableAction(
-                    onPressed: (context) {
-                      // Regenerate place logic
-                      List<Map<String, String>> newPlace = getRandomizedPlaces(1);
-                      setState(() {
-                        updatedPlan['selectedPlaces'][index] = {
-                          'imageUrl': newPlace.first['imageUrl']!,
-                          'title': newPlace.first['title']!,
-                          'subtitle': newPlace.first['subtitle']!,
-                        };
-                      });
-                    },
-                    backgroundColor: primaryColor,
-                    foregroundColor: Colors.white,
-                    icon: Icons.refresh,
-                    // label: 'Regenerate',
-                  ),
-                  SlidableAction(
-                    onPressed: (context) {
-                      // Delete place logic
-                      setState(() {
-                        updatedPlan['selectedPlaces'].removeAt(index);
-                        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
-                      });
-                    },
-                    backgroundColor: Colors.red,
-                    foregroundColor: Colors.white,
-                    icon: Icons.delete,
-                    // label: 'Delete',
-                    borderRadius: const BorderRadius.only(
-                      topRight: Radius.circular(12.0),
-                      bottomRight: Radius.circular(12.0),
-                    ),
-                  ),
-                ],
-              ),
-              child: placeCard,
+            Container(
+              height: isLast ? 190 : 220, // Height of the vertical line
+              width: 2,
+              color: Colors.grey,
             ),
-            const SizedBox(height: 16),
           ],
         ),
-      ),
-    ],
-  );
-}
-
+        const SizedBox(width: 16), // Spacing between point and card
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                time,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Slidable(
+                key: ValueKey('${place['title']}_$index'), // Unique key
+                // Use DrawerMotion to keep the card in place
+                endActionPane: ActionPane(
+                  motion: const DrawerMotion(), // or StretchMotion()
+                  children: [
+                    SlidableAction(
+                      onPressed: (context) {
+                        // Regenerate place logic
+                        List<Map<String, String>> newPlace =
+                            getRandomizedPlaces(1);
+                        setState(() {
+                          updatedPlan['selectedPlaces'][index] = {
+                            'imageUrl': newPlace.first['imageUrl']!,
+                            'title': newPlace.first['title']!,
+                            'subtitle': newPlace.first['subtitle']!,
+                          };
+                        });
+                      },
+                      backgroundColor: primaryColor,
+                      foregroundColor: Colors.white,
+                      icon: Icons.refresh,
+                      // label: 'Regenerate',
+                    ),
+                    SlidableAction(
+                      onPressed: (context) {
+                        // Delete place logic
+                        setState(() {
+                          updatedPlan['selectedPlaces'].removeAt(index);
+                          updatedPlan['numberOfPlaces'] =
+                              updatedPlan['selectedPlaces'].length;
+                        });
+                      },
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      icon: Icons.delete,
+                      // label: 'Delete',
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(12.0),
+                        bottomRight: Radius.circular(12.0),
+                      ),
+                    ),
+                  ],
+                ),
+                child: placeCard,
+              ),
+              const SizedBox(height: 16),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
 }
