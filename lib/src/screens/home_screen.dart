@@ -34,7 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   Container(
-                    height: 240.0, // Fixed height for the top container
+                    height: 250.0, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],
@@ -49,46 +49,15 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                     child: Column(
                       children: [
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 20),
                         Row(
                           children: [
                             const SizedBox(width: 60),
                             Expanded(
                               child: Center(
-                                child: Stack(
-                                  children: [
-                                    // Stroked text as border.
-                                    Text(
-                                      'PlanADay',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Ubuntu',
-                                        foreground: Paint()
-                                          ..style = PaintingStyle.stroke
-                                          ..strokeWidth = 3
-                                          ..color = const Color.fromARGB(
-                                              255, 255, 255, 255),
-                                        shadows: const [
-                                          Shadow(
-                                            offset: Offset(4.0, 4.0),
-                                            blurRadius: 4.0,
-                                            color: Color.fromARGB(188, 0, 0, 0),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    // Solid text as fill.
-                                    Text(
-                                      'PlanADay',
-                                      style: TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                        fontFamily: 'Ubuntu',
-                                        color: primaryColor,
-                                      ),
-                                    ),
-                                  ],
+                                child: Image.asset(
+                                  'assets/images/Asset_14x.png',
+                                  height: 50,
                                 ),
                               ),
                             ),
@@ -245,7 +214,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // Overlay container
               Positioned(
                 top:
-                    200.0, // Adjust this based on the height of the top container and desired overlap
+                    210.0, // Adjust this based on the height of the top container and desired overlap
                 left: 0,
                 right: 0,
                 child: GestureDetector(
