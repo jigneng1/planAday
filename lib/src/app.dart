@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
@@ -15,6 +16,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
+  final ApiService apiService = ApiService();
   int _currentIndex = 0;
   int _indexBeforeCreate = 0;
 
@@ -52,12 +54,19 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _handleGeneratePlan(Map<String, dynamic> planData) {
+  void _handleGeneratePlan(Map<String, dynamic> planData) async{
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
       _currentIndex = 3; // Navigate to PlanScreen
     });
+
+    try {
+      await apiService.sendJsonData(planData);
+      print('Plan data sent successfully');
+    } catch (error) {
+      print('Error sending plan data: $error');
+    }
   }
 
   void _handleEditPlan(Map<String, dynamic> planData) {
