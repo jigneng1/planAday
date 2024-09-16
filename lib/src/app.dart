@@ -54,20 +54,34 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _handleGeneratePlan(Map<String, dynamic> planData) async{
-    setState(() {
-      _planData = planData; // Store the data from CreatePlanScreen
-      print('PlanScreen received plan data: $_planData');
-      _currentIndex = 3; // Navigate to PlanScreen
-    });
+  void _handleGeneratePlan(Map<String, dynamic> planData) async {
+  // setState(() {
+  //   _planData = planData; // Store the data from CreatePlanScreen
+  //   print('PlanScreen received plan data: $_planData');
+  //   _currentIndex = 3; // Navigate to PlanScreen
+  // });
 
-    try {
-      await apiService.sendJsonData(planData);
-      print('Plan data sent successfully');
-    } catch (error) {
-      print('Error sending plan data: $error');
+  try {
+    // Call the API service to send the plan data and fetch the updated data
+    final newPlanData = await apiService.sendJsonData(planData);
+    
+    if (newPlanData != null) {
+      // Update the state with the received data
+      setState(() {
+        _planData = newPlanData;
+        print('PlanScreen updated with new plan data: $_planData');
+        _currentIndex = 3;
+      });
+    } else {
+      print('Failed to receive new plan data');
     }
+
+    print('Plan data sent successfully');
+  } catch (error) {
+    print('Error sending plan data: $error');
   }
+}
+
 
   void _handleEditPlan(Map<String, dynamic> planData) {
     setState(() {
