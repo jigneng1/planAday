@@ -235,7 +235,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'startTime': _startTimeController.text,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
-        'selectedActivities': _selectedActivities.toList(),
+        'categories': _selectedActivities.toList(),
+        'lad': _selectedLocation?.latitude.toString(),
+        'lng': _selectedLocation?.longitude.toString(),
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent

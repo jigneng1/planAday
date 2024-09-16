@@ -38,50 +38,44 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToPlanScreen() {
     setState(() {
-      _currentIndex = 3; 
+      _currentIndex = 3;
     });
   }
 
   void _goToCreatePlanScreen() {
     setState(() {
-      _currentIndex = 2; 
+      _currentIndex = 2;
     });
   }
 
   void _goToPlaceDetailScreen() {
     setState(() {
-      _currentIndex = 6; 
+      _currentIndex = 6;
     });
   }
 
-  void _handleGeneratePlan(Map<String, dynamic> planData) async {
-  // setState(() {
-  //   _planData = planData; // Store the data from CreatePlanScreen
-  //   print('PlanScreen received plan data: $_planData');
-  //   _currentIndex = 3; // Navigate to PlanScreen
-  // });
+  void _handleGeneratePlan(Map<String, dynamic> planInput) async {
+    print('PlanScreen received input plan data: $planInput');
+    try {
+      // Call the API service to send the plan data and fetch the updated data
+      final plan = await apiService.sendJsonData(planInput);
 
-  try {
-    // Call the API service to send the plan data and fetch the updated data
-    final newPlanData = await apiService.sendJsonData(planData);
-    
-    if (newPlanData != null) {
-      // Update the state with the received data
-      setState(() {
-        _planData = newPlanData;
-        print('PlanScreen updated with new plan data: $_planData');
-        _currentIndex = 3;
-      });
-    } else {
-      print('Failed to receive new plan data');
+      if (plan != null) {
+        // Update the state with the received data
+        setState(() {
+          _planData = plan;
+          print('PlanScreen updated with new plan data: $_planData');
+          _currentIndex = 3;
+        });
+      } else {
+        print('Failed to receive new plan data');
+      }
+
+      print('Plan data sent successfully');
+    } catch (error) {
+      print('Error sending plan data: $error');
     }
-
-    print('Plan data sent successfully');
-  } catch (error) {
-    print('Error sending plan data: $error');
   }
-}
-
 
   void _handleEditPlan(Map<String, dynamic> planData) {
     setState(() {
@@ -95,7 +89,10 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     // Build the children dynamically to ensure PlanScreen gets the latest plan data
     final List<Widget> children = [
-      HomeScreen(onCreatePlan: _goToCreatePlanScreen,onPlan: _goToPlanScreen,),
+      HomeScreen(
+        onCreatePlan: _goToCreatePlanScreen,
+        onPlan: _goToPlanScreen,
+      ),
       const ProfileScreen(),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
@@ -187,4 +184,3 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 }
-
