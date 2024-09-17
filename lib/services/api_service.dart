@@ -17,7 +17,7 @@ class ApiService {
         body: jsonEncode({
           "lad": inputplanData['lad'],
           "lng": inputplanData['lng'],
-          "category": ['restaurant'],
+          "category": inputplanData['categories'],
         }),
       );
 

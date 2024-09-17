@@ -26,14 +26,14 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   final TextEditingController _numberOfPlacesController =
       TextEditingController(text: '1');
   final List<String> _activities = [
-    'Popular',
+    'Restaurant',
     'Cafe',
-    'Food and Drink',
-    'Shopping',
-    'Sport',
-    'Entertainment',
+    'Gym',
+    'Art_gallery',
+    'Movie_theater',
+    'Park',
     'Museum',
-    'Services'
+    'Store'
   ];
   final Set<String> _selectedActivities = {}; // Initially empty
   GoogleMapController? _mapController; // Controller for Google Map
@@ -235,9 +235,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'startTime': _startTimeController.text,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
-        'categories': _selectedActivities.toList(),
-        'lad': _selectedLocation?.latitude.toString(),
-        'lng': _selectedLocation?.longitude.toString(),
+        'categories': _selectedActivities.map((activity) => activity.toLowerCase()).toList(),
+        // 'lad': _selectedLocation?.latitude.toString(),
+        // 'lng': _selectedLocation?.longitude.toString(),
+        "lad" : "13.651398147178615",
+        "lng" : "100.49639988189516",
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent
