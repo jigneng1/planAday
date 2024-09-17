@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 class ApiService {
   // Function to send planData to the API and return the random places data
   Future<Map<String, dynamic>?> sendJsonData(
-      Map<String, dynamic> planData) async {
+      Map<String, dynamic> inputplanData) async {
     final url = Uri.parse(
         'http://localhost:3000/nearby-search'); // Replace with your API endpoint
     // final url = Uri.parse('http://10.0.2.2:3000/nearby-search');
@@ -15,8 +15,8 @@ class ApiService {
         url,
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
-          "lad": planData['lad'],
-          "lng": planData['lng'],
+          "lad": inputplanData['lad'],
+          "lng": inputplanData['lng'],
           "category": ['restaurant'],
         }),
       );
@@ -29,7 +29,7 @@ class ApiService {
         final String planID =
             responseData['id']; // Assuming 'id' is the field in the response
 
-        final numberOfPlace = planData['numberOfPlaces'];
+        final numberOfPlace = inputplanData['numberOfPlaces'];
         final placesUrl = Uri.parse(
             "http://localhost:3000/randomPlaces?id=$planID&places=$numberOfPlace");
         final placesResponse = await http.get(placesUrl);
@@ -42,8 +42,15 @@ class ApiService {
           final Map<String, dynamic> placesMap = {
             for (var place in places) place['id']: place
           };
-          print('Random places data: $placesMap');
-          return ;
+          final Map<String, dynamic> finalPlan = {
+            'planName': inputplanData['planName'],
+            'startTime': inputplanData['startTime'],
+            'startDate': inputplanData['startDate'],
+            'numberOfPlaces': inputplanData['numberOfPlaces'],
+            'selectedPlaces': placesMap,
+          };
+          print('Random places data: $finalPlan');
+          return finalPlan;
         } else {
           print('Failed to fetch random places: ${placesResponse.statusCode}');
           return null;

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatefulWidget {
@@ -16,7 +15,7 @@ class PlanScreen extends StatefulWidget {
 }
 
 class _PlanScreenState extends State<PlanScreen> {
-  List<Map<String, String>>? selectedPlaces;
+  Map<String, dynamic>? selectedPlaces;
 
   @override
   void initState() {
@@ -25,13 +24,11 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _initializePlan() {
-    // Use existing selected places if available, otherwise randomize
+    // Use existing selected places if available
     if (widget.planData.containsKey('selectedPlaces')) {
-      selectedPlaces = List<Map<String, String>>.from(widget.planData['selectedPlaces']);
+      selectedPlaces = Map<String, dynamic>.from(widget.planData['selectedPlaces']);
     } else {
-      selectedPlaces = getRandomizedPlaces(widget.planData['numberOfPlaces']);
-      // Save the randomized places back to planData
-      widget.planData['selectedPlaces'] = selectedPlaces;
+      selectedPlaces = {}; // Initialize with an empty map if not available
     }
   }
 
@@ -39,13 +36,13 @@ class _PlanScreenState extends State<PlanScreen> {
     final Map<String, dynamic> updatedPlanData = {
       'planName': widget.planData['planName'],
       'startTime': widget.planData['startTime'],
+      'startDate': widget.planData['startDate'],
       'numberOfPlaces': widget.planData['numberOfPlaces'],
       'selectedPlaces': selectedPlaces,  // Use current selected places
     };
 
-  widget.onEditPlan(updatedPlanData);
-}
-
+    widget.onEditPlan(updatedPlanData);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -53,40 +50,39 @@ class _PlanScreenState extends State<PlanScreen> {
     final primaryColor = Theme.of(context).primaryColor;
 
     // Check if selectedPlaces is not null and has places to display
-  if (selectedPlaces == null) {
-    return const Center(child: CircularProgressIndicator());
-  }
+    if (selectedPlaces == null || selectedPlaces!.isEmpty) {
+      return const Center(child: CircularProgressIndicator());
+    }
 
-  // Generate routing widgets based on the selected places
-List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
-  final details = selectedPlaces![index];
-  
-  // Parse the startTime from 'HH:mm' format
-  final startTimeString = widget.planData['startTime'];
-  DateTime startTime;
+    // Generate routing widgets based on the selected places
+    List<Widget> routingWidgets = [];
+    selectedPlaces!.forEach((key, details) {
+      // Parse the startTime from 'HH:mm' format
+      final startTimeString = widget.planData['startTime'];
+      DateTime startTime;
 
-  try {
-    startTime = DateFormat('HH:mm').parse(startTimeString); // Parse the time as a DateTime object
-  } catch (e) {
-    startTime = DateTime(2024, 1, 1, 9, 0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
-    print('Error parsing start time: $e');
-  }
+      try {
+        startTime = DateFormat('HH:mm').parse(startTimeString); // Parse the time as a DateTime object
+      } catch (e) {
+        startTime = DateTime(2024, 1, 1, 9, 0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
+        print('Error parsing start time: $e');
+      }
 
-  // Calculate the time for each place by adding index hours
-  final placeTime = startTime.add(Duration(hours: index));
-  final time = DateFormat('h:mm a').format(placeTime); // Format time in 12-hour format with AM/PM
-  
-  return buildRouting(
-    primaryColor,
-    time,
-    PlaceDetailCard(
-      imageUrl: details['imageUrl']!,
-      title: details['title']!,
-      subtitle: details['subtitle']!,
-    ),
-    index == selectedPlaces!.length - 1, // Check if it's the last place
-  );
-});
+      // Calculate the time for each place
+      final placeTime = startTime.add(Duration(hours: routingWidgets.length));
+      final time = DateFormat('h:mm a').format(placeTime); // Format time in 12-hour format with AM/PM
+
+      routingWidgets.add(buildRouting(
+        primaryColor,
+        time,
+        PlaceDetailCard(
+          imageUrl: '',  // If you have imageUrl data, set it here
+          title: details['displayName']['text'] ?? 'No Title',  // Title from displayName['text']
+          subtitle: details['primaryType'] ?? 'No Type',        // Subtitle from primaryType
+        ),
+        routingWidgets.length == selectedPlaces!.length - 1, // Check if it's the last place
+      ));
+    });
 
     return Scaffold(
       appBar: AppBar(
@@ -284,39 +280,10 @@ List<Widget> routingWidgets = List.generate(selectedPlaces!.length, (index) {
           children: [
             Text(
               time,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: widget.onPlaceDetail,
-              child: placeCard,
-            ),
-            const SizedBox(height: 16),
-            if (!isLast) ...[
-              const Row(
-                children: [
-                  Icon(Icons.directions_walk, size: 30, color: Colors.grey),
-                  SizedBox(width: 5),
-                  Text(
-                    '10 mins',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(width: 20),
-                  Icon(Icons.directions_car, size: 30, color: Colors.grey),
-                  SizedBox(width: 5),
-                  Text(
-                    '5 mins',
-                    style: TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              )
-            ],
+            const SizedBox(height: 12),
+            placeCard,
           ],
         ),
       ),
