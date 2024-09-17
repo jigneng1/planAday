@@ -27,6 +27,8 @@ class _PlanScreenState extends State<PlanScreen> {
     // Use existing selected places if available
     if (widget.planData.containsKey('selectedPlaces')) {
       selectedPlaces = Map<String, dynamic>.from(widget.planData['selectedPlaces']);
+      print('-----');
+      print(selectedPlaces);
     } else {
       selectedPlaces = {}; // Initialize with an empty map if not available
     }
@@ -76,8 +78,8 @@ class _PlanScreenState extends State<PlanScreen> {
         primaryColor,
         time,
         PlaceDetailCard(
-          imageUrl: '',  // If you have imageUrl data, set it here
-          title: details['displayName']['text'] ?? 'No Title',  // Title from displayName['text']
+          imageUrl: details['photosUrl'],  // If you have imageUrl data, set it here
+          title: details['displayName'] ?? 'No Title',  // Title from displayName['text']
           subtitle: details['primaryType'] ?? 'No Type',        // Subtitle from primaryType
         ),
         routingWidgets.length == selectedPlaces!.length - 1, // Check if it's the last place
@@ -284,6 +286,32 @@ class _PlanScreenState extends State<PlanScreen> {
             ),
             const SizedBox(height: 12),
             placeCard,
+            const SizedBox(height: 16),
+            if (!isLast) ...[
+              const Row(
+                children: [
+                  Icon(Icons.directions_walk, size: 30, color: Colors.grey),
+                  SizedBox(width: 5),
+                  Text(
+                    '10 mins',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  SizedBox(width: 20),
+                  Icon(Icons.directions_car, size: 30, color: Colors.grey),
+                  SizedBox(width: 5),
+                  Text(
+                    '5 mins',
+                    style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              )
+            ],
           ],
         ),
       ),
