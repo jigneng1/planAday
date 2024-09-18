@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
@@ -41,6 +42,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   LatLng? _currentLocation; // Variable to store the current location
   bool _hasTriedSubmitting =
       false; // Flag to track if user has attempted submission
+  String? _selectedPlaceName; // Variable to store the selected place name
+
 
   @override
   void initState() {
@@ -218,11 +221,35 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     }
   }
 
-  void _onMapTap(LatLng location) {
+  void _onMapTap(LatLng location) async{
     setState(() {
       _selectedLocation = location;
     });
+
+    await _getPlaceName(location);
   }
+
+  Future<void> _getPlaceName(LatLng location) async {
+  try {
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      location.latitude,
+      location.longitude,
+    );
+
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+
+      String placeName = '${place.name}, ${place.locality}, ${place.country}';
+
+      setState(() {
+        // Store the place name to display later
+        _selectedPlaceName = placeName;
+      });
+    }
+  } catch (e) {
+    print("Error getting place name: $e");
+  }
+}
 
   void _generatePlan() {
     setState(() {
@@ -236,10 +263,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
         'categories': _selectedActivities.map((activity) => activity.toLowerCase()).toList(),
-        // 'lad': _selectedLocation?.latitude.toString(),
-        // 'lng': _selectedLocation?.longitude.toString(),
-        "lad" : "13.651398147178615",
-        "lng" : "100.49639988189516",
+        'lad': _selectedLocation?.latitude.toString(),
+        'lng': _selectedLocation?.longitude.toString(),
+        // "lad" : "13.63826535643979",
+        // "lng" : "100.43784915553714",
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent
@@ -377,10 +404,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: primaryColor)),
-                              Text(
-                                  'Latitude: ${_selectedLocation!.latitude.toStringAsFixed(6)}\n'
-                                  'Longitude: ${_selectedLocation!.longitude.toStringAsFixed(6)}',
-                                  style: const TextStyle(
+                              Text(_selectedPlaceName!, style: const TextStyle(
                                       fontSize: 14, color: Colors.grey)),
                             ],
                           )
