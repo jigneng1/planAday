@@ -25,7 +25,7 @@ class EditPlanScreen extends StatefulWidget {
 class _PlanScreenState extends State<EditPlanScreen> {
   late Map<String, dynamic> updatedPlan;
   late Map<String, dynamic> originalPlan;
-  late List<Map<String, String>> dismissedPlaces;
+  late List<Map<String, dynamic>> dismissedPlaces;
 
   @override
   void initState() {
@@ -97,8 +97,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
   }
 
   void _generateMorePlaces() {
-    List<Map<String, String>> newPlaces =
-        getRandomizedPlaces(1); // Number of places to add
+    List<Map<String, String>> newPlaces = getRandomizedPlaces(1);
 
     setState(() {
       if (updatedPlan['selectedPlaces'] == null) {
@@ -115,14 +114,21 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      if (newIndex > oldIndex) newIndex -= 1; // Adjust for reordering
-      final place = updatedPlan['selectedPlaces'].removeAt(oldIndex);
-      updatedPlan['selectedPlaces'].insert(newIndex, place);
+      List<MapEntry<String, dynamic>> entries =
+          updatedPlan['selectedPlaces'].entries.toList();
+      if (newIndex > oldIndex) newIndex -= 1;
+
+      final MapEntry<String, dynamic> movedEntry = entries.removeAt(oldIndex);
+
+      entries.insert(newIndex, movedEntry);
+
+      updatedPlan['selectedPlaces'] = Map.fromEntries(entries);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    // print('EditScreen Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
@@ -228,8 +234,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   false, // Disable default drag handles on the right
               children:
                   List.generate(updatedPlan['selectedPlaces'].length, (index) {
-                final details = updatedPlan['selectedPlaces'][index];
-                final startTimeString = widget.planData['startTime'];
+                final key = updatedPlan['selectedPlaces'].keys.elementAt(index);
+                var details = updatedPlan['selectedPlaces'][key];
+                final startTimeString = updatedPlan['startTime'];
                 DateTime startTime;
 
                 try {
@@ -241,9 +248,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 final placeTime = startTime.add(Duration(hours: index));
                 final time = DateFormat('h:mm a').format(placeTime);
 
-                // Add the key directly to the widget
                 return KeyedSubtree(
-                  key: Key('place_$index'), // Add the unique key here
+                  key: Key(key), // Add the unique key here
                   child: Row(
                     children: [
                       // Reorder icon placed in front
@@ -259,11 +265,12 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           primaryColor,
                           time,
                           PlaceDetailCard(
-                            imageUrl: details['imageUrl']!,
-                            title: details['title']!,
-                            subtitle: details['subtitle']!,
+                            imageUrl: details['photosUrl'],
+                            title: details['displayName'],
+                            subtitle: details['primaryType'],
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
+                          key,
                           index,
                         ),
                       ),
@@ -412,10 +419,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
   }
 
   Widget buildRouting(Color primaryColor, String time, Widget placeCard,
-      bool isLast, int index) {
-    // Fetch the current place data
-    final place = updatedPlan['selectedPlaces'][index];
-
+      bool isLast, String key, int index) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -445,8 +449,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
               ),
               const SizedBox(height: 8),
               Slidable(
-                key: ValueKey('${place['title']}_$index'), // Unique key
-                // Use DrawerMotion to keep the card in place
+                key: ValueKey(key), // Unique key
                 endActionPane: ActionPane(
                   motion: const DrawerMotion(), // or StretchMotion()
                   children: [
@@ -456,8 +459,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         List<Map<String, String>> newPlace =
                             getRandomizedPlaces(1);
                         setState(() {
-                          updatedPlan['selectedPlaces'][index] = {
-                            'imageUrl': newPlace.first['imageUrl']!,
+                          updatedPlan['selectedPlaces'][key] = {
+                            'imageUrl': newPlace.first['photoUrl']!,
                             'title': newPlace.first['title']!,
                             'subtitle': newPlace.first['subtitle']!,
                           };
@@ -472,7 +475,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       onPressed: (context) {
                         // Delete place logic
                         setState(() {
-                          updatedPlan['selectedPlaces'].removeAt(index);
+                          updatedPlan['selectedPlaces'].remove(key);
                           updatedPlan['numberOfPlaces'] =
                               updatedPlan['selectedPlaces'].length;
                         });

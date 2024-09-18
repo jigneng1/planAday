@@ -27,8 +27,6 @@ class _PlanScreenState extends State<PlanScreen> {
     // Use existing selected places if available
     if (widget.planData.containsKey('selectedPlaces')) {
       selectedPlaces = Map<String, dynamic>.from(widget.planData['selectedPlaces']);
-      print('-----');
-      print(selectedPlaces);
     } else {
       selectedPlaces = {}; // Initialize with an empty map if not available
     }

@@ -55,7 +55,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
-    print('PlanScreen received input plan data: $planInput');
+    // print('PlanScreen received input plan data: $planInput');
     try {
       // Call the API service to send the plan data and fetch the updated data
       final plan = await apiService.sendJsonData(planInput);
@@ -64,7 +64,7 @@ class _MainLayoutState extends State<MainLayout> {
         // Update the state with the received data
         setState(() {
           _planData = plan;
-          print('PlanScreen updated with new plan data: $_planData');
+          // print('PlanScreen updated with new plan data: $_planData');
           _currentIndex = 3;
         });
       } else {
@@ -75,6 +75,14 @@ class _MainLayoutState extends State<MainLayout> {
     } catch (error) {
       print('Error sending plan data: $error');
     }
+  }
+
+  void _handleDoneEditPlan(Map<String, dynamic> planData) {
+    setState(() {
+      _planData = planData; // Store the data from EditPlanScreen
+      print('PlanScreen received plan data: $_planData');
+      _currentIndex = 3; // Assuming HomeScreen is at index 0
+    });
   }
 
   void _handleEditPlan(Map<String, dynamic> planData) {
@@ -108,8 +116,8 @@ class _MainLayoutState extends State<MainLayout> {
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToPlanScreen,
-        onCancel: _handleGeneratePlan,
-        onDone: _handleGeneratePlan,
+        onCancel: _handleDoneEditPlan,
+        onDone: _handleDoneEditPlan,
       ),
       PlaceDetailPage(
         onPlan: _goToPlanScreen,

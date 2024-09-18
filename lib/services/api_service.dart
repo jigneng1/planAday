@@ -6,11 +6,10 @@ class ApiService {
   Future<Map<String, dynamic>?> sendJsonData(
       Map<String, dynamic> inputplanData) async {
     final url = Uri.parse(
-        'http://localhost:3000/nearby-search'); // Replace with your API endpoint
+        'http://localhost:3000/nearby-search'); 
     // final url = Uri.parse('http://10.0.2.2:3000/nearby-search');
 
     try {
-      // Send the planData to the API
       final response = await http.post(
         url,
         headers: {'Content-Type': 'application/json'},
@@ -24,12 +23,10 @@ class ApiService {
       if (response.statusCode == 200) {
         print('Data sent successfully');
 
-        // Parse the response body to extract the plan ID
         final responseData = jsonDecode(response.body);
-        final String planID =
-            responseData['id']; // Assuming 'id' is the field in the response
-
+        final String planID = responseData['id']; 
         final numberOfPlace = inputplanData['numberOfPlaces'];
+
         final placesUrl = Uri.parse(
             "http://localhost:3000/randomPlaces?id=$planID&places=$numberOfPlace");
         final placesResponse = await http.get(placesUrl);
@@ -49,7 +46,7 @@ class ApiService {
             'numberOfPlaces': inputplanData['numberOfPlaces'],
             'selectedPlaces': placesMap,
           };
-          print('Random places data: $finalPlan');
+          // print('Random places data: $finalPlan');
           return finalPlan;
         } else {
           print('Failed to fetch random places: ${placesResponse.statusCode}');
