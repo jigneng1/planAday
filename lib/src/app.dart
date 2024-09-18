@@ -92,7 +92,7 @@ class _MainLayoutState extends State<MainLayout> {
         onDone: _handleGeneratePlan,
       ),
       PlaceDetailPage(
-        onPlan: _goToPlanScreen,
+        onPlan: _goToPlanScreen, imageUrl: '', title: '',
       ),
     ];
 
