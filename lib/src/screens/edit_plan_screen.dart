@@ -25,14 +25,13 @@ class EditPlanScreen extends StatefulWidget {
 class _PlanScreenState extends State<EditPlanScreen> {
   late Map<String, dynamic> updatedPlan;
   late Map<String, dynamic> originalPlan;
-  late List<Map<String, dynamic>> dismissedPlaces;
+  List<Map<String, dynamic>> deletedPlaces = [];
 
   @override
   void initState() {
     super.initState();
     updatedPlan = Map<String, dynamic>.from(widget.planData);
     originalPlan = Map<String, dynamic>.from(widget.planData);
-    dismissedPlaces = [];
   }
 
   void _editPlanName() async {
@@ -91,23 +90,46 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   void _restoreDismissedPlaces() {
     setState(() {
-      updatedPlan['selectedPlaces'] =
-          List<Map<String, dynamic>>.from(originalPlan['selectedPlaces']);
+      for (var place in deletedPlaces) {
+        String id = place['id'];
+        updatedPlan['selectedPlaces'][id] = place;
+      }
+
+      deletedPlaces.clear();
+
+      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
     });
   }
 
   void _generateMorePlaces() {
-    List<Map<String, String>> newPlaces = getRandomizedPlaces(1);
+    // Fetch new places; assuming getRandomizedPlaces returns a List<Map<String, String>>
+    List<Map<String, String>> newPlaces =
+        getRandomizedPlaces(1); // Number of places to add
 
     setState(() {
+      // Ensure selectedPlaces is initialized as a Map
       if (updatedPlan['selectedPlaces'] == null) {
-        updatedPlan['selectedPlaces'] = [];
+        updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
       }
-      updatedPlan['selectedPlaces'].addAll(newPlaces.map((place) => {
-            'imageUrl': place['imageUrl']!,
-            'title': place['title']!,
-            'subtitle': place['subtitle']!,
-          }));
+
+      // Add new places to the selectedPlaces map
+      for (var place in newPlaces) {
+        if (place['id'] != null &&
+            place['photoUrl'] != null &&
+            place['title'] != null &&
+            place['subtitle'] != null) {
+          String id = place['id']!; // Assuming each place has a unique ID
+          updatedPlan['selectedPlaces'][id] = {
+            'photoUrl': place['photoUrl']!,
+            'displayName': place['title']!,
+            'primaryType': place['subtitle']!,
+          };
+        } else {
+          print('One or more fields in the new place are null: $place');
+        }
+      }
+
+      // Update the number of places
       updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
     });
   }
@@ -334,8 +356,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(Icons.map, size: 80),
-                  const SizedBox(height: 16),
+                  Icon(Icons.map, size: 80),
+                  SizedBox(height: 16),
                 ],
               ),
             ),
@@ -475,9 +497,18 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       onPressed: (context) {
                         // Delete place logic
                         setState(() {
-                          updatedPlan['selectedPlaces'].remove(key);
-                          updatedPlan['numberOfPlaces'] =
-                              updatedPlan['selectedPlaces'].length;
+                          if (updatedPlan['selectedPlaces'].containsKey(key)) {
+                            // Store the place to be deleted in the deletedPlaces list
+                            deletedPlaces
+                                .add(updatedPlan['selectedPlaces'][key]);
+
+                            // Remove the place from updatedPlan
+                            updatedPlan['selectedPlaces'].remove(key);
+
+                            // Update the number of places
+                            updatedPlan['numberOfPlaces'] =
+                                updatedPlan['selectedPlaces'].length;
+                          }
                         });
                       },
                       backgroundColor: Colors.red,
