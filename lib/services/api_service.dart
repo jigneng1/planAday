@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 class ApiService {
   // Function to send planData to the API and return the random places data
-  Future<Map<String, dynamic>?> sendJsonData(
+  Future<Map<String, dynamic>?> getRandomPlaces(
       Map<String, dynamic> inputplanData) async {
     final url = Uri.parse(
         'http://localhost:3000/nearby-search'); 

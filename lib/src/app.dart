@@ -22,7 +22,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   late final List<Widget> _children;
 
-  Map<String, dynamic> _planData = {}; // Store plan data
+  Map<String, dynamic> _planData = {};
 
   void onTabTapped(int index) {
     setState(() {
@@ -32,7 +32,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToHomeScreen() {
     setState(() {
-      _currentIndex = _indexBeforeCreate; // Assuming HomeScreen is at index 0
+      _currentIndex = _indexBeforeCreate;
     });
   }
 
@@ -57,11 +57,9 @@ class _MainLayoutState extends State<MainLayout> {
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
     // print('PlanScreen received input plan data: $planInput');
     try {
-      // Call the API service to send the plan data and fetch the updated data
-      final plan = await apiService.sendJsonData(planInput);
+      final plan = await apiService.getRandomPlaces(planInput);
 
       if (plan != null) {
-        // Update the state with the received data
         setState(() {
           _planData = plan;
           // print('PlanScreen updated with new plan data: $_planData');
@@ -81,7 +79,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _planData = planData; // Store the data from EditPlanScreen
       print('PlanScreen received plan data: $_planData');
-      _currentIndex = 3; // Assuming HomeScreen is at index 0
+      _currentIndex = 3;
     });
   }
 
@@ -89,13 +87,12 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
-      _currentIndex = 5; // Assuming HomeScreen is at index 0
+      _currentIndex = 5; 
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    // Build the children dynamically to ensure PlanScreen gets the latest plan data
     final List<Widget> children = [
       HomeScreen(
         onCreatePlan: _goToCreatePlanScreen,

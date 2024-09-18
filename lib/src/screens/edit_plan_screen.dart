@@ -451,7 +451,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
               Slidable(
                 key: ValueKey(key), // Unique key
                 endActionPane: ActionPane(
-                  motion: const DrawerMotion(), // or StretchMotion()
+                  motion: const DrawerMotion(),
                   children: [
                     SlidableAction(
                       onPressed: (context) {
