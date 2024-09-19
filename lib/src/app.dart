@@ -57,7 +57,7 @@ class _MainLayoutState extends State<MainLayout> {
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
     // print('PlanScreen received input plan data: $planInput');
     try {
-      final plan = await apiService.getRandomPlaces(planInput);
+      final plan = await apiService.getRandomPlan(planInput);
 
       if (plan != null) {
         setState(() {
