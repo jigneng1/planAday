@@ -44,11 +44,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       false; // Flag to track if user has attempted submission
   String? _selectedPlaceName; // Variable to store the selected place name
 
-
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    // _selectedPlaceName = 'Default Current Place';
 
     // Add listeners to update `_hasTriedSubmitting` when input changes
     _planNameController.addListener(_onInputChange);
@@ -221,7 +221,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     }
   }
 
-  void _onMapTap(LatLng location) async{
+  void _onMapTap(LatLng location) async {
     setState(() {
       _selectedLocation = location;
     });
@@ -230,26 +230,26 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   }
 
   Future<void> _getPlaceName(LatLng location) async {
-  try {
-    List<Placemark> placemarks = await placemarkFromCoordinates(
-      location.latitude,
-      location.longitude,
-    );
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        location.latitude,
+        location.longitude,
+      );
 
-    if (placemarks.isNotEmpty) {
-      Placemark place = placemarks.first;
+      if (placemarks.isNotEmpty) {
+        Placemark place = placemarks.first;
 
-      String placeName = '${place.name}, ${place.locality}, ${place.country}';
+        String placeName = '${place.name}, ${place.locality}, ${place.country}';
 
-      setState(() {
-        // Store the place name to display later
-        _selectedPlaceName = placeName;
-      });
+        setState(() {
+          // Store the place name to display later
+          _selectedPlaceName = placeName;
+        });
+      }
+    } catch (e) {
+      print("Error getting place name: $e");
     }
-  } catch (e) {
-    print("Error getting place name: $e");
   }
-}
 
   void _generatePlan() {
     setState(() {
@@ -257,16 +257,25 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     });
 
     if (_formKey.currentState?.validate() ?? false) {
+      // Check if location is selected before generating plan
+      // if (_selectedLocation == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     const SnackBar(content: Text('Please select a location on the map.')),
+      //   );
+      //   return;
+      // }
+
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
         'startTime': _startTimeController.text,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
-        'categories': _selectedActivities.map((activity) => activity.toLowerCase()).toList(),
-        'lad': _selectedLocation?.latitude.toString(),
+        'categories': _selectedActivities
+            .map((activity) => activity.toLowerCase())
+            .toList(),
+        'lad':
+            _selectedLocation?.latitude.toString(), // Ensure this is non-null
         'lng': _selectedLocation?.longitude.toString(),
-        // "lad" : "13.63826535643979",
-        // "lng" : "100.43784915553714",
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent
@@ -404,7 +413,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
                                       color: primaryColor)),
-                              Text(_selectedPlaceName!, style: const TextStyle(
+                              Text(_selectedPlaceName ?? 'No location selected',
+                                  style: const TextStyle(
                                       fontSize: 14, color: Colors.grey)),
                             ],
                           )
