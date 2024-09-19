@@ -397,29 +397,43 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 const SizedBox(height: 12),
                 if (_selectedLocation != null)
                   Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Icon(Icons.location_on, color: primaryColor),
-                          const SizedBox(width: 10),
-                          Column(
+                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Icon(Icons.location_on, color: primaryColor),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          // Make the column expandable
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Text('Selected location',
-                                  style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: primaryColor)),
-                              Text(_selectedPlaceName ?? 'No location selected',
-                                  style: const TextStyle(
-                                      fontSize: 14, color: Colors.grey)),
+                              Text(
+                                'Selected location',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: primaryColor,
+                                ),
+                              ),
+                              Text(
+                                _selectedPlaceName ?? 'No place selected',
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.grey,
+                                ),
+                                maxLines: 1, // Ensures a single line
+                                overflow:
+                                    TextOverflow.ellipsis, // Truncates overflow
+                              ),
                             ],
-                          )
-                        ],
-                      )),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
                 const SizedBox(height: 30),
                 Row(
                   children: [
