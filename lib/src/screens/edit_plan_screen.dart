@@ -287,9 +287,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           primaryColor,
                           time,
                           PlaceDetailCard(
-                            imageUrl: details['photosUrl'],
-                            title: details['displayName'],
-                            subtitle: details['primaryType'],
+                            imageUrl: details['photosUrl'] ?? 'No image',
+                            title: details['displayName'] ?? 'No place name',
+                            subtitle: details['primaryType'] ?? 'No type',
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
                           key,
@@ -482,9 +482,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
                             getRandomizedPlaces(1);
                         setState(() {
                           updatedPlan['selectedPlaces'][key] = {
-                            'imageUrl': newPlace.first['photoUrl']!,
-                            'title': newPlace.first['title']!,
-                            'subtitle': newPlace.first['subtitle']!,
+                            'imageUrl': newPlace.first['photoUrl'] ?? '',
+                            'title': newPlace.first['title'] ?? '',
+                            'subtitle': newPlace.first['subtitle'] ?? '',
                           };
                         });
                       },
@@ -498,14 +498,10 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         // Delete place logic
                         setState(() {
                           if (updatedPlan['selectedPlaces'].containsKey(key)) {
-                            // Store the place to be deleted in the deletedPlaces list
                             deletedPlaces
                                 .add(updatedPlan['selectedPlaces'][key]);
-
-                            // Remove the place from updatedPlan
                             updatedPlan['selectedPlaces'].remove(key);
 
-                            // Update the number of places
                             updatedPlan['numberOfPlaces'] =
                                 updatedPlan['selectedPlaces'].length;
                           }

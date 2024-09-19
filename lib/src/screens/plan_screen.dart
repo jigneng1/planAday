@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../services/api_service.dart';
 import 'components/place_card.dart'; // Import the custom card widget
 
 class PlanScreen extends StatefulWidget {
@@ -16,6 +17,7 @@ class PlanScreen extends StatefulWidget {
 
 class _PlanScreenState extends State<PlanScreen> {
   Map<String, dynamic>? selectedPlaces;
+  final ApiService apiService = ApiService();
 
   @override
   void initState() {
@@ -38,10 +40,16 @@ class _PlanScreenState extends State<PlanScreen> {
       'startTime': widget.planData['startTime'],
       'startDate': widget.planData['startDate'],
       'numberOfPlaces': widget.planData['numberOfPlaces'],
-      'selectedPlaces': selectedPlaces,  // Use current selected places
+      'selectedPlaces': selectedPlaces, 
     };
-
     widget.onEditPlan(updatedPlanData);
+  }
+
+  void _handleRegeneratePlan() async {
+    final plan = await apiService.getRandomPlaces(widget.planData);
+    setState(() {
+      selectedPlaces = plan;
+    });
   }
 
   @override
@@ -224,7 +232,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         const SizedBox(width: 20),
                         ElevatedButton(
                           onPressed: () {
-                            // Handle regenerate action
+                            _handleRegeneratePlan();
                           },
                           style: ElevatedButton.styleFrom(
                               backgroundColor: primaryColor),
@@ -280,7 +288,7 @@ class _PlanScreenState extends State<PlanScreen> {
           children: [
             Text(
               time,
-              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
             placeCard,
