@@ -46,22 +46,13 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _handleRegeneratePlan() async {
-  final Map<String, dynamic> data = {
-    'lad': widget.planData['lad'],
-    'lng': widget.planData['lng'],
-    'categories': widget.planData['category'],
-    'numberOfPlaces': widget.planData['numberOfPlaces'],
-  };
-
-  print('Regenerating plan with data: $data'); // Log the data being sent to the API
-
   setState(() {
     selectedPlaces = null; // Temporarily clear selectedPlaces to show loading
   });
 
   try {
     // Fetch the new plan data
-    final plan = await apiService.getRandomPlaces(data);
+    final plan = await apiService.getRandomPlaces(widget.planData['planID'], widget.planData['numberOfPlaces']);
     print('Fetched plan: $plan'); // Log the fetched plan
 
     if (plan != null && plan.isNotEmpty) {

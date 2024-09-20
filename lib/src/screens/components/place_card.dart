@@ -61,14 +61,14 @@ class PlaceDetailCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                Row(children: [
-                  Icon(
-                  Icons.place,
-                  color: primaryColor,
-                ),
-                const SizedBox(width: 5),
-                Text('2 km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
-                ],)
+                // Row(children: [
+                //   Icon(
+                //   Icons.place,
+                //   color: primaryColor,
+                // ),
+                // const SizedBox(width: 5),
+                // Text('2 km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
+                // ],)
               ],
             )
           ),
