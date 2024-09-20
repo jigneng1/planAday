@@ -6,7 +6,8 @@ class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
   final VoidCallback onPlan;
 
-  const HomeScreen({super.key, required this.onCreatePlan, required this.onPlan});
+  const HomeScreen(
+      {super.key, required this.onCreatePlan, required this.onPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -14,6 +15,27 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool _haveOngoingPlan = false; // State variable
+
+  List<Map<String, String>> places = [
+    {
+      'placeName': 'Tonglor',
+      'placeDetails': 'Bar - Restaurant • 2 hours',
+      'imageUrl':
+          'https://www.theakyra.com/files/5415/8921/0258/Thonglor_Bangkok_District.jpg',
+    },
+    {
+      'placeName': 'Sukhumvit',
+      'placeDetails': 'Shopping - Dining • 3 hours',
+      'imageUrl':
+          'https://www.realasset.co.th/ckfinder/userfiles/images/0001-skytrain.jpg',
+    },
+    {
+      'placeName': 'Chinatown',
+      'placeDetails': 'Cultural Tour • 4 hours',
+      'imageUrl':
+          'https://upload.wikimedia.org/wikipedia/commons/6/64/Yaowarat_at_night_%2832455695783%29.jpg',
+    },
+  ];
 
   void _startOngoingPlan() {
     setState(() {
@@ -188,11 +210,11 @@ class _HomeScreenState extends State<HomeScreen> {
                               GestureDetector(
                                 onTap: widget.onPlan,
                                 child: const PlaceDetailCard(
-                                imageUrl:
-                                    'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                                title: 'Vinyl Museum',
-                                subtitle: 'Museum',
-                              ),
+                                  imageUrl:
+                                      'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
+                                  title: 'Vinyl Museum',
+                                  subtitle: 'Museum',
+                                ),
                               ),
                               const SizedBox(height: 20),
                               PlaceDetailCard(
@@ -262,8 +284,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCarouselSlider() {
     return CarouselSlider.builder(
-      itemCount: 3, // Number of cards in the carousel
+      itemCount: places
+          .length, // Number of cards in the carousel based on the list length
       itemBuilder: (BuildContext context, int index, int realIndex) {
+        final place = places[index]; // Get current place data
         return Card(
           margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           shape: RoundedRectangleBorder(
@@ -274,46 +298,34 @@ class _HomeScreenState extends State<HomeScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(20),
                 child: Image.network(
-                  'https://www.theakyra.com/files/5415/8921/0258/Thonglor_Bangkok_District.jpg', // Replace with your image URL
+                  place['imageUrl']!, // Replace with dynamic image URL
                   fit: BoxFit.cover,
                   width: double.infinity,
                 ),
               ),
-              const Positioned(
+              Positioned(
                 bottom: 16,
                 left: 16,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tonglor',
-                      style: TextStyle(
+                      place['placeName']!, // Dynamic place name
+                      style: const TextStyle(
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                     Text(
-                      'Bar - Restaurant • 2 hours',
-                      style: TextStyle(
+                      place['placeDetails']!, // Dynamic place details
+                      style: const TextStyle(
                         color: Colors.white70,
                       ),
                     ),
                   ],
                 ),
               ),
-              // Positioned(
-              //   bottom: 16,
-              //   right: 16,
-              //   child: ElevatedButton(
-              //     onPressed: () {},
-              //     style: ElevatedButton.styleFrom(
-              //       backgroundColor: Colors.grey,
-              //     ),
-              //     child: const Text('Detail',
-              //         style: TextStyle(color: Colors.black)),
-              //   ),
-              // ),
             ],
           ),
         );
