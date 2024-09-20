@@ -289,7 +289,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           PlaceDetailCard(
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
-                            subtitle: details['primaryType'] ?? 'No type',
+                            subtitle: details['primaryType'] ?? '',
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
                           key,

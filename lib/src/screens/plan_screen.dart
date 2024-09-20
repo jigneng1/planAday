@@ -53,6 +53,8 @@ class _PlanScreenState extends State<PlanScreen> {
     'numberOfPlaces': widget.planData['numberOfPlaces'],
   };
 
+  print('Regenerating plan with data: $data'); // Log the data being sent to the API
+
   setState(() {
     selectedPlaces = null; // Temporarily clear selectedPlaces to show loading
   });
@@ -117,9 +119,9 @@ class _PlanScreenState extends State<PlanScreen> {
         primaryColor,
         time,
         PlaceDetailCard(
-          imageUrl: details['photosUrl'],  // If you have imageUrl data, set it here
+          imageUrl: details['photosUrl'] ?? '',  // If you have imageUrl data, set it here
           title: details['displayName'] ?? 'No Title',  // Title from displayName['text']
-          subtitle: details['primaryType'] ?? 'No Type',        // Subtitle from primaryType
+          subtitle: details['primaryType'] ?? '',        // Subtitle from primaryType
         ),
         routingWidgets.length == selectedPlaces!.length - 1, // Check if it's the last place
       ));
