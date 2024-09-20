@@ -3,12 +3,15 @@ import 'package:flutter/material.dart';
 class PlaceDetailCard extends StatelessWidget {
   final String imageUrl;
   final String title;
-  final String subtitle;
+  final String type; // Changed from subtitle to eventType
+  final String location;
 
-  const PlaceDetailCard({super.key, 
+  const PlaceDetailCard({
+    super.key,
     required this.imageUrl,
     required this.title,
-    required this.subtitle,
+    required this.type, // Updated
+    required this.location,
   });
 
   @override
@@ -19,60 +22,86 @@ class PlaceDetailCard extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
       ),
-      elevation: 5,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12.0)),
+      elevation: 3,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 12.0),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Image Section
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12.0),
               child: Image.network(
                 imageUrl,
-                width: double.infinity,
-                height: 100,
+                width: 120,
+                height: 120,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Text('Image not available', style: TextStyle(fontWeight: FontWeight.bold),));
+                  return const Center(
+                    child: Text(
+                      'Image not available',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  );
                 },
-              )),
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            // Content Section
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // Event type tag (e.g., Sports event)
+                  Container(
+                    decoration: BoxDecoration(
+                      color: primaryColor,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 6, horizontal: 6),
+                    child: Text(
+                      type,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(height: 5),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Location
+                  Row(
+                    children: [
+                      Icon(Icons.place, color: Colors.grey, size: 16),
+                      const SizedBox(width: 4),
+                      // Ensure location text doesn't overflow
+                      Flexible(
+                        child: Text(
+                          location,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1, // Optional: limits text to 1 line
                         ),
                       ),
                     ],
                   ),
-                ),
-                // Row(children: [
-                //   Icon(
-                //   Icons.place,
-                //   color: primaryColor,
-                // ),
-                // const SizedBox(width: 5),
-                // Text('2 km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
-                // ],)
-              ],
-            )
-          ),
-        ],
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

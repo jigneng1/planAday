@@ -289,7 +289,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           PlaceDetailCard(
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
-                            subtitle: details['primaryType'] ?? '',
+                            type: details['primaryType'] ?? 'No Type',
+                            location: details['shortFormattedAddress'] ?? 'No location',
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
                           key,
@@ -452,7 +453,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
               backgroundColor: Colors.grey,
             ),
             Container(
-              height: isLast ? 190 : 220, // Height of the vertical line
+              height: isLast ? 180 : 200, // Height of the vertical line
               width: 2,
               color: Colors.grey,
             ),
@@ -482,9 +483,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
                             getRandomizedPlaces(1);
                         setState(() {
                           updatedPlan['selectedPlaces'][key] = {
-                            'imageUrl': newPlace.first['photoUrl'] ?? '',
-                            'title': newPlace.first['title'] ?? '',
-                            'subtitle': newPlace.first['subtitle'] ?? '',
+                            'imageUrl': newPlace.first['photoUrl'] ?? 'No image',
+                            'title': newPlace.first['title'] ?? 'No Name',
+                            'subtitle': newPlace.first['subtitle'] ?? 'No Type',
                           };
                         });
                       },

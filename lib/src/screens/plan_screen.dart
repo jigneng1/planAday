@@ -98,21 +98,22 @@ class _PlanScreenState extends State<PlanScreen> {
       try {
         startTime = DateFormat('HH:mm').parse(startTimeString); // Parse the time as a DateTime object
       } catch (e) {
-        startTime = DateTime(2024, 1, 1, 9, 0); // Fallback to a default time if parsing fails (e.g., 09:00 AM)
+        startTime = DateTime(2024, 1, 1, 9, 0);
         print('Error parsing start time: $e');
       }
 
       // Calculate the time for each place
       final placeTime = startTime.add(Duration(hours: routingWidgets.length));
-      final time = DateFormat('h:mm a').format(placeTime); // Format time in 12-hour format with AM/PM
+      final time = DateFormat('h:mm a').format(placeTime);
 
       routingWidgets.add(buildRouting(
         primaryColor,
         time,
         PlaceDetailCard(
-          imageUrl: details['photosUrl'] ?? '',  // If you have imageUrl data, set it here
-          title: details['displayName'] ?? 'No Title',  // Title from displayName['text']
-          subtitle: details['primaryType'] ?? '',        // Subtitle from primaryType
+          imageUrl: details['photosUrl'] ?? '', 
+          title: details['displayName'] ?? 'No Title', 
+          type: details['primaryType'] ?? 'No Type',  
+          location: details['shortFormattedAddress'] ?? 'No Location',     
         ),
         routingWidgets.length == selectedPlaces!.length - 1, // Check if it's the last place
       ));
@@ -300,7 +301,7 @@ class _PlanScreenState extends State<PlanScreen> {
             backgroundColor: primaryColor,
           ),
           Container(
-            height: isLast ? 190 : 270, // Height of the vertical line
+            height: isLast ? 180 : 270, // Height of the vertical line
             width: 2,
             color: primaryColor,
           ),

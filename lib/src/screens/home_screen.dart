@@ -1,6 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/screens/components/place_card.dart';
+import 'package:plan_a_day/src/screens/components/plan_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
@@ -209,7 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               GestureDetector(
                                 onTap: widget.onPlan,
-                                child: const PlaceDetailCard(
+                                child: const PlanCard(
                                   imageUrl:
                                       'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                   title: 'Vinyl Museum',
@@ -217,20 +217,20 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ),
                               const SizedBox(height: 20),
-                              PlaceDetailCard(
+                              const PlanCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              SizedBox(height: 20),
-                              PlaceDetailCard(
+                              const SizedBox(height: 20),
+                              const PlanCard(
                                 imageUrl:
                                     'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
                                 title: 'Vinyl Museum',
                                 subtitle: 'Museum',
                               ),
-                              SizedBox(height: 50),
+                              const SizedBox(height: 50),
                             ],
                           )),
                     ],
