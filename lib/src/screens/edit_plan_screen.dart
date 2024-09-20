@@ -148,6 +148,14 @@ class _PlanScreenState extends State<EditPlanScreen> {
     });
   }
 
+  String formatType(String type) {
+    return type
+        .replaceAll('_', ' ')  
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
+
   @override
   Widget build(BuildContext context) {
     // print('EditScreen Received plan data: ${widget.planData}');
@@ -221,11 +229,11 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 GestureDetector(
                   onTap: _editStartTime,
                   child: Text(
-                    '${updatedPlan['startTime'] ?? 'N/A'}',
-                    style: TextStyle(
+                    updatedPlan['numberOfPlaces'] != null
+                      ? '${updatedPlan['numberOfPlaces']!} hours'
+                      : 'Unknown',
+                    style: const TextStyle(
                       fontSize: 16,
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
@@ -289,7 +297,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                           PlaceDetailCard(
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
-                            type: details['primaryType'] ?? 'No Type',
+                            type: formatType(details['primaryType'] ?? 'No type'),
                             location: details['shortFormattedAddress'] ?? 'No location',
                             placeID: details['id'] ?? 'No place ID',
                           ),
@@ -336,34 +344,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: 50),
-            const Row(
-              children: [
-                Icon(Icons.location_on, size: 30),
-                SizedBox(width: 8),
-                Text(
-                  'Routing Path',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20),
-                color: Colors.grey.shade200,
-              ),
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.map, size: 80),
-                  SizedBox(height: 16),
-                ],
-              ),
-            ),
-            const SizedBox(height: 50),
+            const SizedBox(height: 100),
             Column(
               children: [
                 LayoutBuilder(

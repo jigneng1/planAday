@@ -77,6 +77,13 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 }
 
+  String formatType(String type) {
+    return type
+        .replaceAll('_', ' ')  
+        .split(' ')
+        .map((word) => word[0].toUpperCase() + word.substring(1))
+        .join(' ');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -112,7 +119,7 @@ class _PlanScreenState extends State<PlanScreen> {
         PlaceDetailCard(
           imageUrl: details['photosUrl'] ?? '', 
           title: details['displayName'] ?? 'No Title', 
-          type: details['primaryType'] ?? 'No Type',  
+          type: formatType(details['primaryType']  ?? 'No Type'),  
           location: details['shortFormattedAddress'] ?? 'No Location', 
           placeID: details['id'] ?? 'No ID',    
         ),
