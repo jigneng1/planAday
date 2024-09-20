@@ -40,6 +40,7 @@ class _PlanScreenState extends State<PlanScreen> {
       'startTime': widget.planData['startTime'],
       'startDate': widget.planData['startDate'],
       'numberOfPlaces': widget.planData['numberOfPlaces'],
+      'planID': widget.planData['planID'],
       'selectedPlaces': selectedPlaces, 
     };
     widget.onEditPlan(updatedPlanData);

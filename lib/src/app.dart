@@ -20,8 +20,6 @@ class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
   int _indexBeforeCreate = 0;
 
-  late final List<Widget> _children;
-
   Map<String, dynamic> _planData = {};
 
   void onTabTapped(int index) {

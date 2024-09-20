@@ -158,7 +158,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // print('EditScreen Received plan data: ${widget.planData}');
+    print('EditScreen Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
