@@ -291,6 +291,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                             title: details['displayName'] ?? 'No place name',
                             type: details['primaryType'] ?? 'No Type',
                             location: details['shortFormattedAddress'] ?? 'No location',
+                            placeID: details['id'] ?? 'No place ID',
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
                           key,

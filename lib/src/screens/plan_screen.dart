@@ -113,7 +113,8 @@ class _PlanScreenState extends State<PlanScreen> {
           imageUrl: details['photosUrl'] ?? '', 
           title: details['displayName'] ?? 'No Title', 
           type: details['primaryType'] ?? 'No Type',  
-          location: details['shortFormattedAddress'] ?? 'No Location',     
+          location: details['shortFormattedAddress'] ?? 'No Location', 
+          placeID: details['id'] ?? 'No ID',    
         ),
         routingWidgets.length == selectedPlaces!.length - 1, // Check if it's the last place
       ));
