@@ -49,7 +49,7 @@ class ApiService {
             'startTime': inputplanData['startTime'],
             'startDate': inputplanData['startDate'],
             'numberOfPlaces': inputplanData['numberOfPlaces'],
-            'planID' : planID,
+            'planID': planID,
             'selectedPlaces': placesMap,
           };
           return fullPlan;
@@ -70,22 +70,46 @@ class ApiService {
   Future<Map<String, dynamic>?> getRandomPlaces(
       String planID, int numberOfPlace) async {
     final placesUrl = Uri.parse(
-            "http://localhost:3000/randomPlaces?id=$planID&places=$numberOfPlace");
-        final placesResponse = await http.get(placesUrl);
+        "http://localhost:3000/randomPlaces?id=$planID&places=$numberOfPlace");
+    final placesResponse = await http.get(placesUrl);
 
-        if (placesResponse.statusCode == 200) {
-          print('Random places fetched successfully');
+    if (placesResponse.statusCode == 200) {
+      print('Random places fetched successfully');
 
-          // Parse the places data
-          final planData = jsonDecode(placesResponse.body);
-          final List<dynamic> places = planData['data'];
-          final Map<String, dynamic> placesMap = {
-            for (var place in places) place['id']: place
-          };
+      // Parse the places data
+      final planData = jsonDecode(placesResponse.body);
+      final List<dynamic> places = planData['data'];
+      final Map<String, dynamic> placesMap = {
+        for (var place in places) place['id']: place
+      };
 
-          return placesMap;
+      return placesMap;
+    } else {
+      print('Failed to fetch random places: ${placesResponse.statusCode}');
+      return null;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://localhost:3000/placeDetail/$placeId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check if the 'data' key exists and contains the place details
+        if (jsonResponse['data'] != null) {
+          return jsonResponse['data'];
         } else {
-          print('Failed to fetch random places: ${placesResponse.statusCode}');
-          return null;
+          throw Exception("Place details not found in response");
         }
-}}
+      } else {
+        throw Exception(
+            "Failed to load place details, status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
+}

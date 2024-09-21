@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import '../../../services/api_service.dart';
 import '../placeDetail_screen.dart';
 
-class PlaceDetailCard extends StatelessWidget {
+class PlaceDetailCard extends StatefulWidget {
   final String imageUrl;
   final String title;
   final String type;
@@ -18,19 +19,52 @@ class PlaceDetailCard extends StatelessWidget {
   });
 
   @override
+  State<PlaceDetailCard> createState() => _PlaceDetailCardState();
+}
+
+class _PlaceDetailCardState extends State<PlaceDetailCard> {
+  final ApiService apiService = ApiService();
+
+  void _navigateToPlaceDetail(BuildContext context) async {
+    try {
+      // Fetch the place details from the API using the placeID
+      final placeDetails = await apiService.getPlaceDetails(widget.placeID);
+
+      // Navigate to PlaceDetailPage, passing in the required data
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PlaceDetailPage(
+            imageUrl: placeDetails?['photo'] ?? 'https://via.placeholder.com/300',
+            title: placeDetails?['displayName'] ?? 'Unknown Place',
+            rating: placeDetails?['rating']?.toString() ?? 'No Rating',
+            openHours: placeDetails?['currentOpeningHours']?.join('\n') ?? 'No Open Hours',
+            tagsData: {
+              'Wheelchair Parking': placeDetails?['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
+              'Wheelchair Entrance': placeDetails?['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
+              'Wheelchair Restroom': placeDetails?['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
+              'Wheelchair Seating': placeDetails?['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
+              'Free Parking Lot': placeDetails?['parkingOptions']?['freeParkingLot'] ?? false,
+              'Free Street Parking': placeDetails?['parkingOptions']?['freeStreetParking'] ?? false,
+              'Takeout': placeDetails?['takeout'] ?? false,
+              'Dog Friendly': placeDetails?['allowsDogs'] ?? false,
+              'Live Music': placeDetails?['liveMusic'] ?? false,
+            }, onPlan: () {  },
+          ),
+        ),
+      );
+    } catch (e) {
+      // Handle the error, for example, by showing a snackbar or alert dialog
+      print('Error fetching place details: $e');
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final primaryColor = Theme.of(context).primaryColor;
 
     return GestureDetector(
-      onTap: () {
-        // Navigate to place detail screen
-        // Navigator.push(context, MaterialPageRoute(builder: (context) {
-        //   return PlaceDetailPage(
-        //     imageUrl: imageUrl,
-        //     title: title,
-        //   );
-        // }));
-      },
+      onTap: () => _navigateToPlaceDetail(context), // Handle tap
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
@@ -45,9 +79,9 @@ class PlaceDetailCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12.0),
                 child: Image.network(
-                  imageUrl,
+                  widget.imageUrl,
                   width: 120,
-                  height: 120,
+                  height: 120, 
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
@@ -69,15 +103,13 @@ class PlaceDetailCard extends StatelessWidget {
                     children: [
                       // Title
                       Text(
-                        title,
+                        widget.title,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(), // Space between title and type
-
-                      // Event type tag (e.g., Sports event)
+                      const Spacer(), 
                       Container(
                         decoration: BoxDecoration(
                           color: primaryColor,
@@ -86,7 +118,7 @@ class PlaceDetailCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             vertical: 6, horizontal: 10),
                         child: Text(
-                          type,
+                          widget.type,
                           style: const TextStyle(
                             fontSize: 12,
                             color: Colors.white,
@@ -94,9 +126,7 @@ class PlaceDetailCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
                       const Spacer(), // Pushes the location to the bottom
-
                       // Location at the bottom
                       Row(
                         children: [
@@ -105,7 +135,7 @@ class PlaceDetailCard extends StatelessWidget {
                           // Ensure location text doesn't overflow
                           Flexible(
                             child: Text(
-                              location,
+                              widget.location,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
