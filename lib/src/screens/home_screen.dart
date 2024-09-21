@@ -283,29 +283,55 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildCarouselSlider() {
-    return CarouselSlider.builder(
-      itemCount: places
-          .length, // Number of cards in the carousel based on the list length
-      itemBuilder: (BuildContext context, int index, int realIndex) {
-        final place = places[index]; // Get current place data
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.network(
-                  place['imageUrl']!, // Replace with dynamic image URL
-                  fit: BoxFit.cover,
-                  width: double.infinity,
+  return CarouselSlider.builder(
+    itemCount: places.length, // Number of cards in the carousel based on the list length
+    itemBuilder: (BuildContext context, int index, int realIndex) {
+      final place = places[index]; // Get current place data
+      return Card(
+        margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+        ),
+        elevation: 4, // Add elevation to lift the card
+        child: Stack(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: Image.network(
+                place['imageUrl']!, // Replace with dynamic image URL
+                fit: BoxFit.cover,
+                width: double.infinity,
+                height: double.infinity,
+              ),
+            ),
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(24),
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
+                    colors: [
+                      Colors.black.withOpacity(0.6),
+                      Colors.transparent,
+                    ],
+                  ),
                 ),
               ),
-              Positioned(
-                bottom: 16,
-                left: 16,
+            ),
+            Positioned(
+              left: 0, 
+              right: 0, 
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.4), 
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(24), 
+                    bottomRight: Radius.circular(24),
+                  ),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -315,27 +341,37 @@ class _HomeScreenState extends State<HomeScreen> {
                         color: Colors.white,
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        letterSpacing: 1.2, // Modern letter spacing
                       ),
                     ),
+                    const SizedBox(height: 4), // Spacing between title and details
                     Text(
                       place['placeDetails']!, // Dynamic place details
                       style: const TextStyle(
                         color: Colors.white70,
+                        fontSize: 12,
                       ),
                     ),
+                    const SizedBox(height: 4),
                   ],
                 ),
               ),
-            ],
-          ),
-        );
-      },
-      options: CarouselOptions(
-        height: 200,
-        viewportFraction: 0.8,
-        enlargeCenterPage: true,
-        autoPlay: true,
-      ),
-    );
-  }
+            ),
+          ],
+        ),
+      );
+    },
+    options: CarouselOptions(
+      height: 220,
+      viewportFraction: 0.85,
+      enlargeCenterPage: true,
+      autoPlay: true,
+      autoPlayInterval: const Duration(seconds: 3), 
+      autoPlayAnimationDuration: const Duration(milliseconds: 800),
+      enlargeStrategy: CenterPageEnlargeStrategy.height,
+    ),
+  );
+}
+
+
 }
