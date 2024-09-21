@@ -341,8 +341,8 @@ class _PlanScreenState extends State<PlanScreen> {
             backgroundColor: primaryColor,
           ),
           Container(
-            height: isLast ? 180 : 270, // Height of the vertical line
-            width: 2,
+            height: isLast ? 180 : 250, // Height of the vertical line
+            width: 3,
             color: primaryColor,
           ),
         ],
@@ -363,8 +363,8 @@ class _PlanScreenState extends State<PlanScreen> {
             if (!isLast) ...[
               Row(
                 children: [
-                  Icon(Icons.directions_walk, size: 30, color: Colors.grey),
-                  SizedBox(width: 5),
+                  const Icon(Icons.directions_walk, size: 30, color: Colors.grey),
+                  const SizedBox(width: 5),
                   Text(
                     travelTime?['walking'] ?? 'Loading',
                     style: const TextStyle(

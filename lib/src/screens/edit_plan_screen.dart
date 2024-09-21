@@ -248,9 +248,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   'Start date  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const Text(
-                  '22 August 2024',
-                  style: TextStyle(fontSize: 16),
+                Text(
+                  updatedPlan['startDate'] ?? 'Unknown',
+                  style: const TextStyle(fontSize: 16),
                 ),
               ],
             ),
@@ -436,7 +436,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
             ),
             Container(
               height: isLast ? 180 : 200, // Height of the vertical line
-              width: 2,
+              width: 3,
               color: Colors.grey,
             ),
           ],
