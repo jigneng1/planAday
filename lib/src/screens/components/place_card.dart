@@ -39,7 +39,7 @@ class PlaceDetailCard extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 12.0),
           child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               // Image Section
               ClipRRect(
@@ -63,9 +63,10 @@ class PlaceDetailCard extends StatelessWidget {
               // Content Section
               Expanded(
                 child: SizedBox(
-                  height: 120, // Ensure the Column gets proper height
+                  height: 120,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       // Title
                       Text(
@@ -75,9 +76,6 @@ class PlaceDetailCard extends StatelessWidget {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(), // Space between title and type
-
-                      // Event type tag (e.g., Sports event)
                       Container(
                         decoration: BoxDecoration(
                           color: primaryColor,
@@ -94,15 +92,11 @@ class PlaceDetailCard extends StatelessWidget {
                           ),
                         ),
                       ),
-
-                      const Spacer(), // Pushes the location to the bottom
-
-                      // Location at the bottom
+                      // Location
                       Row(
                         children: [
                           const Icon(Icons.place, color: Colors.grey, size: 16),
                           const SizedBox(width: 4),
-                          // Ensure location text doesn't overflow
                           Flexible(
                             child: Text(
                               location,
@@ -111,7 +105,7 @@ class PlaceDetailCard extends StatelessWidget {
                                 color: Colors.grey,
                               ),
                               overflow: TextOverflow.ellipsis,
-                              maxLines: 1, // Optional: limits text to 1 line
+                              maxLines: 1,
                             ),
                           ),
                         ],
