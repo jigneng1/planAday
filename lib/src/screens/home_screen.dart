@@ -5,9 +5,11 @@ import 'package:plan_a_day/src/screens/components/plan_card.dart';
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
   final VoidCallback onPlan;
+  final List<Map<String, dynamic>> allPlans;
+  final bool haveOngoingPlan;
 
   const HomeScreen(
-      {super.key, required this.onCreatePlan, required this.onPlan});
+      {super.key, required this.onCreatePlan, required this.onPlan, required this.haveOngoingPlan, required this.allPlans});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -37,11 +39,11 @@ class _HomeScreenState extends State<HomeScreen> {
     },
   ];
 
-  void _startOngoingPlan() {
-    setState(() {
-      _haveOngoingPlan = !_haveOngoingPlan; // Toggle the state
-    });
-  }
+  // void _startOngoingPlan() {
+  //   setState(() {
+  //     _haveOngoingPlan = !_haveOngoingPlan; // Toggle the state
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +59,7 @@ class _HomeScreenState extends State<HomeScreen> {
               Column(
                 children: [
                   Container(
+                    width: double.infinity,
                     height: 250.0, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
@@ -70,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         bottomRight: Radius.circular(40),
                       ),
                     ),
-                    child: Column(
+                    child: widget.haveOngoingPlan ? buildOnGoingPlan() : Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const SizedBox(height: 20),
@@ -355,6 +358,17 @@ class _HomeScreenState extends State<HomeScreen> {
         autoPlayInterval: const Duration(seconds: 3),
         autoPlayAnimationDuration: const Duration(milliseconds: 800),
         enlargeStrategy: CenterPageEnlargeStrategy.height,
+      ),
+    );
+  }
+
+  Widget buildOnGoingPlan() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Text('Your plan')
+        ],
       ),
     );
   }

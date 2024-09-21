@@ -19,8 +19,12 @@ class _MainLayoutState extends State<MainLayout> {
   final ApiService apiService = ApiService();
   int _currentIndex = 0;
   int _indexBeforeCreate = 0;
+  bool _haveOngoingPlan = false;
 
   Map<String, dynamic> _planData = {};
+
+  // List to store multiple plans
+  List<Map<String, dynamic>> _allPlans = [];
 
   void onTabTapped(int index) {
     setState(() {
@@ -52,15 +56,24 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _onStartPlan() {
+    setState(() {
+      _haveOngoingPlan = true;
+      _currentIndex = 0;
+    });
+  }
+
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
-    // print('PlanScreen received input plan data: $planInput');
     try {
       final plan = await apiService.getRandomPlan(planInput);
 
       if (plan != null) {
         setState(() {
           _planData = plan;
-          // print('PlanScreen updated with new plan data: $_planData');
+
+          // Add the new plan to the list of all plans
+          _allPlans.add(plan);
+
           _currentIndex = 3;
         });
       } else {
@@ -76,6 +89,13 @@ class _MainLayoutState extends State<MainLayout> {
   void _handleDoneEditPlan(Map<String, dynamic> planData) {
     setState(() {
       _planData = planData; // Store the data from EditPlanScreen
+
+      // Update the existing plan in the list if it exists
+      int index = _allPlans.indexWhere((plan) => plan['planID'] == planData['planID']);
+      if (index != -1) {
+        _allPlans[index] = planData;
+      }
+
       print('PlanScreen received plan data: $_planData');
       _currentIndex = 3;
     });
@@ -95,6 +115,8 @@ class _MainLayoutState extends State<MainLayout> {
       HomeScreen(
         onCreatePlan: _goToCreatePlanScreen,
         onPlan: _goToPlanScreen,
+        allPlans: _allPlans,
+        haveOngoingPlan: _haveOngoingPlan,
       ),
       const ProfileScreen(),
       CreatePlanScreen(
@@ -106,6 +128,7 @@ class _MainLayoutState extends State<MainLayout> {
         onClose: _goToHomeScreen,
         onEditPlan: _handleEditPlan,
         onPlaceDetail: _goToPlaceDetailScreen,
+        onStartPlan: _onStartPlan,
       ),
       const PersonaScreen(),
       EditPlanScreen(
@@ -187,3 +210,4 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 }
+
