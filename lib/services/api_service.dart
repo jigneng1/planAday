@@ -88,4 +88,43 @@ class ApiService {
           print('Failed to fetch random places: ${placesResponse.statusCode}');
           return null;
         }
-}}
+  }
+
+  Future<List<Map<String, String>>> getTimeTravel(List<String> placeIds) async {
+  List<Map<String, String>> travelTimes = [];
+
+  // Loop through the places to get travel times between consecutive places
+  for (int i = 0; i < placeIds.length - 1; i++) {
+    final String origin = placeIds[i];
+    final String destination = placeIds[i + 1];
+    
+    final travelTimeUrl = Uri.parse(
+        "http://localhost:3000/timeTravel?origin=$origin&destination=$destination");
+    
+    final travelTimeResponse = await http.get(travelTimeUrl);
+    
+    if (travelTimeResponse.statusCode == 200) {
+      // print('Travel time fetched successfully between $origin and $destination');
+      
+      // Parse the travel time data
+      final travelTimeData = jsonDecode(travelTimeResponse.body);
+      
+      // Add driving and walking times to the result list
+      travelTimes.add({
+        'driving': travelTimeData['driving'] ?? 'N/A',
+        'walking': travelTimeData['walking'] ?? 'N/A',
+      });
+    } else {
+      print('Failed to fetch travel time: ${travelTimeResponse.statusCode}');
+      
+      // Add a placeholder in case of failure
+      travelTimes.add({
+        'driving': 'N/A',
+        'walking': 'N/A',
+      });
+    }
+  }
+
+  return travelTimes;
+}
+}
