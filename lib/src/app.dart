@@ -34,15 +34,28 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToHomeScreen() {
     setState(() {
-      _currentIndex = _indexBeforeCreate;
+      _currentIndex = 0;
     });
   }
 
-  void _goToPlanScreen() {
-    setState(() {
-      _currentIndex = 3;
+  void _goToPlanScreen(String planID) {
+  // Search for the plan by planID in the list of all plans
+  Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
+    (plan) => plan['planID'] == planID,
+    orElse: () => {},
+  );
+
+  if (selectedPlan.isNotEmpty) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _planData = selectedPlan;  // Update the _planData with the selected plan
+        _currentIndex = 3;         // Navigate to PlanScreen (index 3)
+      });
     });
+  } else {
+    print('Plan with ID $planID not found.');
   }
+}
 
   void _goToCreatePlanScreen() {
     setState(() {
@@ -60,6 +73,13 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _haveOngoingPlan = true;
       _currentIndex = 0;
+    });
+  }
+
+  void _onStopPlan() {
+    setState(() {
+      _haveOngoingPlan = false;
+      // _currentIndex = 0;
     });
   }
 
@@ -81,6 +101,7 @@ class _MainLayoutState extends State<MainLayout> {
       }
 
       print('Plan data sent successfully');
+      print(_allPlans);
     } catch (error) {
       print('Error sending plan data: $error');
     }
@@ -117,6 +138,7 @@ class _MainLayoutState extends State<MainLayout> {
         onPlan: _goToPlanScreen,
         allPlans: _allPlans,
         haveOngoingPlan: _haveOngoingPlan,
+        onViewOngoingPlan: _goToPlanScreen,
       ),
       const ProfileScreen(),
       CreatePlanScreen(
@@ -129,16 +151,18 @@ class _MainLayoutState extends State<MainLayout> {
         onEditPlan: _handleEditPlan,
         onPlaceDetail: _goToPlaceDetailScreen,
         onStartPlan: _onStartPlan,
+        onGoingPlan: _haveOngoingPlan,
+        onStopPlan: _onStopPlan,
       ),
       const PersonaScreen(),
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
-        onClose: _goToPlanScreen,
-        onCancel: _handleDoneEditPlan,
+        onClose: _goToHomeScreen,
+        onCancel: _goToPlanScreen,
         onDone: _handleDoneEditPlan,
       ),
       PlaceDetailPage(
-        onPlan: _goToPlanScreen, imageUrl: '', title: '',
+        onPlan: _goToHomeScreen, imageUrl: '', title: '',
       ),
     ];
 

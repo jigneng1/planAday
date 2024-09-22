@@ -48,6 +48,7 @@ class ApiService {
             'planName': inputplanData['planName'],
             'startTime': inputplanData['startTime'],
             'startDate': inputplanData['startDate'],
+            'category': inputplanData['categories'],
             'numberOfPlaces': inputplanData['numberOfPlaces'],
             'planID' : planID,
             'selectedPlaces': placesMap,

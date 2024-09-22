@@ -8,7 +8,7 @@ class EditPlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
   final Function(Map<String, dynamic>) onDone;
-  final Function(Map<String, dynamic>) onCancel;
+  final Function(String planID) onCancel;
 
   const EditPlanScreen({
     super.key,
@@ -359,7 +359,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         OutlinedButton(
                           onPressed: () {
                             _restoreDismissedPlaces();
-                            widget.onCancel(originalPlan); // Close the screen
+                            widget.onCancel(originalPlan['planID']); // Close the screen
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),

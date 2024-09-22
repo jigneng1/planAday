@@ -8,6 +8,8 @@ class PlanScreen extends StatefulWidget {
   final VoidCallback onClose;
   final VoidCallback onPlaceDetail;
   final VoidCallback onStartPlan;
+  final VoidCallback onStopPlan;
+  final bool onGoingPlan;
   final Function(Map<String, dynamic>) onEditPlan;
 
   const PlanScreen(
@@ -16,7 +18,7 @@ class PlanScreen extends StatefulWidget {
       required this.planData,
       required this.onEditPlan,
       required this.onPlaceDetail,
-      required this.onStartPlan});
+      required this.onStartPlan, required this.onGoingPlan, required this.onStopPlan});
 
   @override
   _PlanScreenState createState() => _PlanScreenState();
@@ -32,6 +34,13 @@ class _PlanScreenState extends State<PlanScreen> {
     super.initState();
     _initializePlan();
   }
+
+  @override
+  void dispose() {
+    // Cancel any ongoing timers, streams, or other resources
+    super.dispose();
+  }
+
 
   void _initializePlan() {
     // Use existing selected places if available
@@ -51,6 +60,7 @@ class _PlanScreenState extends State<PlanScreen> {
       'planName': widget.planData['planName'],
       'startTime': widget.planData['startTime'],
       'startDate': widget.planData['startDate'],
+      'category': widget.planData['category'],
       'numberOfPlaces': widget.planData['numberOfPlaces'],
       'planID': widget.planData['planID'],
       'selectedPlaces': selectedPlaces,
@@ -59,39 +69,39 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _handleRegeneratePlan() async {
-    setState(() {
-      selectedPlaces = null; // Temporarily clear selectedPlaces to show loading
-    });
+  setState(() {
+    selectedPlaces = null; // Temporarily clear selectedPlaces to show loading
+  });
 
-    try {
-      // Fetch the new plan data
-      final plan = await apiService.getRandomPlaces(
-          widget.planData['planID'], widget.planData['numberOfPlaces']);
-      print('Fetched plan: $plan'); // Log the fetched plan
+  try {
+    final plan = await apiService.getRandomPlaces(
+        widget.planData['planID'], widget.planData['numberOfPlaces']);
+    print('Fetched plan: $plan');
 
-      if (plan != null && plan.isNotEmpty) {
-        // Since the plan itself contains the places, use it as the selectedPlaces
+    if (plan != null && plan.isNotEmpty) {
+      if (mounted) {
         setState(() {
-          selectedPlaces = Map<String, dynamic>.from(
-              plan); // Use the entire plan as selected places
-          getTimeTravel();
+          selectedPlaces = Map<String, dynamic>.from(plan);
+          getTimeTravel();  // Call the travel time fetching function
         });
-        print('State updated with new selected places.');
-      } else {
-        // Handle empty response from the API
-        print('API returned no plan.');
+      }
+    } else {
+      print('API returned no plan.');
+      if (mounted) {
         setState(() {
           selectedPlaces = {}; // Fallback to an empty map
         });
       }
-    } catch (e) {
-      // Log any errors
-      print('Error fetching new places: $e');
+    }
+  } catch (e) {
+    print('Error fetching new places: $e');
+    if (mounted) {
       setState(() {
         selectedPlaces = {}; // Fallback in case of error
       });
     }
   }
+}
 
   String formatType(String type) {
     return type
@@ -102,30 +112,30 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void getTimeTravel() async {
-    if (widget.planData['numberOfPlaces'] > 1) {
-      try {
-        // Fetch the travel time data
-        final placeId = selectedPlaces!.keys.toList();
-        final travelTime = await apiService.getTimeTravel(placeId);
-        print(
-            'Fetched travel time: $travelTime'); // Log the fetched travel time
+  if (widget.planData['numberOfPlaces'] > 1) {
+    try {
+      // Fetch the travel time data
+      final placeId = selectedPlaces!.keys.toList();
+      final travelTime = await apiService.getTimeTravel(placeId);
+      print('Fetched travel time: $travelTime'); // Log the fetched travel time
 
-        if (travelTime != null && travelTime.isNotEmpty) {
-          // Handle the travel time data
+      if (travelTime != null && travelTime.isNotEmpty) {
+        // Check if the widget is still mounted before updating the state
+        if (mounted) {
           setState(() {
             travelTimes = travelTime; // Store the travel time data
           });
-          print('Travel time data received successfully.');
-        } else {
-          // Handle empty response from the API
-          print('API returned no travel time data.');
         }
-      } catch (e) {
-        // Log any errors
-        print('Error fetching travel time data: $e');
+        print('Travel time data received successfully.');
+      } else {
+        print('API returned no travel time data.');
       }
+    } catch (e) {
+      print('Error fetching travel time data: $e');
     }
   }
+}
+
 
   void handleStartPlan() {
     showDialog(
@@ -146,21 +156,10 @@ class _PlanScreenState extends State<PlanScreen> {
                 // Image at the top
                 Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
                 const SizedBox(height: 16),
-                // Title
-                // const Text(
-                //   'Start the plan',
-                //   textAlign: TextAlign.center,
-                //   style: TextStyle(
-                //     fontSize: 25,
-                //     fontWeight: FontWeight.bold,
-                //   ),
-                // ),
-                const SizedBox(height: 10),
-                // Description
                 const Text(
                   'Are you ready to start the plan?',
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 20),
                 Padding(
@@ -180,6 +179,75 @@ class _PlanScreenState extends State<PlanScreen> {
                       ),
                       child: const Text(
                         'Start the plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'Not now',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void handleStopPlan() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Are you ready to start the plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onStopPlan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Stop the plan',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -269,12 +337,12 @@ class _PlanScreenState extends State<PlanScreen> {
           onPressed: widget.onClose,
         ),
         actions: [
-          IconButton(
+          widget.onGoingPlan ? IconButton(
+            icon: const Icon(Icons.pause, size: 30, color: Colors.red),
+            onPressed: handleStopPlan,
+          ) : IconButton(
             icon: Icon(Icons.play_arrow, size: 30, color: primaryColor),
-            onPressed: () {
-              // Handle share plan action
-              handleStartPlan();
-            },
+            onPressed: handleStartPlan,
           ),
         ],
       ),
