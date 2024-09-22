@@ -4,11 +4,12 @@ class PlanCard extends StatelessWidget {
   final String imageUrl;
   final String title;
   final String subtitle;
+  final String time;
 
   const PlanCard({super.key, 
     required this.imageUrl,
     required this.title,
-    required this.subtitle,
+    required this.subtitle, required this.time,
   });
 
   @override
@@ -60,14 +61,16 @@ class PlanCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                // Row(children: [
-                //   Icon(
-                //   Icons.place,
-                //   color: primaryColor,
-                // ),
-                // const SizedBox(width: 5),
-                // Text('2 km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: primaryColor)),
-                // ],)
+                Row(children: [
+                  const Icon(
+                  Icons.timer,
+                  size: 20,
+                  color: Color(0xFFFF6838),
+                ),
+                const SizedBox(width: 7),
+                Text(time, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
+                const Text(' Hours', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
+                ],)
               ],
             )
           ),

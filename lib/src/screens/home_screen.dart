@@ -1,30 +1,32 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
   final Function(String id) onPlan;
   final Function(String id) onViewOngoingPlan;
-  final bool haveOngoingPlan;
+  final String ongoingPlanID;
+  final Map<String, dynamic> onGoingPlan;
   final List<Map<String, dynamic>> allPlans;
+  final VoidCallback onEndGoingPlan;
 
   const HomeScreen(
       {super.key,
       required this.onCreatePlan,
       required this.onPlan,
-      required this.haveOngoingPlan,
+      required this.ongoingPlanID,
       required this.allPlans,
-      required this.onViewOngoingPlan});
+      required this.onViewOngoingPlan,
+      required this.onGoingPlan, required this.onEndGoingPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool _haveOngoingPlan = false; // State variable
-
   List<Map<String, String>> places = [
     {
       'placeName': 'Tonglor',
@@ -67,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: widget.haveOngoingPlan
+                    height: widget.ongoingPlanID != ''
                         ? 300
                         : 250, // Fixed height for the top container
                     decoration: const BoxDecoration(
@@ -82,8 +84,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         bottomRight: Radius.circular(40),
                       ),
                     ),
-                    child: widget.haveOngoingPlan
-                        ? buildOnGoingPlan('')
+                    child: widget.ongoingPlanID != ''
+                        ? OngoingPlanWidget(planID: widget.ongoingPlanID, plan: widget.onGoingPlan, onViewOngoingPlan: widget.onViewOngoingPlan, onEndPlan: widget.onEndGoingPlan)
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -130,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                   ),
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(0, 80, 0, 0),
+                    padding: widget.ongoingPlanID != ''
+                        ? const EdgeInsets.only(top: 20)
+                        : const EdgeInsets.only(top: 70),
                     child: Column(
                       children: [
                         _buildCarouselSlider(),
@@ -164,12 +168,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   Column(
                     children: [
                       const Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
+                        padding: EdgeInsets.symmetric(horizontal: 40),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            const Text(
-                              'Recent Plans',
+                            Text(
+                              'All Plans',
                               style: TextStyle(
                                 fontSize: 25,
                                 fontWeight: FontWeight.bold,
@@ -230,42 +234,49 @@ class _HomeScreenState extends State<HomeScreen> {
                           //   ],
                           // )
                           child: widget.allPlans.isEmpty
-                              ? const Padding(padding: EdgeInsets.all(30),
-                              child: Center(
-                                  child: Text(
-                                    'No recent plans',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.grey,
+                              ? const Padding(
+                                  padding: EdgeInsets.all(30),
+                                  child: Center(
+                                    child: Text(
+                                      'No recent plans',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        color: Colors.grey,
+                                      ),
                                     ),
-                                  ),
-                                ))
+                                  ))
                               : Column(
                                   children: widget.allPlans.map((plan) {
                                     return GestureDetector(
-                                      onTap: () => widget.onPlan(plan['planID']),
-                                      child: Padding(padding: const EdgeInsets.only(bottom: 20),
-                                      child: PlanCard(
-                                        imageUrl: plan['selectedPlaces']
-                                                .values
-                                                .first['photosUrl'] ??
-                                            '', // Use the first place image
-                                        title: plan['planName'] ?? '',
-                                        subtitle: (plan['category'] as List<String>).join(', '),  // Use the category
-                                      ),)
-                                    );
+                                        onTap: () =>
+                                            widget.onPlan(plan['planID']),
+                                        child: Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 20),
+                                          child: PlanCard(
+                                            imageUrl: plan['selectedPlaces']
+                                                    .values
+                                                    .first['photosUrl'] ??
+                                                '', // Use the first place image
+                                            title: plan['planName'] ?? '',
+                                            subtitle: (plan['category']
+                                                    as List<String>)
+                                                .join(', '),
+                                            time: plan['numberOfPlaces']
+                                                .toString(),
+                                          ),
+                                        ));
                                   }).toList(),
-                                )
-                                ),
+                                )),
                     ],
                   ),
                 ],
               ),
               // Overlay container
-              widget.haveOngoingPlan
+              widget.ongoingPlanID != ''
                   ? const SizedBox()
                   : Positioned(
-                      top: 210.0, 
+                      top: 210.0,
                       left: 0,
                       right: 0,
                       child: GestureDetector(
@@ -402,126 +413,94 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget buildOnGoingPlan(String planID) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Ongoing plan',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            const SizedBox(height: 16),
-            const Column(
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      Icons.location_on, // Place icon
-                      color: Colors.black,
-                    ),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Farm Luck', // Place name
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '11:40 AM', // Time
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                SizedBox(height: 8),
-                Row(
-                  children: [
-                    Column(
-                      children: [
-                        Icon(
-                          Icons.circle_outlined, // Next place icon
-                          color: Colors.grey,
-                        ),
-                        DottedLine(
-                          lineLength: 30,
-                          dashLength: 4,
-                          dashColor: Colors.black26,
-                        ),
-                      ],
-                    ),
-                    SizedBox(width: 8),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Suki Teenoi', // Next place name
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        SizedBox(height: 4),
-                        Text(
-                          '1:40 PM', // Next time
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.black54,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.bottomRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Action for "View all" button
-                  widget.onViewOngoingPlan(planID);
-                },
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 8,
-                  ),
-                  backgroundColor: const Color(0xFFFF6838),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                ),
-                child: const Text(
-                  'View all',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+//   Widget buildOnGoingPlan(String planID, Map<String, dynamic> plan) {
+//   return Card(
+//     margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+//     shape: RoundedRectangleBorder(
+//       borderRadius: BorderRadius.circular(20),
+//     ),
+//     elevation: 4,
+//     child: Padding(
+//       padding: const EdgeInsets.all(16.0),
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text(
+//             plan['planName'] ?? 'Ongoing plan', // Plan name
+//             style: const TextStyle(
+//               fontSize: 18,
+//               fontWeight: FontWeight.bold,
+//               color: Colors.black,
+//             ),
+//           ),
+//           const SizedBox(height: 16),
+//           Column(
+//             children: plan['selectedPlaces'].entries.map<Widget>((entry) {
+//               var place = entry.value;
+//               return Column(
+//                 children: [
+//                   Row(
+//                     children: [
+//                       const Icon(
+//                         Icons.location_on, // Place icon
+//                         color: Colors.black,
+//                       ),
+//                       const SizedBox(width: 8),
+//                       Column(
+//                         crossAxisAlignment: CrossAxisAlignment.start,
+//                         children: [
+//                           Text(
+//                             place['displayName'], // Display name from plan data
+//                             style: const TextStyle(
+//                               fontWeight: FontWeight.bold,
+//                               fontSize: 16,
+//                             ),
+//                           ),
+//                           const SizedBox(height: 4),
+//                           const Text(
+//                             'Time placeholder', // Replace with actual time if available
+//                             style: TextStyle(
+//                               fontSize: 14,
+//                               color: Colors.black54,
+//                             ),
+//                           ),
+//                         ],
+//                       ),
+//                     ],
+//                   ),
+//                   const SizedBox(height: 8),
+//                 ],
+//               );
+//             }).toList(),
+//           ),
+//           const SizedBox(height: 16),
+//           Align(
+//             alignment: Alignment.bottomRight,
+//             child: ElevatedButton(
+//               onPressed: () {
+//                 // Action for "View all" button
+//                 widget.onViewOngoingPlan(planID);
+//               },
+//               style: ElevatedButton.styleFrom(
+//                 padding: const EdgeInsets.symmetric(
+//                   horizontal: 40,
+//                   vertical: 8,
+//                 ),
+//                 backgroundColor: const Color(0xFFFF6838),
+//                 shape: RoundedRectangleBorder(
+//                   borderRadius: BorderRadius.circular(20),
+//                 ),
+//               ),
+//               child: const Text(
+//                 'View all',
+//                 style: TextStyle(color: Colors.white),
+//               ),
+//             ),
+//           ),
+//         ],
+//       ),
+//     ),
+//   );
+// }
+
 }

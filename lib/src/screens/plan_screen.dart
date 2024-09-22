@@ -7,9 +7,9 @@ class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
   final VoidCallback onPlaceDetail;
-  final VoidCallback onStartPlan;
+  final Function(String planID) onStartPlan;
   final VoidCallback onStopPlan;
-  final bool onGoingPlan;
+  final String onGoingPlan;
   final Function(Map<String, dynamic>) onEditPlan;
 
   const PlanScreen(
@@ -168,7 +168,7 @@ class _PlanScreenState extends State<PlanScreen> {
                       onPressed: () {
                         // Handle notifications enabling
                         Navigator.of(context).pop();
-                        widget.onStartPlan();
+                        widget.onStartPlan(widget.planData['planID']);
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
@@ -224,16 +224,16 @@ class _PlanScreenState extends State<PlanScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 // Image at the top
-                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'Are you ready to start the plan?',
+                  'Are you sure you want to stop this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
@@ -247,7 +247,7 @@ class _PlanScreenState extends State<PlanScreen> {
                         ),
                       ),
                       child: const Text(
-                        'Stop the plan',
+                        'End the plan',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -305,6 +305,8 @@ class _PlanScreenState extends State<PlanScreen> {
       final placeTime = startTime.add(Duration(hours: routingWidgets.length));
       final time = DateFormat('h:mm a').format(placeTime);
 
+      selectedPlaces![key]['time'] = time;
+
       routingWidgets.add(buildRouting(
         primaryColor,
         time,
@@ -337,7 +339,7 @@ class _PlanScreenState extends State<PlanScreen> {
           onPressed: widget.onClose,
         ),
         actions: [
-          widget.onGoingPlan ? IconButton(
+          widget.onGoingPlan == widget.planData['planID'] ? IconButton(
             icon: const Icon(Icons.pause, size: 30, color: Colors.red),
             onPressed: handleStopPlan,
           ) : IconButton(

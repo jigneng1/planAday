@@ -19,7 +19,7 @@ class _MainLayoutState extends State<MainLayout> {
   final ApiService apiService = ApiService();
   int _currentIndex = 0;
   int _indexBeforeCreate = 0;
-  bool _haveOngoingPlan = false;
+  String _ongoingPlanID = '';
 
   Map<String, dynamic> _planData = {};
 
@@ -39,23 +39,39 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToPlanScreen(String planID) {
-  // Search for the plan by planID in the list of all plans
-  Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
-    (plan) => plan['planID'] == planID,
-    orElse: () => {},
-  );
+    // Search for the plan by planID in the list of all plans
+    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
+      (plan) => plan['planID'] == planID,
+      orElse: () => {},
+    );
 
-  if (selectedPlan.isNotEmpty) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _planData = selectedPlan;  // Update the _planData with the selected plan
-        _currentIndex = 3;         // Navigate to PlanScreen (index 3)
+    if (selectedPlan.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _planData = selectedPlan;
+          _currentIndex = 3;
+        });
       });
-    });
-  } else {
-    print('Plan with ID $planID not found.');
+    } else {
+      print('Plan with ID $planID not found.');
+    }
   }
-}
+
+  void setOnGoingPlan(String planID) {
+    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
+      (plan) => plan['planID'] == planID,
+      orElse: () => {},
+    );
+    if (selectedPlan.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _planData = selectedPlan;
+        });
+      });
+    } else {
+      print('Plan with ID $planID not found.');
+    }
+  }
 
   void _goToCreatePlanScreen() {
     setState(() {
@@ -69,16 +85,27 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _onStartPlan() {
-    setState(() {
-      _haveOngoingPlan = true;
-      _currentIndex = 0;
-    });
+  void _onStartPlan(String planID) {
+    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
+      (plan) => plan['planID'] == planID,
+      orElse: () => {},
+    );
+    if (selectedPlan.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _ongoingPlanID = planID;
+          _planData = selectedPlan;
+          _currentIndex = 0;
+        });
+      });
+    } else {
+      print('Plan with ID $planID not found.');
+    }
   }
 
   void _onStopPlan() {
     setState(() {
-      _haveOngoingPlan = false;
+      _ongoingPlanID = '';
       // _currentIndex = 0;
     });
   }
@@ -112,7 +139,8 @@ class _MainLayoutState extends State<MainLayout> {
       _planData = planData; // Store the data from EditPlanScreen
 
       // Update the existing plan in the list if it exists
-      int index = _allPlans.indexWhere((plan) => plan['planID'] == planData['planID']);
+      int index =
+          _allPlans.indexWhere((plan) => plan['planID'] == planData['planID']);
       if (index != -1) {
         _allPlans[index] = planData;
       }
@@ -126,7 +154,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
-      _currentIndex = 5; 
+      _currentIndex = 5;
     });
   }
 
@@ -137,8 +165,10 @@ class _MainLayoutState extends State<MainLayout> {
         onCreatePlan: _goToCreatePlanScreen,
         onPlan: _goToPlanScreen,
         allPlans: _allPlans,
-        haveOngoingPlan: _haveOngoingPlan,
+        ongoingPlanID: _ongoingPlanID,
+        onGoingPlan: _planData,
         onViewOngoingPlan: _goToPlanScreen,
+        onEndGoingPlan: _onStopPlan,
       ),
       const ProfileScreen(),
       CreatePlanScreen(
@@ -151,7 +181,7 @@ class _MainLayoutState extends State<MainLayout> {
         onEditPlan: _handleEditPlan,
         onPlaceDetail: _goToPlaceDetailScreen,
         onStartPlan: _onStartPlan,
-        onGoingPlan: _haveOngoingPlan,
+        onGoingPlan: _ongoingPlanID,
         onStopPlan: _onStopPlan,
       ),
       const PersonaScreen(),
@@ -162,7 +192,9 @@ class _MainLayoutState extends State<MainLayout> {
         onDone: _handleDoneEditPlan,
       ),
       PlaceDetailPage(
-        onPlan: _goToHomeScreen, imageUrl: '', title: '',
+        onPlan: _goToHomeScreen,
+        imageUrl: '',
+        title: '',
       ),
     ];
 
@@ -234,4 +266,3 @@ class _MainLayoutState extends State<MainLayout> {
     );
   }
 }
-
