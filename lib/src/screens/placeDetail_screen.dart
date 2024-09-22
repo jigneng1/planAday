@@ -8,7 +8,7 @@ class PlaceDetailPage extends StatelessWidget {
   final String openHours;
   final Map<String, bool> tagsData;
 
-  PlaceDetailPage({
+  const PlaceDetailPage({
     super.key,
     required this.onPlan,
     required this.imageUrl,
@@ -37,8 +37,8 @@ class PlaceDetailPage extends StatelessWidget {
   Widget build(BuildContext context) {
     // Tag conditions: true
     List<Widget> tags = tagsData.entries
-        .where((entry) => entry.value) 
-        .map((entry) => _buildTag(entry.key)) 
+        .where((entry) => entry.value)
+        .map((entry) => _buildTag(entry.key))
         .toList();
 
     return Scaffold(
@@ -72,7 +72,7 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(20),
+              preferredSize: const Size.fromHeight(60), 
               child: Container(
                 width: double.infinity,
                 height: 24,
@@ -86,58 +86,62 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          SliverFillRemaining(
+            hasScrollBody: true,
             child: Container(
               color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0, vertical: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (tags.isNotEmpty)
-                          Wrap(
-                            spacing: 8.0, // Spacing between tags
-                            children: tags,
-                          ),
-                        const SizedBox(height: 16),
-                        // Rating section
-                        Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange),
-                            const SizedBox(width: 4),
-                            Text(
-                              rating.isNotEmpty ? rating : 'No Rating',
-                              style: const TextStyle(fontSize: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          openHours.isNotEmpty
-                              ? 'Open Hours:\n\n$openHours'
-                              : 'No Opening Hours',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                        const SizedBox(height: 16),
-                      ],
+                          const SizedBox(height: 8),
+                          if (tags.isNotEmpty)
+                            Wrap(
+                              spacing: 2.0, 
+                              runSpacing: 4.0,
+                              children: tags,
+                            ),
+                          const SizedBox(height: 16),
+                          // Rating section
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: Colors.orange),
+                              const SizedBox(width: 4),
+                              Text(
+                                rating.isNotEmpty ? rating : 'No Rating',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            openHours.isNotEmpty
+                                ? 'Open Hours:\n\n$openHours'
+                                : 'No Opening Hours',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
