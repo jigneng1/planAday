@@ -1,5 +1,4 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
@@ -20,7 +19,8 @@ class HomeScreen extends StatefulWidget {
       required this.ongoingPlanID,
       required this.allPlans,
       required this.onViewOngoingPlan,
-      required this.onGoingPlan, required this.onEndGoingPlan});
+      required this.onGoingPlan,
+      required this.onEndGoingPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -61,6 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
+        top: false,
         child: SingleChildScrollView(
           child: Stack(
             children: [
@@ -70,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     width: double.infinity,
                     height: widget.ongoingPlanID != ''
-                        ? 300
-                        : 250, // Fixed height for the top container
+                        ? 370
+                        : 295, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],
@@ -85,11 +86,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     child: widget.ongoingPlanID != ''
-                        ? OngoingPlanWidget(planID: widget.ongoingPlanID, plan: widget.onGoingPlan, onViewOngoingPlan: widget.onViewOngoingPlan, onEndPlan: widget.onEndGoingPlan)
+                        ? OngoingPlanWidget(
+                            planID: widget.ongoingPlanID,
+                            plan: widget.onGoingPlan,
+                            onViewOngoingPlan: widget.onViewOngoingPlan,
+                            onEndPlan: widget.onEndGoingPlan)
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 70),
                               Center(
                                 child: Image.asset(
                                   'assets/images/Asset_14x.png',
@@ -179,60 +184,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            // GestureDetector(
-                            //   onTap: () {
-                            //     // Handle see all action
-                            //   },
-                            //   child: const Text(
-                            //     'See all',
-                            //     style: TextStyle(
-                            //       fontWeight: FontWeight.w600,
-                            //       shadows: [
-                            //         Shadow(
-                            //             color: Colors.grey,
-                            //             offset: Offset(0, -5))
-                            //       ],
-                            //       color: Colors.transparent,
-                            //       decoration: TextDecoration.underline,
-                            //       decorationColor: Colors.grey,
-                            //       decorationThickness: 2,
-                            //     ),
-                            //   ),
-                            // )
                           ],
                         ),
                       ),
                       const SizedBox(height: 20),
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
-                          // child: Column(
-                          //   children: [
-                          //     GestureDetector(
-                          //       onTap: widget.onPlan,
-                          //       child: const PlanCard(
-                          //         imageUrl:
-                          //             'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                          //         title: 'Vinyl Museum',
-                          //         subtitle: 'Museum',
-                          //       ),
-                          //     ),
-                          //     const SizedBox(height: 20),
-                          //     const PlanCard(
-                          //       imageUrl:
-                          //           'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                          //       title: 'Vinyl Museum',
-                          //       subtitle: 'Museum',
-                          //     ),
-                          //     const SizedBox(height: 20),
-                          //     const PlanCard(
-                          //       imageUrl:
-                          //           'https://thethaiger.com/th/wp-content/uploads/2023/04/1-5.png',
-                          //       title: 'Vinyl Museum',
-                          //       subtitle: 'Museum',
-                          //     ),
-                          //     const SizedBox(height: 50),
-                          //   ],
-                          // )
                           child: widget.allPlans.isEmpty
                               ? const Padding(
                                   padding: EdgeInsets.all(30),
@@ -268,6 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ));
                                   }).toList(),
                                 )),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ],
@@ -276,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
               widget.ongoingPlanID != ''
                   ? const SizedBox()
                   : Positioned(
-                      top: 210.0,
+                      top: 255,
                       left: 0,
                       right: 0,
                       child: GestureDetector(
@@ -412,95 +370,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
-//   Widget buildOnGoingPlan(String planID, Map<String, dynamic> plan) {
-//   return Card(
-//     margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
-//     shape: RoundedRectangleBorder(
-//       borderRadius: BorderRadius.circular(20),
-//     ),
-//     elevation: 4,
-//     child: Padding(
-//       padding: const EdgeInsets.all(16.0),
-//       child: Column(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Text(
-//             plan['planName'] ?? 'Ongoing plan', // Plan name
-//             style: const TextStyle(
-//               fontSize: 18,
-//               fontWeight: FontWeight.bold,
-//               color: Colors.black,
-//             ),
-//           ),
-//           const SizedBox(height: 16),
-//           Column(
-//             children: plan['selectedPlaces'].entries.map<Widget>((entry) {
-//               var place = entry.value;
-//               return Column(
-//                 children: [
-//                   Row(
-//                     children: [
-//                       const Icon(
-//                         Icons.location_on, // Place icon
-//                         color: Colors.black,
-//                       ),
-//                       const SizedBox(width: 8),
-//                       Column(
-//                         crossAxisAlignment: CrossAxisAlignment.start,
-//                         children: [
-//                           Text(
-//                             place['displayName'], // Display name from plan data
-//                             style: const TextStyle(
-//                               fontWeight: FontWeight.bold,
-//                               fontSize: 16,
-//                             ),
-//                           ),
-//                           const SizedBox(height: 4),
-//                           const Text(
-//                             'Time placeholder', // Replace with actual time if available
-//                             style: TextStyle(
-//                               fontSize: 14,
-//                               color: Colors.black54,
-//                             ),
-//                           ),
-//                         ],
-//                       ),
-//                     ],
-//                   ),
-//                   const SizedBox(height: 8),
-//                 ],
-//               );
-//             }).toList(),
-//           ),
-//           const SizedBox(height: 16),
-//           Align(
-//             alignment: Alignment.bottomRight,
-//             child: ElevatedButton(
-//               onPressed: () {
-//                 // Action for "View all" button
-//                 widget.onViewOngoingPlan(planID);
-//               },
-//               style: ElevatedButton.styleFrom(
-//                 padding: const EdgeInsets.symmetric(
-//                   horizontal: 40,
-//                   vertical: 8,
-//                 ),
-//                 backgroundColor: const Color(0xFFFF6838),
-//                 shape: RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(20),
-//                 ),
-//               ),
-//               child: const Text(
-//                 'View all',
-//                 style: TextStyle(color: Colors.white),
-//               ),
-//             ),
-//           ),
-//         ],
-//       ),
-//     ),
-//   );
-// }
-
 }

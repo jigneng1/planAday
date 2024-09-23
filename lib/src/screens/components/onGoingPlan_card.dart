@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class OngoingPlanWidget extends StatefulWidget {
   final String planID;
@@ -24,10 +25,28 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
     List<Map<String, dynamic>> places = widget.plan['selectedPlaces'].values
         .cast<Map<String, dynamic>>()
         .toList();
+    
+    // Function to launch the map with the current place
+    Future<void> launchMapUrl() async {
+      // Get the current place's display name
+      String currentPlace = places[currentIndex]['displayName'];
+      
+      // Construct the Google Maps URL for the current place
+      String baseUrl = 'https://www.google.co.th/maps/dir/My+Location/';
+      String location = Uri.encodeComponent(currentPlace.replaceAll(' ', '+'));
+      String url = baseUrl + location;
+
+      final Uri googleMapsUrl = Uri.parse(url);
+      if (await canLaunchUrl(googleMapsUrl)) {
+        await launchUrl(googleMapsUrl);
+      } else {
+        throw 'Could not launch $googleMapsUrl';
+      }
+    }
 
     return Card(
       color: const Color.fromARGB(174, 255, 255, 255),
-      margin: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+      margin: const EdgeInsets.fromLTRB(40, 80, 40, 30),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
       ),
@@ -48,14 +67,14 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
               overflow: TextOverflow.ellipsis,
               maxLines: 1, 
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 18),
             if (places.isNotEmpty)
               Row(
                 children: [
                   const Icon(
                     Icons.location_on,
                     size: 30,
-                    color: Colors.black,
+                    color: Color(0xFFFF6838),
                   ),
                   const SizedBox(width: 8),
                   Expanded(
@@ -67,6 +86,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                           places[currentIndex]['displayName'],
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
+                            color: Color(0xFFFF6838),
                             fontSize: 15,
                           ),
                           overflow:
@@ -78,7 +98,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                           places[currentIndex]['time'], // Add time if available
                           style: const TextStyle(
                             fontSize: 14,
-                            color: Colors.black54,
+                            color: Color(0xFFFF6838),
                           ),
                         ),
                       ],
@@ -132,23 +152,20 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
               children: [
                 ElevatedButton(
                   onPressed: () {
-                    widget.onViewOngoingPlan(widget.planID);
+                    launchMapUrl();
                   },
                   style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 40,
+                      horizontal: 30,
                       vertical: 8,
                     ),
-                    backgroundColor: const Color(0xFFFF6838),
+                    backgroundColor: Colors.blue,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  child: const Text(
-                    'View plan',
-                    style: TextStyle(color: Colors.white),
+                  child: const Icon(Icons.map, color: Colors.white, size: 20,),
                   ),
-                ),
                 ElevatedButton(
                 onPressed: () {
                   setState(() {
@@ -161,7 +178,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
+                    horizontal: 30,
                     vertical: 8,
                   ),
                   backgroundColor: const Color(0xFFFF6838),
