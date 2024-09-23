@@ -1,15 +1,21 @@
 import 'package:flutter/material.dart';
 
 class PlaceDetailPage extends StatelessWidget {
+  final VoidCallback onPlan;
   final String imageUrl;
   final String title;
-  final VoidCallback onPlan;
+  final String rating;
+  final String openHours;
+  final Map<String, bool> tagsData;
 
   const PlaceDetailPage({
     super.key,
     required this.onPlan,
     required this.imageUrl,
     required this.title,
+    required this.rating,
+    required this.openHours,
+    required this.tagsData,
   });
 
   Widget _buildTag(String text) {
@@ -29,6 +35,12 @@ class PlaceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Tag conditions: true
+    List<Widget> tags = tagsData.entries
+        .where((entry) => entry.value)
+        .map((entry) => _buildTag(entry.key))
+        .toList();
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -60,7 +72,7 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(20),
+              preferredSize: const Size.fromHeight(60), 
               child: Container(
                 width: double.infinity,
                 height: 24,
@@ -74,91 +86,62 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
+          SliverFillRemaining(
+            hasScrollBody: true,
             child: Container(
               color: Colors.white,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          title,
-                          style: const TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          children: [
-                            _buildTag('DineIn'),
-                            _buildTag('servesDessert'),
-                            _buildTag('freeStreetParking'),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Row(
-                          children: [
-                            Icon(Icons.star, color: Colors.orange),
-                            Icon(Icons.star, color: Colors.orange),
-                            Icon(Icons.star, color: Colors.orange),
-                            Icon(Icons.star, color: Colors.orange),
-                            Icon(Icons.star_half, color: Colors.orange),
-                            SizedBox(width: 8),
-                            Text(
-                              '(369 reviews)',
-                              style: TextStyle(fontSize: 16),
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 24.0, vertical: 8.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            title,
+                            style: const TextStyle(
+                              fontSize: 24,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Open hour: 8 AM - 5 PM',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Some description about the place, its specialties, and more details for the user to enjoy.',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'Location area',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
+                          const SizedBox(height: 8),
+                          if (tags.isNotEmpty)
+                            Wrap(
+                              spacing: 2.0, 
+                              runSpacing: 4.0,
+                              children: tags,
+                            ),
+                          const SizedBox(height: 16),
+                          // Rating section
+                          Row(
+                            children: [
+                              const Icon(Icons.star, color: Colors.orange),
+                              const SizedBox(width: 4),
+                              Text(
+                                rating.isNotEmpty ? rating : 'No Rating',
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 8),
-                        Container(
-                          height: 220,
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(8),
-                            color: Colors.grey.shade300,
+                          const SizedBox(height: 8),
+                          Text(
+                            openHours.isNotEmpty
+                                ? 'Open Hours:\n\n$openHours'
+                                : 'No Opening Hours',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                          child: const Center(
-                            child: Icon(Icons.map,
-                                size: 100, color: Colors.grey),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          '3 km away',
-                          style: TextStyle(fontSize: 16),
-                        ),
-                        const SizedBox(height: 200), // Extra space for scrolling
-                      ],
+                          const SizedBox(height: 16),
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
