@@ -227,7 +227,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'Are you sure you want to stop this plan?',
+                  'Are you sure you want to end this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -339,12 +339,9 @@ class _PlanScreenState extends State<PlanScreen> {
           onPressed: widget.onClose,
         ),
         actions: [
-          widget.onGoingPlan == widget.planData['planID'] ? IconButton(
-            icon: const Icon(Icons.pause, size: 30, color: Colors.red),
-            onPressed: handleStopPlan,
-          ) : IconButton(
-            icon: Icon(Icons.play_arrow, size: 30, color: primaryColor),
-            onPressed: handleStartPlan,
+          IconButton(
+            onPressed: (){},
+            icon: const Icon(Icons.share),
           ),
         ],
       ),
@@ -399,37 +396,37 @@ class _PlanScreenState extends State<PlanScreen> {
             const SizedBox(height: 40),
             ...routingWidgets,
             const SizedBox(height: 50),
-            const Row(
-              children: [
-                Icon(Icons.location_on, size: 30),
-                SizedBox(width: 8),
-                Text(
-                  'Routing Path',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Container(
-              height: 220,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade300,
-              ),
-              child: const Center(
-                child: Icon(Icons.map, size: 100, color: Colors.grey),
-              ),
-            ),
-            const SizedBox(height: 50),
+            // const Row(
+            //   children: [
+            //     Icon(Icons.location_on, size: 30),
+            //     SizedBox(width: 8),
+            //     Text(
+            //       'Routing Path',
+            //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            //     ),
+            //   ],
+            // ),
+            // const SizedBox(height: 12),
+            // Container(
+            //   height: 220,
+            //   width: double.infinity,
+            //   decoration: BoxDecoration(
+            //     borderRadius: BorderRadius.circular(8),
+            //     color: Colors.grey.shade300,
+            //   ),
+            //   child: const Center(
+            //     child: Icon(Icons.map, size: 100, color: Colors.grey),
+            //   ),
+            // ),
+            const SizedBox(height: 20),
             Column(
               children: [
-                const Text('Want to adjust plan?',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey)),
-                const SizedBox(height: 24),
+                // const Text('Want to adjust plan?',
+                //     style: TextStyle(
+                //         fontSize: 18,
+                //         fontWeight: FontWeight.w600,
+                //         color: Colors.grey)),
+                // const SizedBox(height: 24),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     double buttonWidth = constraints.maxWidth > 200
@@ -439,6 +436,31 @@ class _PlanScreenState extends State<PlanScreen> {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            widget.onGoingPlan == widget.planData['planID'] ? handleStopPlan() : handleStartPlan();
+                          },
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: widget.onGoingPlan != widget.planData['planID'] ? primaryColor : Colors.red,),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            child: SizedBox(
+                              width: buttonWidth,
+                              child: Center(
+                                child: widget.onGoingPlan != widget.planData['planID'] ? const Text(
+                                  'Start the plan',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14),
+                                ) : const Text(
+                                  'Stop the Plan',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 14))
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 20),
                         OutlinedButton(
                           onPressed: () {
                             // Handle edit plan action
@@ -457,28 +479,6 @@ class _PlanScreenState extends State<PlanScreen> {
                                   'Edit Plan',
                                   style: TextStyle(
                                       color: primaryColor, fontSize: 14),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            _handleRegeneratePlan();
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: primaryColor),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 12),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: const Center(
-                                child: Text(
-                                  'Regenerate',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 14),
                                 ),
                               ),
                             ),

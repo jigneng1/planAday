@@ -6,15 +6,16 @@ class PlanCard extends StatelessWidget {
   final String subtitle;
   final String time;
 
-  const PlanCard({super.key, 
+  const PlanCard({
+    super.key,
     required this.imageUrl,
     required this.title,
-    required this.subtitle, required this.time,
+    required this.subtitle,
+    required this.time,
   });
 
   @override
   Widget build(BuildContext context) {
-
     return Card(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -32,48 +33,69 @@ class PlanCard extends StatelessWidget {
                 height: 100,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(child: Text('Image not available', style: TextStyle(fontWeight: FontWeight.bold),));
+                  return const Center(
+                      child: Text(
+                    'Image not available',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ));
                 },
               )),
           Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+              padding:
+                  const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              title,
+                              style: const TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Row(
+                          children: [
+                            const Icon(
+                              Icons.timer,
+                              size: 20,
+                              color: Color(0xFFFF6838),
+                            ),
+                            const SizedBox(width: 7),
+                            Text(time,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                )),
+                            const Text(' Hours',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                )),
+                          ],
+                        )
+                          ],
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        subtitle,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
+                        const SizedBox(height: 5),
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          maxLines: 1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                Row(children: [
-                  const Icon(
-                  Icons.timer,
-                  size: 20,
-                  color: Color(0xFFFF6838),
-                ),
-                const SizedBox(width: 7),
-                Text(time, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
-                const Text(' Hours', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14,)),
-                ],)
-              ],
-            )
-          ),
+                ],
+              )),
         ],
       ),
     );

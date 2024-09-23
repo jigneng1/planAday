@@ -108,20 +108,22 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
+                          overflow: TextOverflow.ellipsis,
                         ),
+                        maxLines: 2,
                       ),
                       Container(
                         decoration: BoxDecoration(
-                          color: primaryColor,
+                          color: Colors.grey[300],
                           borderRadius: BorderRadius.circular(8),
                         ),
                         padding: const EdgeInsets.symmetric(
                             vertical: 6, horizontal: 10),
                         child: Text(
                           widget.type,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: Colors.white,
+                            color: Colors.grey[600],
                             fontWeight: FontWeight.bold,
                           ),
                         ),

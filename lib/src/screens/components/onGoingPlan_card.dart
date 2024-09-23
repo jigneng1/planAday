@@ -52,22 +52,46 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
       ),
       elevation: 10,
       child: Padding(
-        padding: const EdgeInsets.all(30.0),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 30,
+          vertical: 25,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Plan name (prevent overflow)
-            Text(
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text('Ongoing Plan', style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey,
+                )),
+                Text(
               widget.plan['planName'] ?? 'Ongoing plan',
               style: const TextStyle(
-                fontSize: 25,
+                fontSize: 30,
                 fontWeight: FontWeight.bold,
                 color: Colors.black,
               ),
               overflow: TextOverflow.ellipsis,
               maxLines: 1, 
             ),
-            const SizedBox(height: 18),
+                  ],
+                ),
+                IconButton(
+                  onPressed: () {
+                    launchMapUrl();
+                  },
+                  icon: const Icon(Icons.map, color: Colors.grey, size: 30,)
+                ),
+              ],
+            ),
+            const SizedBox(height: 15),
             if (places.isNotEmpty)
               Row(
                 children: [
@@ -147,26 +171,9 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 ],
               ),
             const Spacer(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  onPressed: () {
-                    launchMapUrl();
-                  },
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 8,
-                    ),
-                    backgroundColor: Colors.blue,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                  ),
-                  child: const Icon(Icons.map, color: Colors.white, size: 20,),
-                  ),
-                ElevatedButton(
+            Align(
+              alignment: Alignment.bottomRight,
+              child : ElevatedButton(
                 onPressed: () {
                   setState(() {
                     if (currentIndex < places.length - 1) {
@@ -178,12 +185,12 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 30,
+                    horizontal: 40,
                     vertical: 8,
                   ),
-                  backgroundColor: const Color(0xFFFF6838),
+                  backgroundColor: currentIndex == places.length - 1 ?  Colors.red :const Color(0xFFFF6838), 
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: Text(
@@ -191,7 +198,6 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
-              ],
             )
           ],
         ),
