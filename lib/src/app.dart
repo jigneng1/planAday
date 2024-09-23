@@ -192,7 +192,7 @@ class _MainLayoutState extends State<MainLayout> {
         onDone: _handleDoneEditPlan,
       ),
       PlaceDetailPage(
-        onPlan: _goToPlanScreen, 
+        onBackPlan: _goToPlanScreen,
         imageUrl: '', 
         title: '', 
         tagsData: const {} ,

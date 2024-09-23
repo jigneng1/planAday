@@ -49,7 +49,7 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
               'Takeout': placeDetails?['takeout'] ?? false,
               'Dog Friendly': placeDetails?['allowsDogs'] ?? false,
               'Live Music': placeDetails?['liveMusic'] ?? false,
-            }, onPlan: () {  },
+            },
           ),
         ),
       );

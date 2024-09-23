@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PlaceDetailPage extends StatelessWidget {
-  final VoidCallback onPlan;
+  final Function(String planID) onBackPlan;
   final String imageUrl;
   final String title;
   final String rating;
@@ -10,12 +10,12 @@ class PlaceDetailPage extends StatelessWidget {
 
   const PlaceDetailPage({
     super.key,
-    required this.onPlan,
     required this.imageUrl,
     required this.title,
     required this.rating,
     required this.openHours,
-    required this.tagsData,
+    required this.tagsData, 
+    required this.onBackPlan,
   });
 
   Widget _buildTag(String text) {
