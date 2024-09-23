@@ -1,5 +1,4 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:dotted_line/dotted_line.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
@@ -72,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     width: double.infinity,
                     height: widget.ongoingPlanID != ''
-                        ? 350
-                        : 280, // Fixed height for the top container
+                        ? 370
+                        : 295, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],
@@ -95,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 60),
+                              const SizedBox(height: 70),
                               Center(
                                 child: Image.asset(
                                   'assets/images/Asset_14x.png',
@@ -235,7 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
               widget.ongoingPlanID != ''
                   ? const SizedBox()
                   : Positioned(
-                      top: 235.0,
+                      top: 255,
                       left: 0,
                       right: 0,
                       child: GestureDetector(
