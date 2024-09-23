@@ -20,7 +20,8 @@ class HomeScreen extends StatefulWidget {
       required this.ongoingPlanID,
       required this.allPlans,
       required this.onViewOngoingPlan,
-      required this.onGoingPlan, required this.onEndGoingPlan});
+      required this.onGoingPlan,
+      required this.onEndGoingPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -71,8 +72,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     width: double.infinity,
                     height: widget.ongoingPlanID != ''
-                        ? 300
-                        : 250, // Fixed height for the top container
+                        ? 350
+                        : 280, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],
@@ -86,11 +87,15 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     child: widget.ongoingPlanID != ''
-                        ? OngoingPlanWidget(planID: widget.ongoingPlanID, plan: widget.onGoingPlan, onViewOngoingPlan: widget.onViewOngoingPlan, onEndPlan: widget.onEndGoingPlan)
+                        ? OngoingPlanWidget(
+                            planID: widget.ongoingPlanID,
+                            plan: widget.onGoingPlan,
+                            onViewOngoingPlan: widget.onViewOngoingPlan,
+                            onEndPlan: widget.onEndGoingPlan)
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 60),
                               Center(
                                 child: Image.asset(
                                   'assets/images/Asset_14x.png',
@@ -221,7 +226,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ));
                                   }).toList(),
                                 )),
-                                const SizedBox(height: 50),
+                      const SizedBox(height: 50),
                     ],
                   ),
                 ],
@@ -230,7 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
               widget.ongoingPlanID != ''
                   ? const SizedBox()
                   : Positioned(
-                      top: 210.0,
+                      top: 235.0,
                       left: 0,
                       right: 0,
                       child: GestureDetector(
@@ -366,5 +371,4 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 }
