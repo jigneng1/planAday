@@ -1,70 +1,37 @@
 import 'package:flutter/material.dart';
-import '../../../services/api_service.dart';
-import '../placeDetail_screen.dart';
 
-class PlaceDetailCard extends StatefulWidget {
+class PlaceCard extends StatefulWidget {
+  final String planID;
   final String imageUrl;
   final String title;
   final String type;
   final String location;
   final String placeID;
+  final Function(String placeID, String planID) onViewPlaceDetail;
 
-  const PlaceDetailCard({
+  const PlaceCard({
     super.key,
     required this.imageUrl,
     required this.title,
     required this.type,
     required this.location,
-    required this.placeID,
+    required this.placeID, required this.onViewPlaceDetail, required this.planID,
   });
 
   @override
-  State<PlaceDetailCard> createState() => _PlaceDetailCardState();
+  State<PlaceCard> createState() => _PlaceDetailCardState();
 }
 
-class _PlaceDetailCardState extends State<PlaceDetailCard> {
-  final ApiService apiService = ApiService();
-
-  void _navigateToPlaceDetail(BuildContext context) async {
-    try {
-      // Fetch the place details from the API using the placeID
-      final placeDetails = await apiService.getPlaceDetails(widget.placeID);
-
-      // Navigate to PlaceDetailPage, passing in the required data
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PlaceDetailPage(
-            imageUrl: placeDetails?['photo'] ?? 'https://via.placeholder.com/300',
-            title: placeDetails?['displayName'] ?? 'Unknown Place',
-            rating: placeDetails?['rating']?.toString() ?? 'No Rating',
-            openHours: placeDetails?['currentOpeningHours']?.join('\n') ?? 'No Open Hours',
-            tagsData: {
-              'Wheelchair Parking': placeDetails?['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
-              'Wheelchair Entrance': placeDetails?['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
-              'Wheelchair Restroom': placeDetails?['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
-              'Wheelchair Seating': placeDetails?['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
-              'Free Parking Lot': placeDetails?['parkingOptions']?['freeParkingLot'] ?? false,
-              'Free Street Parking': placeDetails?['parkingOptions']?['freeStreetParking'] ?? false,
-              'Takeout': placeDetails?['takeout'] ?? false,
-              'Dog Friendly': placeDetails?['allowsDogs'] ?? false,
-              'Live Music': placeDetails?['liveMusic'] ?? false,
-            },
-          ),
-        ),
-      );
-    } catch (e) {
-      // Handle the error, for example, by showing a snackbar or alert dialog
-      print('Error fetching place details: $e');
-    }
-  }
+class _PlaceDetailCardState extends State<PlaceCard> {
 
   @override
   Widget build(BuildContext context) {
-    final primaryColor = Theme.of(context).primaryColor;
+    // final primaryColor = Theme.of(context).primaryColor;
 
     return GestureDetector(
-      onTap: () => _navigateToPlaceDetail(context), // Handle tap
+      onTap: (){
+        widget.onViewPlaceDetail(widget.placeID, widget.planID);
+      }, // Handle tap
       child: Card(
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),

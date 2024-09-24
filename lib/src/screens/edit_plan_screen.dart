@@ -9,13 +9,14 @@ class EditPlanScreen extends StatefulWidget {
   final VoidCallback onClose;
   final Function(Map<String, dynamic>) onDone;
   final Function(String planID) onCancel;
+  final Function(String placeID, String planID) onViewPlaceDetail;
 
   const EditPlanScreen({
     super.key,
     required this.onClose,
     required this.planData,
     required this.onDone,
-    required this.onCancel,
+    required this.onCancel, required this.onViewPlaceDetail,
   });
 
   @override
@@ -294,12 +295,14 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         child: buildRouting(
                           primaryColor,
                           time,
-                          PlaceDetailCard(
+                          PlaceCard(
+                            planID: widget.planData['planID'],
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
                             type: formatType(details['primaryType'] ?? 'No type'),
                             location: details['shortFormattedAddress'] ?? 'No location',
                             placeID: details['id'] ?? 'No place ID',
+                            onViewPlaceDetail: widget.onViewPlaceDetail,
                           ),
                           index == updatedPlan['selectedPlaces'].length - 1,
                           key,

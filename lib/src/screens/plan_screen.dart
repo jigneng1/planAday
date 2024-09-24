@@ -6,8 +6,8 @@ import 'components/place_card.dart'; // Import the custom card widget
 class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
-  final VoidCallback onPlaceDetail;
   final Function(String planID) onStartPlan;
+  final Function(String placeID, String planID) onViewPlaceDetail;
   final VoidCallback onStopPlan;
   final String onGoingPlan;
   final Function(Map<String, dynamic>) onEditPlan;
@@ -17,8 +17,7 @@ class PlanScreen extends StatefulWidget {
       required this.onClose,
       required this.planData,
       required this.onEditPlan,
-      required this.onPlaceDetail,
-      required this.onStartPlan, required this.onGoingPlan, required this.onStopPlan});
+      required this.onStartPlan, required this.onGoingPlan, required this.onStopPlan, required this.onViewPlaceDetail});
 
   @override
   _PlanScreenState createState() => _PlanScreenState();
@@ -310,12 +309,14 @@ class _PlanScreenState extends State<PlanScreen> {
       routingWidgets.add(buildRouting(
         primaryColor,
         time,
-        PlaceDetailCard(
+        PlaceCard(
+          planID: widget.planData['planID'],
           imageUrl: details['photosUrl'] ?? '',
           title: details['displayName'] ?? 'No Title',
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
+          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         routingWidgets.length == selectedPlaces!.length - 1,
         routingWidgets.length < travelTimes.length

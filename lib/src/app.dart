@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
@@ -20,6 +22,8 @@ class _MainLayoutState extends State<MainLayout> {
   int _currentIndex = 0;
   int _indexBeforeCreate = 0;
   String _ongoingPlanID = '';
+  String placeID = '';
+  String planID = '';
 
   Map<String, dynamic> _planData = {};
 
@@ -79,10 +83,18 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _goToPlaceDetailScreen() {
-    setState(() {
-      _currentIndex = 6;
-    });
+  void _goToPlaceDetailScreen(String placeIDinput, String planIDinput) {
+    print('Place ID: $placeIDinput');
+    if (placeIDinput.isNotEmpty && planIDinput.isNotEmpty) {
+      setState(() {
+        placeID = placeIDinput;
+        planID = planIDinput;
+        _currentIndex = 6;
+      });
+    }
+    else {
+      print('Place ID or Plan ID is empty');
+    }
   }
 
   void _onStartPlan(String planID) {
@@ -179,25 +191,23 @@ class _MainLayoutState extends State<MainLayout> {
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
         onEditPlan: _handleEditPlan,
-        onPlaceDetail: _goToPlaceDetailScreen,
         onStartPlan: _onStartPlan,
         onGoingPlan: _ongoingPlanID,
         onStopPlan: _onStopPlan,
+        onViewPlaceDetail: _goToPlaceDetailScreen,
       ),
       const PersonaScreen(),
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
         onCancel: _goToPlanScreen,
-        onDone: _handleDoneEditPlan,
+        onDone: _handleDoneEditPlan, 
+        onViewPlaceDetail: _goToPlaceDetailScreen,
       ),
       PlaceDetailPage(
-        onBackPlan: _goToPlanScreen,
-        imageUrl: '', 
-        title: '', 
-        tagsData: const {} ,
-        rating: '',
-        openHours: '',
+        placeID: placeID,
+        planID: planID,
+        onBack: _goToPlanScreen,
       ),
     ];
 

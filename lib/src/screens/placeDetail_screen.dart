@@ -1,22 +1,64 @@
 import 'package:flutter/material.dart';
+import '../../../services/api_service.dart';
 
-class PlaceDetailPage extends StatelessWidget {
-  final Function(String planID) onBackPlan;
-  final String imageUrl;
-  final String title;
-  final String rating;
-  final String openHours;
-  final Map<String, bool> tagsData;
+class PlaceDetailPage extends StatefulWidget {
+  final String placeID;
+  final String planID;
+  final Function(String planID) onBack;
 
-  const PlaceDetailPage({
-    super.key,
-    required this.imageUrl,
-    required this.title,
-    required this.rating,
-    required this.openHours,
-    required this.tagsData, 
-    required this.onBackPlan,
-  });
+  const PlaceDetailPage({super.key, required this.placeID, required this.onBack, required this.planID});
+
+  @override
+  _PlaceDetailPageState createState() => _PlaceDetailPageState();
+}
+
+class _PlaceDetailPageState extends State<PlaceDetailPage> {
+  final ApiService apiService = ApiService();
+  late String imageUrl = 'No image';
+  late String title = 'No title';
+  late String rating = 'No rating';
+  late String openHours = 'No opening hours';
+  late Map<String, bool> tagsData = {};
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPlaceDetails();
+  }
+
+  Future<void> _fetchPlaceDetails() async {
+    try {
+      final placeDetails = await apiService.getPlaceDetails(widget.placeID);
+      String formattedOpenHours = (placeDetails?['currentOpeningHours'] as List<dynamic>?)
+          !.join('\n');
+
+      setState(() {
+        imageUrl = placeDetails?['photo'];
+        title = placeDetails?['displayName'];
+        rating = placeDetails!['rating'].toString();
+        openHours = formattedOpenHours;
+        tagsData = {
+              'Wheelchair Parking': placeDetails['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
+              'Wheelchair Entrance': placeDetails['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
+              'Wheelchair Restroom': placeDetails['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
+              'Wheelchair Seating': placeDetails['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
+              'Free Parking Lot': placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
+              'Free Street Parking': placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
+              'Takeout': placeDetails['takeout'] ?? false,
+              'Dog Friendly': placeDetails['allowsDogs'] ?? false,
+              'Live Music': placeDetails['liveMusic'] ?? false,
+            };
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle the error appropriately, e.g., show a dialog or a message
+      print('Error fetching place details: $error');
+    }
+  }
 
   Widget _buildTag(String text) {
     return Container(
@@ -35,6 +77,12 @@ class PlaceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     // Tag conditions: true
     List<Widget> tags = tagsData.entries
         .where((entry) => entry.value)
@@ -62,7 +110,9 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: (){
+                widget.onBack(widget.planID);
+              },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             ),
             actions: const [
@@ -72,7 +122,7 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60), 
+              preferredSize: const Size.fromHeight(60),
               child: Container(
                 width: double.infinity,
                 height: 24,
@@ -110,7 +160,7 @@ class PlaceDetailPage extends StatelessWidget {
                           const SizedBox(height: 8),
                           if (tags.isNotEmpty)
                             Wrap(
-                              spacing: 2.0, 
+                              spacing: 2.0,
                               runSpacing: 4.0,
                               children: tags,
                             ),
