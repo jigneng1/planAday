@@ -72,7 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     width: double.infinity,
                     height: widget.ongoingPlanID != ''
                         ? 370
-                        : 295, // Fixed height for the top container
+                        : 320, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],

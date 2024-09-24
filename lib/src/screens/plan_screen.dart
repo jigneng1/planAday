@@ -452,11 +452,11 @@ class _PlanScreenState extends State<PlanScreen> {
                                 child: widget.onGoingPlan != widget.planData['planID'] ? const Text(
                                   'Start the plan',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 14),
+                                      color: Colors.white, fontSize: 12),
                                 ) : const Text(
                                   'Stop the Plan',
                                   style: TextStyle(
-                                      color: Colors.white, fontSize: 14))
+                                      color: Colors.white, fontSize: 12))
                               ),
                             ),
                           ),
