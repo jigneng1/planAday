@@ -118,7 +118,7 @@ class _PlanScreenState extends State<PlanScreen> {
       final travelTime = await apiService.getTimeTravel(placeId);
       print('Fetched travel time: $travelTime'); // Log the fetched travel time
 
-      if (travelTime != null && travelTime.isNotEmpty) {
+      if (travelTime.isNotEmpty) {
         // Check if the widget is still mounted before updating the state
         if (mounted) {
           setState(() {
@@ -162,7 +162,7 @@ class _PlanScreenState extends State<PlanScreen> {
                 ),
                 const SizedBox(height: 20),
                 Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 30),
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: ElevatedButton(
                       onPressed: () {
                         // Handle notifications enabling

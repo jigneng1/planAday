@@ -7,7 +7,7 @@ class OngoingPlanWidget extends StatefulWidget {
   final Function(String) onViewOngoingPlan;
   final VoidCallback onEndPlan;
 
-  OngoingPlanWidget({
+  const OngoingPlanWidget({super.key, 
     required this.planID,
     required this.plan,
     required this.onViewOngoingPlan, required this.onEndPlan,

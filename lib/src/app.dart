@@ -1,4 +1,3 @@
-import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
@@ -28,7 +27,7 @@ class _MainLayoutState extends State<MainLayout> {
   Map<String, dynamic> _planData = {};
 
   // List to store multiple plans
-  List<Map<String, dynamic>> _allPlans = [];
+  final List<Map<String, dynamic>> _allPlans = [];
 
   void onTabTapped(int index) {
     setState(() {
