@@ -249,12 +249,12 @@ class _MainLayoutState extends State<MainLayout> {
               ),
               IconButton(
                 onPressed: () {
-                  onTabTapped(4);
+                  onTabTapped(1);
                 },
-                iconSize: _currentIndex == 4 ? 40 : 30,
+                iconSize: _currentIndex == 1 ? 40 : 30,
                 icon: Icon(
                   Icons.person,
-                  color: _currentIndex == 4
+                  color: _currentIndex == 1
                       ? Colors.orange.shade900
                       : Colors.grey.shade400,
                 ),
