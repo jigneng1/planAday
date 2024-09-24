@@ -429,66 +429,86 @@ class _PlanScreenState extends State<PlanScreen> {
                 //         color: Colors.grey)),
                 // const SizedBox(height: 24),
                 LayoutBuilder(
-                  builder: (context, constraints) {
-                    double buttonWidth = constraints.maxWidth > 200
-                        ? 90
-                        : constraints.maxWidth * 0.4;
+  builder: (context, constraints) {
+    double buttonWidth = constraints.maxWidth > 200 ? constraints.maxWidth : constraints.maxWidth * 0.4;
+    double halfWidth = constraints.maxWidth / 2 - 20; // Adjust for padding between buttons
 
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            widget.onGoingPlan == widget.planData['planID'] ? handleStopPlan() : handleStartPlan();
-                          },
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: widget.onGoingPlan != widget.planData['planID'] ? primaryColor : Colors.red,),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: Center(
-                                child: widget.onGoingPlan != widget.planData['planID'] ? const Text(
-                                  'Start the plan',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12),
-                                ) : const Text(
-                                  'Stop the Plan',
-                                  style: TextStyle(
-                                      color: Colors.white, fontSize: 12))
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 20),
-                        OutlinedButton(
-                          onPressed: () {
-                            // Handle edit plan action
-                            _handleEditPlan();
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: primaryColor, width: 2),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 0, vertical: 12),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: Center(
-                                child: Text(
-                                  'Edit Plan',
-                                  style: TextStyle(
-                                      color: primaryColor, fontSize: 12),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    );
-                  },
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            widget.onGoingPlan == widget.planData['planID'] ? handleStopPlan() : handleStartPlan();
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: widget.onGoingPlan != widget.planData['planID'] ? primaryColor : Colors.red,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            child: SizedBox(
+              width: buttonWidth, // Fit the screen width
+              child: Center(
+                child: widget.onGoingPlan != widget.planData['planID']
+                    ? const Text(
+                        'Start the plan',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      )
+                    : const Text(
+                        'Stop the Plan',
+                        style: TextStyle(color: Colors.white, fontSize: 12),
+                      ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: ElevatedButton(
+                onPressed: () {
+                  _handleRegeneratePlan();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
                 ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  child: const Center(
+                    child: Text(
+                      'Regenerate',
+                      style: TextStyle(color: Color.fromARGB(255, 245, 186, 168), fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 20),
+            Expanded(
+              child: OutlinedButton(
+                onPressed: () {
+                  _handleEditPlan();
+                },
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: primaryColor, width: 2),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
+                  child: Center(
+                    child: Text(
+                      'Edit Plan',
+                      style: TextStyle(color: primaryColor, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  },
+),
                 const SizedBox(height: 50),
               ],
             )

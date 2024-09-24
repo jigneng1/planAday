@@ -141,7 +141,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                   color: Colors.grey,
                 )),
                 Text(
-              widget.plan['planName'] ?? 'Ongoing plan',
+              widget.plan['planName'] ?? 'Plan name',
               style: const TextStyle(
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
@@ -176,8 +176,8 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          places[currentIndex]['displayName'],
-                          style: const TextStyle(
+                          places[currentIndex]['displayName'] ?? 'No title',
+                          style: const TextStyle( 
                             fontWeight: FontWeight.bold,
                             color: Color(0xFFFF6838),
                             fontSize: 15,
@@ -188,7 +188,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          places[currentIndex]['time'], // Add time if available
+                          places[currentIndex]['time'] ?? 'Unknown', // Add time if available
                           style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFFFF6838),
@@ -216,7 +216,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          places[currentIndex + 1]['displayName'],
+                          places[currentIndex + 1]['displayName'] ?? 'No title',
                           style: const TextStyle(
                             fontSize: 12,
                             fontWeight: FontWeight.w700,
@@ -228,7 +228,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          places[currentIndex + 1]['time'], // Add time if available
+                          places[currentIndex + 1]['time'] ?? 'Unknown', // Add time if available
                           style: const TextStyle(
                             fontSize: 11,
                             color: Colors.grey,

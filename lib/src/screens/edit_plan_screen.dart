@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'components/place_card.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -24,6 +25,7 @@ class EditPlanScreen extends StatefulWidget {
 }
 
 class _PlanScreenState extends State<EditPlanScreen> {
+  final ApiService apiService = ApiService();
   late Map<String, dynamic> updatedPlan;
   late Map<String, dynamic> originalPlan;
   List<Map<String, dynamic>> deletedPlaces = [];
@@ -102,37 +104,61 @@ class _PlanScreenState extends State<EditPlanScreen> {
     });
   }
 
-  void _generateMorePlaces() {
+  void _generateMorePlaces() async{
     // Fetch new places; assuming getRandomizedPlaces returns a List<Map<String, String>>
-    List<Map<String, String>> newPlaces =
-        getRandomizedPlaces(1); // Number of places to add
+    // List<Map<String, String>> newPlaces = getRandomizedPlaces(1); // Number of places to add
+    final newPlaces = await apiService.getRandomPlaces(
+      updatedPlan['planID'],
+      1,
+    );
 
-    setState(() {
-      // Ensure selectedPlaces is initialized as a Map
-      if (updatedPlan['selectedPlaces'] == null) {
-        updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
-      }
+    // setState(() {
+    //   // Ensure selectedPlaces is initialized as a Map
+    //   if (updatedPlan['selectedPlaces'] == null) {
+    //     updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
+    //   }
 
-      // Add new places to the selectedPlaces map
-      for (var place in newPlaces) {
-        if (place['id'] != null &&
-            place['photoUrl'] != null &&
-            place['title'] != null &&
-            place['subtitle'] != null) {
-          String id = place['id']!; // Assuming each place has a unique ID
-          updatedPlan['selectedPlaces'][id] = {
-            'photoUrl': place['photoUrl']!,
-            'displayName': place['title']!,
-            'primaryType': place['subtitle']!,
-          };
-        } else {
-          print('One or more fields in the new place are null: $place');
-        }
-      }
+    //   // Add new places to the selectedPlaces map
+    //   for (var place in newPlaces) {
+    //     if (place['id'] != null &&
+    //         place['photoUrl'] != null &&
+    //         place['title'] != null &&
+    //         place['subtitle'] != null) {
+    //       String id = place['id']!; // Assuming each place has a unique ID
+    //       updatedPlan['selectedPlaces'][id] = {
+    //         'photoUrl': place['photoUrl']!,
+    //         'displayName': place['title']!,
+    //         'primaryType': place['subtitle']!,
+    //       };
+    //     } else {
+    //       print('One or more fields in the new place are null: $place');
+    //     }
+    //   }
 
-      // Update the number of places
-      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
-    });
+    //   // Update the number of places
+    //   updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+    // });
+  }
+
+  void regenerateOnePlace(String placeID) async{
+    List<String> places = updatedPlan['selectedPlaces'].keys.toList();
+    print(places);
+    try {
+      final newPlace = await apiService.getNewPlace(placeID, places);
+
+      // Update the plan with the new place data
+      setState(() {
+        updatedPlan['selectedPlaces'][placeID] = {
+          'id': newPlace?['id'],
+          'displayName': newPlace?['displayName'] ?? 'No place name',
+          'primaryType': newPlace?['primaryType'] ?? 'No type',
+          'shortFormattedAddress': newPlace?['shortFormattedAddress'] ?? 'No location',
+          'photosUrl': newPlace?['photosUrl'] ?? 'Image not available',
+        };
+      });
+    } catch (e) {
+      print('Error regenerating place: $e');
+    }
   }
 
   void _onReorder(int oldIndex, int newIndex) {
@@ -159,7 +185,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('EditScreen Received plan data: ${widget.planData}');
+    // print('EditScreen Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
@@ -463,16 +489,16 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   children: [
                     SlidableAction(
                       onPressed: (context) {
-                        // Regenerate place logic
-                        List<Map<String, String>> newPlace =
-                            getRandomizedPlaces(1);
-                        setState(() {
-                          updatedPlan['selectedPlaces'][key] = {
-                            'imageUrl': newPlace.first['photoUrl'] ?? 'No image',
-                            'title': newPlace.first['title'] ?? 'No Name',
-                            'subtitle': newPlace.first['subtitle'] ?? 'No Type',
-                          };
-                        });
+                        // Regenerate place logic\
+                        print('Regenerating place $key');
+                        regenerateOnePlace(key);
+                        // setState(() {
+                        //   updatedPlan['selectedPlaces'][key] = {
+                        //     'imageUrl': newPlace.first['photoUrl'] ?? 'No image',
+                        //     'title': newPlace.first['title'] ?? 'No Name',
+                        //     'subtitle': newPlace.first['subtitle'] ?? 'No Type',
+                        //   };
+                        // });
                       },
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,

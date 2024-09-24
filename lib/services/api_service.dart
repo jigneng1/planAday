@@ -153,22 +153,29 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
   }
 
   //ส่งสถานที่ทั้งหมดไปให้ API
-  Future<Map<String, dynamic>?> getNewPlace(Map<String, dynamic> places) async {
-    try {
-      final response = await http
-          .get(Uri.parse('http://localhost:3000/placeDetail/$places'));
-      if (response.statusCode == 200) {
-        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+  Future<Map<String, dynamic>?> getNewPlace(String placeReplaceID, List<String> places) async {
+    final url = Uri.parse('http://localhost:3000/getNewPlace');
 
-        // Check if the 'data' key exists and contains the place details
-        if (jsonResponse['data'] != null) {
-          return jsonResponse['data'];
-        } else {
-          throw Exception("Place details not found in response");
-        }
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "placeReplaceId" : placeReplaceID,
+          "placesList": places,
+        }),
+      );
+
+      if(response.statusCode == 200){
+        print('Place data sent successfully');
+        final responseData = jsonDecode(response.body);
+        final newPlace = responseData['data'];
+        print('++++++++++++');
+        print('responsData $responseData');
+        return newPlace;
       } else {
-        throw Exception(
-            "Failed to load place details, status code: ${response.statusCode}");
+        print('Failed to send data: ${response.statusCode}');
+        return null;
       }
     } catch (e) {
       print('Error fetching place details: $e');
