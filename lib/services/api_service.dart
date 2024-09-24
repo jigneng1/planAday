@@ -128,4 +128,58 @@ class ApiService {
 
   return travelTimes;
 }
+
+Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://localhost:3000/placeDetail/$placeId'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check if the 'data' key exists and contains the place details
+        if (jsonResponse['data'] != null) {
+          return jsonResponse['data'];
+        } else {
+          throw Exception("Place details not found in response");
+        }
+      } else {
+        throw Exception(
+            "Failed to load place details, status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
+
+  //ส่งสถานที่ทั้งหมดไปให้ API
+  Future<Map<String, dynamic>?> getNewPlace(String placeReplaceID, List<String> places) async {
+    final url = Uri.parse('http://localhost:3000/getNewPlace');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "placeReplaceId" : placeReplaceID,
+          "placesList": places,
+        }),
+      );
+
+      if(response.statusCode == 200){
+        print('Place data sent successfully');
+        final responseData = jsonDecode(response.body);
+        final newPlace = responseData['data'];
+        print('++++++++++++');
+        print('responsData $responseData');
+        return newPlace;
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
 }
