@@ -20,6 +20,75 @@ class OngoingPlanWidget extends StatefulWidget {
 class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
   int currentIndex = 0;
 
+  void handleStopPlan() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Are you sure you want to end this plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onEndPlan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'End the plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'Not now',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     List<Map<String, dynamic>> places = widget.plan['selectedPlaces'].values
@@ -179,7 +248,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                     if (currentIndex < places.length - 1) {
                       currentIndex++;
                     } else {
-                      widget.onEndPlan();
+                      handleStopPlan();
                     }
                   });
                 },

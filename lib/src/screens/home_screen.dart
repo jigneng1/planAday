@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, String>> places = [
     {
-      'placeName': 'Thonglor',
+      'placeName': 'Tonglor',
       'placeDetails': 'Bar - Restaurant • 2 hours',
       'imageUrl':
           'https://www.theakyra.com/files/5415/8921/0258/Thonglor_Bangkok_District.jpg',
@@ -71,8 +71,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   Container(
                     width: double.infinity,
                     height: widget.ongoingPlanID != ''
-                        ? 370
-                        : 320, // Fixed height for the top container
+                        ? 390
+                        : 300, // Fixed height for the top container
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],

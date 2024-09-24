@@ -151,4 +151,28 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
       return {}; // Return an empty map in case of error
     }
   }
+
+  //ส่งสถานที่ทั้งหมดไปให้ API
+  Future<Map<String, dynamic>?> getNewPlace(Map<String, dynamic> places) async {
+    try {
+      final response = await http
+          .get(Uri.parse('http://localhost:3000/placeDetail/$places'));
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+
+        // Check if the 'data' key exists and contains the place details
+        if (jsonResponse['data'] != null) {
+          return jsonResponse['data'];
+        } else {
+          throw Exception("Place details not found in response");
+        }
+      } else {
+        throw Exception(
+            "Failed to load place details, status code: ${response.statusCode}");
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
 }

@@ -479,7 +479,7 @@ class _PlanScreenState extends State<PlanScreen> {
                                 child: Text(
                                   'Edit Plan',
                                   style: TextStyle(
-                                      color: primaryColor, fontSize: 14),
+                                      color: primaryColor, fontSize: 12),
                                 ),
                               ),
                             ),
