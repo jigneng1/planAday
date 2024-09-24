@@ -29,7 +29,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<Map<String, String>> places = [
     {
-      'placeName': 'Tonglor',
+      'placeName': 'Thonglor',
       'placeDetails': 'Bar - Restaurant • 2 hours',
       'imageUrl':
           'https://www.theakyra.com/files/5415/8921/0258/Thonglor_Bangkok_District.jpg',
