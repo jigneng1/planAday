@@ -1,12 +1,40 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:network_image_mock/network_image_mock.dart';
-import 'package:plan_a_day/main.dart'; // Import your main app file
+import 'package:plan_a_day/main.dart';
+import 'package:plan_a_day/src/app.dart';
+import 'package:plan_a_day/src/screens/home_screen.dart'; // Import your main app file
 
 void main() {
-  testWidgets('Test: FloatingActionButton and BottomAppBar',
-      (WidgetTester tester) async {
-    await mockNetworkImagesFor(() async {
+  group('MainLayout Widget Test', () {
+    //  await mockNetworkImagesFor(() async {}
+    //Verify the existence of BottomAppBar
+    testWidgets('Existence: BottomAppBar in MainLayout',
+        (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MainLayout(),
+        ),
+      );
+
+      // Find BottomAppBar
+      expect(find.byType(BottomAppBar), findsOneWidget);
+    });
+
+    //Verify that HomeScreen is shown initially
+    testWidgets('Display: HomeScreen (default)', (WidgetTester tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: MainLayout(),
+        ),
+      );
+
+      // Find HomeScreen
+      expect(find.byType(HomeScreen), findsOneWidget);
+    });
+expect(find.byType(HomeScreen), findsOneWidget);
+    testWidgets('Action: FloatingActionButton and BottomAppBar',
+        (WidgetTester tester) async {
       // Pump the main app widget into the widget tree
       await tester.pumpWidget(const MyApp());
 
@@ -40,6 +68,7 @@ void main() {
       await tester.tap(find.byIcon(Icons.home_filled));
       await tester.pump(); // Rebuild the widget tree after the tap
 
+      expect(find.byType(HomeScreen), findsOneWidget);
     });
   });
 }
