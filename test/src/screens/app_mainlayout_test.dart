@@ -8,8 +8,10 @@ import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
   group('MainLayout Widget Test', () {
-    // Test case 1: Verify the existence of BottomAppBar and HomeScreen as default
-    testWidgets('Existence: BottomAppBar in MainLayout and HomeScreen by default', (WidgetTester tester) async {
+    // Test case: Verify the existence of BottomAppBar and HomeScreen as default
+    testWidgets(
+        'Existence: BottomAppBar in MainLayout and HomeScreen by default',
+        (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         // Pump the MainLayout widget
         await tester.pumpWidget(
@@ -20,14 +22,13 @@ void main() {
 
         // Ensure HomeScreen is shown by default
         expect(find.byType(HomeScreen), findsOneWidget);
-        
-        // Ensure BottomAppBar exists in the widget tree
         expect(find.byType(BottomAppBar), findsOneWidget);
       });
     });
 
-    // Test case 2: FloatingActionButton and Icons in BottomAppBar
-    testWidgets('Action: FloatingActionButton and BottomAppBar interaction', (WidgetTester tester) async {
+    // Test case: FloatingActionButton and Icons in BottomAppBar
+    testWidgets('Action: FloatingActionButton and BottomAppBar interaction',
+        (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
         // Pump the main app widget
         await tester.pumpWidget(const MyApp());
@@ -60,8 +61,6 @@ void main() {
             findsOneWidget);
 
         // Test navigation by tapping on icons
-
-        // Tap on the Home icon and ensure HomeScreen is displayed
         await tester.tap(find.byIcon(Icons.home_filled));
         await tester.pumpAndSettle();
         expect(find.byType(HomeScreen), findsOneWidget);
@@ -70,9 +69,6 @@ void main() {
         await tester.tap(find.byIcon(Icons.person));
         await tester.pumpAndSettle();
         expect(find.byType(PersonaScreen), findsOneWidget);
-
-        // // Ensure HomeScreen is initially displayed
-        // expect(find.byType(HomeScreen), findsOneWidget);
       });
     });
   });
