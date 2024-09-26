@@ -422,12 +422,6 @@ class _PlanScreenState extends State<PlanScreen> {
             const SizedBox(height: 20),
             Column(
               children: [
-                // const Text('Want to adjust plan?',
-                //     style: TextStyle(
-                //         fontSize: 18,
-                //         fontWeight: FontWeight.w600,
-                //         color: Colors.grey)),
-                // const SizedBox(height: 24),
                 LayoutBuilder(
   builder: (context, constraints) {
     double buttonWidth = constraints.maxWidth > 200 ? constraints.maxWidth : constraints.maxWidth * 0.4;
@@ -460,7 +454,14 @@ class _PlanScreenState extends State<PlanScreen> {
             ),
           ),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 30),
+        const Text('Want to adjust plan?',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey)),
+                const SizedBox(height: 24),
+        
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -470,14 +471,14 @@ class _PlanScreenState extends State<PlanScreen> {
                   _handleRegeneratePlan();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
+                  backgroundColor: Color(0xFFFF9574),
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                  child: const Center(
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+                  child: Center(
                     child: Text(
                       'Regenerate',
-                      style: TextStyle(color: Color.fromARGB(255, 245, 186, 168), fontSize: 12),
+                      style: TextStyle(color: Colors.white, fontSize: 12),
                     ),
                   ),
                 ),
