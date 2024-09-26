@@ -1,12 +1,19 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_rating/flutter_rating.dart';
 import '../../../services/api_service.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PlaceDetailPage extends StatefulWidget {
   final String placeID;
   final String planID;
   final Function(String planID) onBack;
 
-  const PlaceDetailPage({super.key, required this.placeID, required this.onBack, required this.planID});
+  const PlaceDetailPage(
+      {super.key,
+      required this.placeID,
+      required this.onBack,
+      required this.planID});
 
   @override
   _PlaceDetailPageState createState() => _PlaceDetailPageState();
@@ -18,6 +25,8 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
   late String title = 'No title';
   late String rating = 'No rating';
   late String openHours = 'No opening hours';
+  late double ladtitude = 0.0;
+  late double longtitude = 0.0;
   late Map<String, bool> tagsData = {};
   bool isLoading = true;
 
@@ -30,8 +39,9 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
   Future<void> _fetchPlaceDetails() async {
     try {
       final placeDetails = await apiService.getPlaceDetails(widget.placeID);
-      String formattedOpenHours = (placeDetails?['currentOpeningHours'] as List<dynamic>?)
-          !.join('\n');
+      print(placeDetails);
+      String formattedOpenHours =
+          (placeDetails?['currentOpeningHours'] as List<dynamic>?)!.join('\n');
 
       setState(() {
         imageUrl = placeDetails?['photo'];
@@ -39,16 +49,28 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
         rating = placeDetails!['rating'].toString();
         openHours = formattedOpenHours;
         tagsData = {
-              'Wheelchair Parking': placeDetails['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
-              'Wheelchair Entrance': placeDetails['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
-              'Wheelchair Restroom': placeDetails['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
-              'Wheelchair Seating': placeDetails['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
-              'Free Parking Lot': placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
-              'Free Street Parking': placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
-              'Takeout': placeDetails['takeout'] ?? false,
-              'Dog Friendly': placeDetails['allowsDogs'] ?? false,
-              'Live Music': placeDetails['liveMusic'] ?? false,
-            };
+          'Wheelchair Parking': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleParking'] ??
+              false,
+          'Wheelchair Entrance': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleEntrance'] ??
+              false,
+          'Wheelchair Restroom': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleRestroom'] ??
+              false,
+          'Wheelchair Seating': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleSeating'] ??
+              false,
+          'Free Parking Lot':
+              placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
+          'Free Street Parking':
+              placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
+          'Takeout': placeDetails['takeout'] ?? false,
+          'Dog Friendly': placeDetails['allowsDogs'] ?? false,
+          'Live Music': placeDetails['liveMusic'] ?? false,
+        };
+        ladtitude = placeDetails['location']?['latitude'];
+        longtitude = placeDetails['location']?['longitude'];
         isLoading = false;
       });
     } catch (error) {
@@ -77,6 +99,9 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    final Completer<GoogleMapController> _controller =
+        Completer<GoogleMapController>();
+        
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -97,20 +122,20 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                imageUrl,
+                imageUrl.isNotEmpty
+                    ? imageUrl
+                    : 'https://via.placeholder.com/300',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Text(
-                      'Image not available',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                  return Image.network(
+                    'https://via.placeholder.com/300',
+                    fit: BoxFit.cover,
                   );
                 },
               ),
             ),
             leading: IconButton(
-              onPressed: (){
+              onPressed: () {
                 widget.onBack(widget.planID);
               },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
@@ -168,7 +193,13 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                           // Rating section
                           Row(
                             children: [
-                              const Icon(Icons.star, color: Colors.orange),
+                              if (rating.isNotEmpty) ...[
+                                StarRating(
+                                  rating: double.parse(rating),
+                                  color: Colors.orange,
+                                ),
+                                const SizedBox(width: 4),
+                              ],
                               const SizedBox(width: 4),
                               Text(
                                 rating.isNotEmpty ? rating : 'No Rating',
@@ -187,6 +218,26 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
+                          // Add the Google Map widget here
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: SizedBox(
+                        height: 200, // Set a fixed height for the map
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                              target: LatLng(ladtitude, longtitude), zoom: 14),
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('placeLocation'),
+                              position: LatLng(ladtitude, longtitude),
+                            ),
+                          },
+                        ),
+                      ),
+                    ),
                         ],
                       ),
                     ),
