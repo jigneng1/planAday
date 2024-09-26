@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 class PlaceDetailPage extends StatelessWidget {
   final VoidCallback onPlan;
@@ -7,6 +10,8 @@ class PlaceDetailPage extends StatelessWidget {
   final String title;
   final String rating;
   final String openHours;
+  final double ladtitude;
+  final double longtitude;
   final Map<String, bool> tagsData;
 
   const PlaceDetailPage({
@@ -17,6 +22,8 @@ class PlaceDetailPage extends StatelessWidget {
     required this.rating,
     required this.openHours,
     required this.tagsData,
+    required this.ladtitude,
+    required this.longtitude,
   });
 
   Widget _buildTag(String text) {
@@ -36,6 +43,10 @@ class PlaceDetailPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Google map controller
+    final Completer<GoogleMapController> _controller =
+        Completer<GoogleMapController>();
+
     // Tag conditions: true
     List<Widget> tags = tagsData.entries
         .where((entry) => entry.value)
@@ -146,6 +157,26 @@ class PlaceDetailPage extends StatelessWidget {
                           ),
                           const SizedBox(height: 16),
                         ],
+                      ),
+                    ),
+                    // Add the Google Map widget here
+                    Padding(
+                      padding: const EdgeInsets.all(24.0),
+                      child: SizedBox(
+                        height: 200, // Set a fixed height for the map
+                        child: GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                              target: LatLng(ladtitude, longtitude), zoom: 14),
+                          onMapCreated: (GoogleMapController controller) {
+                            _controller.complete(controller);
+                          },
+                          markers: {
+                            Marker(
+                              markerId: const MarkerId('placeLocation'),
+                              position: LatLng(ladtitude, longtitude),
+                            ),
+                          },
+                        ),
                       ),
                     ),
                   ],

@@ -85,7 +85,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
-      _currentIndex = 5; 
+      _currentIndex = 5;
     });
   }
 
@@ -115,12 +115,14 @@ class _MainLayoutState extends State<MainLayout> {
         onDone: _handleDoneEditPlan,
       ),
       PlaceDetailPage(
-        onPlan: _goToPlanScreen, 
-        imageUrl: '', 
-        title: '', 
-        tagsData: const {} ,
+        onPlan: _goToPlanScreen,
+        imageUrl: '',
+        title: '',
+        tagsData: const {},
         rating: '',
         openHours: '',
+        ladtitude: 0,
+        longtitude: 0,
       ),
     ];
 

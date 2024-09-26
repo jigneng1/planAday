@@ -35,21 +35,37 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
         context,
         MaterialPageRoute(
           builder: (context) => PlaceDetailPage(
-            imageUrl: placeDetails?['photo'] ?? 'https://via.placeholder.com/300',
+            imageUrl:
+                placeDetails?['photo'] ?? 'https://via.placeholder.com/300',
             title: placeDetails?['displayName'] ?? 'Unknown Place',
             rating: placeDetails?['rating']?.toString() ?? 'No Rating',
-            openHours: placeDetails?['currentOpeningHours']?.join('\n') ?? 'No Open Hours',
+            openHours: placeDetails?['currentOpeningHours']?.join('\n') ??
+                'No Open Hours',
+            ladtitude: placeDetails?['location']?['latitude'] ?? 0,
+            longtitude: placeDetails?['location']?['longitude'] ?? 0,
             tagsData: {
-              'Wheelchair Parking': placeDetails?['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
-              'Wheelchair Entrance': placeDetails?['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
-              'Wheelchair Restroom': placeDetails?['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
-              'Wheelchair Seating': placeDetails?['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
-              'Free Parking Lot': placeDetails?['parkingOptions']?['freeParkingLot'] ?? false,
-              'Free Street Parking': placeDetails?['parkingOptions']?['freeStreetParking'] ?? false,
+              'Wheelchair Parking': placeDetails?['accessibilityOptions']
+                      ?['wheelchairAccessibleParking'] ??
+                  false,
+              'Wheelchair Entrance': placeDetails?['accessibilityOptions']
+                      ?['wheelchairAccessibleEntrance'] ??
+                  false,
+              'Wheelchair Restroom': placeDetails?['accessibilityOptions']
+                      ?['wheelchairAccessibleRestroom'] ??
+                  false,
+              'Wheelchair Seating': placeDetails?['accessibilityOptions']
+                      ?['wheelchairAccessibleSeating'] ??
+                  false,
+              'Free Parking Lot':
+                  placeDetails?['parkingOptions']?['freeParkingLot'] ?? false,
+              'Free Street Parking': placeDetails?['parkingOptions']
+                      ?['freeStreetParking'] ??
+                  false,
               'Takeout': placeDetails?['takeout'] ?? false,
               'Dog Friendly': placeDetails?['allowsDogs'] ?? false,
               'Live Music': placeDetails?['liveMusic'] ?? false,
-            }, onPlan: () {  },
+            },
+            onPlan: () {},
           ),
         ),
       );
@@ -81,7 +97,7 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
                 child: Image.network(
                   widget.imageUrl,
                   width: 120,
-                  height: 120, 
+                  height: 120,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
@@ -109,7 +125,7 @@ class _PlaceDetailCardState extends State<PlaceDetailCard> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const Spacer(), 
+                      const Spacer(),
                       Container(
                         decoration: BoxDecoration(
                           color: primaryColor,
