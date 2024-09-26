@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_rating/flutter_rating.dart';
 
 class PlaceDetailPage extends StatelessWidget {
   final VoidCallback onPlan;
@@ -72,7 +73,7 @@ class PlaceDetailPage extends StatelessWidget {
               ),
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(60), 
+              preferredSize: const Size.fromHeight(60),
               child: Container(
                 width: double.infinity,
                 height: 24,
@@ -110,7 +111,7 @@ class PlaceDetailPage extends StatelessWidget {
                           const SizedBox(height: 8),
                           if (tags.isNotEmpty)
                             Wrap(
-                              spacing: 2.0, 
+                              spacing: 2.0,
                               runSpacing: 4.0,
                               children: tags,
                             ),
@@ -118,7 +119,14 @@ class PlaceDetailPage extends StatelessWidget {
                           // Rating section
                           Row(
                             children: [
-                              const Icon(Icons.star, color: Colors.orange),
+                              // const Icon(Icons.star, color: Colors.orange),
+                              if (rating.isNotEmpty) ...[
+                                StarRating(
+                                  rating: double.parse(rating),
+                                  color: Colors.orange,
+                                ),
+                                const SizedBox(width: 4),
+                              ],
                               const SizedBox(width: 4),
                               Text(
                                 rating.isNotEmpty ? rating : 'No Rating',
