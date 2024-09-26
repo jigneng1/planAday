@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:plan_a_day/main.dart'; // Your main app file
+import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/app.dart';
@@ -20,21 +21,9 @@ void main() {
           ),
         );
 
-        // Ensure HomeScreen is shown by default
+        // Ensure shown by default
         expect(find.byType(HomeScreen), findsOneWidget);
         expect(find.byType(BottomAppBar), findsOneWidget);
-      });
-    });
-
-    // Test case: FloatingActionButton and Icons in BottomAppBar
-    testWidgets('Action: FloatingActionButton and BottomAppBar interaction',
-        (WidgetTester tester) async {
-      await mockNetworkImagesFor(() async {
-        // Pump the main app widget
-        await tester.pumpWidget(const MyApp());
-
-        // Trigger a frame after the widget has been built
-        await tester.pump();
 
         // Verify the FloatingActionButton with icon size and add icon
         expect(
@@ -59,6 +48,18 @@ void main() {
                 widget.icon == Icons.person &&
                 widget.color == Colors.grey.shade400),
             findsOneWidget);
+      });
+    });
+
+    // Test case: FloatingActionButton and Icons in BottomAppBar
+    testWidgets('Action: FloatingActionButton and BottomAppBar interaction',
+        (WidgetTester tester) async {
+      await mockNetworkImagesFor(() async {
+        // Pump the main app widget
+        await tester.pumpWidget(const MyApp());
+
+        // Trigger a frame after the widget has been built
+        await tester.pump();
 
         // Test navigation by tapping on icons
         await tester.tap(find.byIcon(Icons.home_filled));
@@ -69,6 +70,10 @@ void main() {
         await tester.tap(find.byIcon(Icons.person));
         await tester.pumpAndSettle();
         expect(find.byType(PersonaScreen), findsOneWidget);
+
+        await tester.tap(find.byType(FloatingActionButton));
+        await tester.pump();
+        expect(find.byType(CreatePlanScreen), findsOneWidget);
       });
     });
   });
