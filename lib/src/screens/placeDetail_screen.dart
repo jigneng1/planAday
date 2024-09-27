@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../../services/api_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -97,11 +98,22 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
     );
   }
 
+  // Function to launch Google Maps with latitude and longitude
+  Future<void> _openGoogleMaps(double lat, double lng) async {
+    final googleMapsUrl =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl);
+    } else {
+      throw 'Could not open Google Maps';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final Completer<GoogleMapController> _controller =
         Completer<GoogleMapController>();
-        
+
     if (isLoading) {
       return const Center(
         child: CircularProgressIndicator(),
@@ -193,13 +205,12 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                           // Rating section
                           Row(
                             children: [
-                              if (rating.isNotEmpty) ...[
+                              if (rating.isNotEmpty)
                                 StarRating(
                                   rating: double.parse(rating),
                                   color: Colors.orange,
                                 ),
-                                const SizedBox(width: 4),
-                              ],
+                              const SizedBox(width: 4),
                               const SizedBox(width: 4),
                               Text(
                                 rating.isNotEmpty ? rating : 'No Rating',
@@ -218,26 +229,31 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
+
                           // Add the Google Map widget here
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: SizedBox(
-                        height: 200, // Set a fixed height for the map
-                        child: GoogleMap(
-                          initialCameraPosition: CameraPosition(
-                              target: LatLng(ladtitude, longtitude), zoom: 14),
-                          onMapCreated: (GoogleMapController controller) {
-                            _controller.complete(controller);
-                          },
-                          markers: {
-                            Marker(
-                              markerId: const MarkerId('placeLocation'),
-                              position: LatLng(ladtitude, longtitude),
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: SizedBox(
+                              height: 200, // Set a fixed height for the map
+                              child: GoogleMap(
+                                onTap: (LatLng latlng) {
+                                  _openGoogleMaps(ladtitude, longtitude);
+                                },
+                                initialCameraPosition: CameraPosition(
+                                    target: LatLng(ladtitude, longtitude),
+                                    zoom: 14),
+                                onMapCreated: (GoogleMapController controller) {
+                                  _controller.complete(controller);
+                                },
+                                markers: {
+                                  Marker(
+                                    markerId: const MarkerId('placeLocation'),
+                                    position: LatLng(ladtitude, longtitude),
+                                  ),
+                                },
+                              ),
                             ),
-                          },
-                        ),
-                      ),
-                    ),
+                          ),
                         ],
                       ),
                     ),
