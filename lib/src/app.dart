@@ -194,6 +194,7 @@ class _MainLayoutState extends State<MainLayout> {
         onGoingPlan: _ongoingPlanID,
         onStopPlan: _onStopPlan,
         onViewPlaceDetail: _goToPlaceDetailScreen,
+        onRegeneratePlan: _handleDoneEditPlan,
       ),
       const PersonaScreen(),
       EditPlanScreen(

@@ -24,7 +24,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
   final ApiService apiService = ApiService();
   late String imageUrl = 'No image';
   late String title = 'No title';
-  late String rating = 'No rating';
+  late double rating = 0.0;
   late String openHours = 'No opening hours';
   late double ladtitude = 0.0;
   late double longtitude = 0.0;
@@ -47,7 +47,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
       setState(() {
         imageUrl = placeDetails?['photo'];
         title = placeDetails?['displayName'];
-        rating = placeDetails!['rating'].toString();
+        rating = placeDetails!['rating'];
         openHours = formattedOpenHours;
         tagsData = {
           'Wheelchair Parking': placeDetails['accessibilityOptions']
@@ -70,8 +70,13 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
           'Dog Friendly': placeDetails['allowsDogs'] ?? false,
           'Live Music': placeDetails['liveMusic'] ?? false,
         };
-        ladtitude = placeDetails['location']?['latitude'];
-        longtitude = placeDetails['location']?['longitude'];
+        ladtitude =
+            double.tryParse(placeDetails['location']['latitude'].toString()) ??
+                0.0;
+        longtitude =
+            double.tryParse(placeDetails['location']['longitude'].toString()) ??
+                0.0;
+
         isLoading = false;
       });
     } catch (error) {
@@ -205,15 +210,15 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                           // Rating section
                           Row(
                             children: [
-                              if (rating.isNotEmpty)
+                              if (rating != 0)
                                 StarRating(
-                                  rating: double.parse(rating),
+                                  rating: rating,
                                   color: Colors.orange,
                                 ),
                               const SizedBox(width: 4),
                               const SizedBox(width: 4),
                               Text(
-                                rating.isNotEmpty ? rating : 'No Rating',
+                                rating.toString(),
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ],
