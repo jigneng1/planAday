@@ -471,7 +471,7 @@ class _PlanScreenState extends State<PlanScreen> {
                   _handleRegeneratePlan();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFFFF9574),
+                  backgroundColor: const Color(0xFFFF9574),
                 ),
                 child: const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
