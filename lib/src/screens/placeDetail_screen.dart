@@ -111,7 +111,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    final Completer<GoogleMapController> controller =
+    final Completer<GoogleMapController> _controller =
         Completer<GoogleMapController>();
 
     if (isLoading) {
@@ -243,7 +243,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                                     target: LatLng(ladtitude, longtitude),
                                     zoom: 14),
                                 onMapCreated: (GoogleMapController controller) {
-                                  controller.complete(controller);
+                                  _controller.complete(controller);
                                 },
                                 markers: {
                                   Marker(
