@@ -274,8 +274,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             .map((activity) => activity.toLowerCase())
             .toList(),
         'lad':
-            '13.854899406886572', // Ensure this is non-null
-        'lng': '100.6318659051209',
+            _selectedLocation?.latitude.toString(), // Ensure this is non-null
+        'lng': _selectedLocation?.longitude.toString(),
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent
