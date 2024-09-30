@@ -103,40 +103,35 @@ class _PlanScreenState extends State<EditPlanScreen> {
     });
   }
 
-  void _generateMorePlaces() async{
-    // Fetch new places; assuming getRandomizedPlaces returns a List<Map<String, String>>
-    // List<Map<String, String>> newPlaces = getRandomizedPlaces(1); // Number of places to add
-    final newPlaces = await apiService.getRandomPlaces(
+  void _generateMorePlace() async{
+    // Fetch new place; assuming it returns a Map<String, dynamic> representing the place
+    final newPlace = await apiService.generateMorePlace(
       updatedPlan['planID'],
-      1,
+      updatedPlan['selectedPlaces'].keys.toList(),
     );
 
-    // setState(() {
-    //   // Ensure selectedPlaces is initialized as a Map
-    //   if (updatedPlan['selectedPlaces'] == null) {
-    //     updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
-    //   }
+    if (newPlace != null && newPlace.containsKey('id')) {
+      setState(() {
+        // Ensure selectedPlaces is initialized as a Map
+        if (updatedPlan['selectedPlaces'] == null) {
+          updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
+        }
 
-    //   // Add new places to the selectedPlaces map
-    //   for (var place in newPlaces) {
-    //     if (place['id'] != null &&
-    //         place['photoUrl'] != null &&
-    //         place['title'] != null &&
-    //         place['subtitle'] != null) {
-    //       String id = place['id']!; // Assuming each place has a unique ID
-    //       updatedPlan['selectedPlaces'][id] = {
-    //         'photoUrl': place['photoUrl']!,
-    //         'displayName': place['title']!,
-    //         'primaryType': place['subtitle']!,
-    //       };
-    //     } else {
-    //       print('One or more fields in the new place are null: $place');
-    //     }
-    //   }
+        // Add the new place to selectedPlaces using its id as the key
+        updatedPlan['selectedPlaces'][newPlace['id']] = {
+          'id': newPlace['id'],
+          'displayName': newPlace['displayName'] ?? 'No place name',
+          'primaryType': newPlace['primaryType'] ?? 'No type',
+          'shortFormattedAddress': newPlace['shortFormattedAddress'] ?? 'No location',
+          'photosUrl': newPlace['photosUrl'] ?? 'Image not available',
+        };
 
-    //   // Update the number of places
-    //   updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
-    // });
+        // Update the number of places
+        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+      });
+      } else {
+      print('Error: New place data is invalid or missing ID');
+      }
   }
 
   void regenerateOnePlace(String placeID) async{
@@ -343,7 +338,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: GestureDetector(
-                onTap: _generateMorePlaces,
+                onTap: _generateMorePlace,
                 child: Row(
                   children: <Widget>[
                     Expanded(
