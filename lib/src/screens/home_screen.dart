@@ -2,11 +2,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
+import 'package:plan_a_day/src/screens/data/place_details.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
   final Function(String id) onPlan;
-  final Function(String id) onViewOngoingPlan;
   final String ongoingPlanID;
   final Map<String, dynamic> onGoingPlan;
   final List<Map<String, dynamic>> allPlans;
@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
       required this.onPlan,
       required this.ongoingPlanID,
       required this.allPlans,
-      required this.onViewOngoingPlan,
       required this.onGoingPlan,
       required this.onEndGoingPlan});
 
@@ -27,32 +26,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Map<String, String>> places = [
-    {
-      'placeName': 'Tonglor',
-      'placeDetails': 'Bar - Restaurant • 2 hours',
-      'imageUrl':
-          'https://www.theakyra.com/files/5415/8921/0258/Thonglor_Bangkok_District.jpg',
-    },
-    {
-      'placeName': 'Sukhumvit',
-      'placeDetails': 'Shopping - Dining • 3 hours',
-      'imageUrl':
-          'https://www.realasset.co.th/ckfinder/userfiles/images/0001-skytrain.jpg',
-    },
-    {
-      'placeName': 'Chinatown',
-      'placeDetails': 'Cultural Tour • 4 hours',
-      'imageUrl':
-          'https://upload.wikimedia.org/wikipedia/commons/6/64/Yaowarat_at_night_%2832455695783%29.jpg',
-    },
-  ];
-
-  // void _startOngoingPlan() {
-  //   setState(() {
-  //     _haveOngoingPlan = !_haveOngoingPlan; // Toggle the state
-  //   });
-  // }
+  List<Map<String, dynamic>> plans = getSuggestPlan();
 
   @override
   Widget build(BuildContext context) {
@@ -89,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? OngoingPlanWidget(
                             planID: widget.ongoingPlanID,
                             plan: widget.onGoingPlan,
-                            onViewOngoingPlan: widget.onViewOngoingPlan,
+                            onViewOngoingPlan: widget.onPlan,
                             onEndPlan: widget.onEndGoingPlan)
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -277,85 +251,96 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCarouselSlider() {
+   Widget _buildCarouselSlider() {
     return CarouselSlider.builder(
-      itemCount: places
-          .length, // Number of cards in the carousel based on the list length
+      itemCount: plans.length, // Use the number of plans
       itemBuilder: (BuildContext context, int index, int realIndex) {
-        final place = places[index]; // Get current place data
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          elevation: 4, // Add elevation to lift the card
-          child: Stack(
-            children: [
-              ClipRRect(
-                borderRadius: BorderRadius.circular(24),
-                child: Image.network(
-                  place['imageUrl']!, // Replace with dynamic image URL
-                  fit: BoxFit.cover,
-                  width: double.infinity,
-                  height: double.infinity,
+        final plan = plans[index]; // Get current plan data
+        return GestureDetector(
+          onTap: (){
+            widget.onPlan(plan['planID']); // Handle tap
+          }, // Send out planID
+          child: Card(
+            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(24),
+            ),
+            elevation: 4,
+            child: Stack(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Image.network(
+                    plan['selectedPlaces'].values.first['photosUrl']!,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                  ),
                 ),
-              ),
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        Colors.black.withOpacity(0.6),
-                        Colors.transparent,
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomCenter,
+                        end: Alignment.topCenter,
+                        colors: [
+                          Colors.black.withOpacity(0.6),
+                          Colors.transparent,
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.4),
+                      borderRadius: const BorderRadius.only(
+                        bottomLeft: Radius.circular(24),
+                        bottomRight: Radius.circular(24),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          plan['planName']!, // Dynamic plan name
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(children: [
+                          Text(plan['category'].join(' • '), // Dynamic category
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            )),
+                          const Text(' | ', style: TextStyle(color: Colors.white, fontSize: 12),),
+                          Text(
+                          "${plan['selectedPlaces'].length} Places",
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                        ],),
+                        const SizedBox(height: 4),
                       ],
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.4),
-                    borderRadius: const BorderRadius.only(
-                      bottomLeft: Radius.circular(24),
-                      bottomRight: Radius.circular(24),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        place['placeName']!, // Dynamic place name
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2, // Modern letter spacing
-                        ),
-                      ),
-                      const SizedBox(
-                          height: 4), // Spacing between title and details
-                      Text(
-                        place['placeDetails']!, // Dynamic place details
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                    ],
-                  ),
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },

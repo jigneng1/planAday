@@ -1,7 +1,7 @@
-
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
+import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
@@ -28,6 +28,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   // List to store multiple plans
   final List<Map<String, dynamic>> _allPlans = [];
+  final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
   void onTabTapped(int index) {
     setState(() {
@@ -42,17 +43,20 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToPlanScreen(String planID) {
-    // Search for the plan by planID in the list of all plans
+    // Search for the plan by planID in the list of all plans or suggest plans
     Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
       (plan) => plan['planID'] == planID,
-      orElse: () => {},
+      orElse: () => _suggestPlans.firstWhere(
+        (suggestPlan) => suggestPlan['planID'] == planID,
+        orElse: () => {},
+      ),
     );
 
     if (selectedPlan.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _planData = selectedPlan;
-          _currentIndex = 3;
+          _currentIndex = 3; // Assuming 3 is the index of the PlanScreen
         });
       });
     } else {
@@ -90,8 +94,7 @@ class _MainLayoutState extends State<MainLayout> {
         planID = planIDinput;
         _currentIndex = 6;
       });
-    }
-    else {
+    } else {
       print('Place ID or Plan ID is empty');
     }
   }
@@ -178,7 +181,6 @@ class _MainLayoutState extends State<MainLayout> {
         allPlans: _allPlans,
         ongoingPlanID: _ongoingPlanID,
         onGoingPlan: _planData,
-        onViewOngoingPlan: _goToPlanScreen,
         onEndGoingPlan: _onStopPlan,
       ),
       const ProfileScreen(),
@@ -201,7 +203,7 @@ class _MainLayoutState extends State<MainLayout> {
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
         onCancel: _goToPlanScreen,
-        onDone: _handleDoneEditPlan, 
+        onDone: _handleDoneEditPlan,
         onViewPlaceDetail: _goToPlaceDetailScreen,
       ),
       PlaceDetailPage(
