@@ -170,14 +170,45 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
         print('Place data sent successfully');
         final responseData = jsonDecode(response.body);
         final newPlace = responseData['data'];
-        print('++++++++++++');
-        print('responsData $responseData');
+        // print('++++++++++++');
+        // print('responsData $responseData');
         return newPlace;
       } else {
         print('Failed to send data: ${response.statusCode}');
         return null;
       }
     } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
+
+  Future<Map<String, dynamic>?> generateMorePlace(String planID, List<String> places) async {
+    final url = Uri.parse(
+            "http://localhost:3000/getGenMorePlace");
+    try{
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          "planId" : planID,
+          "placesList": places,
+        }),
+      );
+
+      if(response.statusCode == 200){
+        print('Place data sent successfully');
+        final responseData = jsonDecode(response.body);
+        final newPlace = responseData['data'];
+        // print('++++++++++++');
+        // print('responsData $responseData');
+        return newPlace;
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return null;
+      }
+    }
+    catch(e){
       print('Error fetching place details: $e');
       return {}; // Return an empty map in case of error
     }
