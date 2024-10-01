@@ -273,8 +273,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'categories': _selectedActivities
             .map((activity) => activity.toLowerCase())
             .toList(),
-        'lad':
-            _selectedLocation?.latitude.toString(),
+        'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
       };
 
@@ -393,16 +392,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                               : {},
                           onTap:
                               _onMapTap, // Use long press to select a location
-                          myLocationEnabled:
-                              true, // Show user's current location on map
-                          myLocationButtonEnabled:
-                              true, // Button to center on user's location
-                          scrollGesturesEnabled: true, // Enable scrolling
-                          zoomGesturesEnabled: true, // Enable zooming
-                          rotateGesturesEnabled: true, // Allow map rotation
-                          tiltGesturesEnabled: true, // Allow map tilting
-                          compassEnabled: true, // Display a compass
-                          mapToolbarEnabled: true, // Show map toolbar
+                          onCameraMove: (CameraPosition position) {},
+                          myLocationButtonEnabled: true,
+                          myLocationEnabled: true,
                           // Add padding to avoid overlap with other UI elements
                           padding: const EdgeInsets.only(
                               top: 50, left: 10, right: 10, bottom: 10),
