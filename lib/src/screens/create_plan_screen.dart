@@ -257,6 +257,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     });
 
     if (_formKey.currentState?.validate() ?? false) {
+      // Check if location is selected before generating plan
       if (_selectedLocation == null) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Please select a location on the map.')),
@@ -277,7 +278,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'lng': _selectedLocation?.longitude.toString(),
       };
 
-      widget.onGeneratePlan(planData);
+      widget.onGeneratePlan(planData); // Pass the data to the parent
     }
   }
 
@@ -390,7 +391,21 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                   ),
                                 }
                               : {},
-                          onTap: _onMapTap,
+                          onTap:
+                              _onMapTap, // Use long press to select a location
+                          myLocationEnabled:
+                              true, // Show user's current location on map
+                          myLocationButtonEnabled:
+                              true, // Button to center on user's location
+                          scrollGesturesEnabled: true, // Enable scrolling
+                          zoomGesturesEnabled: true, // Enable zooming
+                          rotateGesturesEnabled: true, // Allow map rotation
+                          tiltGesturesEnabled: true, // Allow map tilting
+                          compassEnabled: true, // Display a compass
+                          mapToolbarEnabled: true, // Show map toolbar
+                          // Add padding to avoid overlap with other UI elements
+                          padding: const EdgeInsets.only(
+                              top: 50, left: 10, right: 10, bottom: 10),
                         ),
                 ),
                 const SizedBox(height: 12),
