@@ -18,7 +18,11 @@ class PlanScreen extends StatefulWidget {
       required this.onClose,
       required this.planData,
       required this.onEditPlan,
-      required this.onStartPlan, required this.onGoingPlan, required this.onStopPlan, required this.onViewPlaceDetail, required this.onRegeneratePlan});
+      required this.onStartPlan,
+      required this.onGoingPlan,
+      required this.onStopPlan,
+      required this.onViewPlaceDetail,
+      required this.onRegeneratePlan});
 
   @override
   _PlanScreenState createState() => _PlanScreenState();
@@ -40,7 +44,6 @@ class _PlanScreenState extends State<PlanScreen> {
     // Cancel any ongoing timers, streams, or other resources
     super.dispose();
   }
-
 
   void _initializePlan() {
     // Use existing selected places if available
@@ -69,49 +72,124 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void _handleRegeneratePlan() async {
-  setState(() {
-    selectedPlaces = null; // Temporarily clear selectedPlaces to show loading
-  });
+    bool confirmed = await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Exciting_news_re_y1iw.png',
+                    height: 250),
+                const SizedBox(height: 16),
+                const Text(
+                  'Are you sure you want to regenerate the plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30),
+                  child: OutlinedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop(true); // Confirm regeneration
+                    },
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size.fromHeight(50),
+                      side: BorderSide(
+                          color: Theme.of(context).primaryColor,
+                          width: 2), // Set border color to primaryColor
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                    ),
+                    child: Text(
+                      'Regenerate the plan',
+                      style: TextStyle(
+                        color: Theme.of(context)
+                            .primaryColor, // Set text color to primaryColor
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Cancel regeneration
+                  },
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
 
-  try {
-    final plan = await apiService.getRandomPlaces(
-        widget.planData['planID'], widget.planData['numberOfPlaces']);
-    print('Fetched plan: $plan');
-
-    if (plan != null && plan.isNotEmpty) {
-      if (mounted) {
-        setState(() {
-          selectedPlaces = Map<String, dynamic>.from(plan);
-          getTimeTravel();  // Call the travel time fetching function
-          Map<String, dynamic> planDetail = {
-            'planName': widget.planData['planName'],
-            'startTime': widget.planData['startTime'],
-            'startDate': widget.planData['startDate'],
-            'category': widget.planData['category'],
-            'numberOfPlaces': widget.planData['numberOfPlaces'],
-            'planID': widget.planData['planID'],
-            'selectedPlaces': selectedPlaces,
-          };
-          widget.onRegeneratePlan(planDetail);
-        });
-      }
-    } else {
-      print('API returned no plan.');
-      if (mounted) {
-        setState(() {
-          selectedPlaces = {}; // Fallback to an empty map
-        });
-      }
-    }
-  } catch (e) {
-    print('Error fetching new places: $e');
-    if (mounted) {
+    // Proceed with regenerating the plan if confirmed
+    if (confirmed == true) {
       setState(() {
-        selectedPlaces = {}; // Fallback in case of error
+        selectedPlaces =
+            null; // Temporarily clear selectedPlaces to show loading
       });
+
+      try {
+        final plan = await apiService.getRandomPlaces(
+            widget.planData['planID'], widget.planData['numberOfPlaces']);
+        print('Fetched plan: $plan');
+
+        if (plan != null && plan.isNotEmpty) {
+          if (mounted) {
+            setState(() {
+              selectedPlaces = Map<String, dynamic>.from(plan);
+              getTimeTravel(); // Call the travel time fetching function
+              Map<String, dynamic> planDetail = {
+                'planName': widget.planData['planName'],
+                'startTime': widget.planData['startTime'],
+                'startDate': widget.planData['startDate'],
+                'category': widget.planData['category'],
+                'numberOfPlaces': widget.planData['numberOfPlaces'],
+                'planID': widget.planData['planID'],
+                'selectedPlaces': selectedPlaces,
+              };
+              widget.onRegeneratePlan(planDetail);
+            });
+          }
+        } else {
+          print('API returned no plan.');
+          if (mounted) {
+            setState(() {
+              selectedPlaces = {}; // Fallback to an empty map
+            });
+          }
+        }
+      } catch (e) {
+        print('Error fetching new places: $e');
+        if (mounted) {
+          setState(() {
+            selectedPlaces = {}; // Fallback in case of error
+          });
+        }
+      }
     }
   }
-}
 
   String formatType(String type) {
     return type
@@ -122,30 +200,30 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   void getTimeTravel() async {
-  if (widget.planData['numberOfPlaces'] > 1) {
-    try {
-      // Fetch the travel time data
-      final placeId = selectedPlaces!.keys.toList();
-      final travelTime = await apiService.getTimeTravel(placeId);
-      print('Fetched travel time: $travelTime'); // Log the fetched travel time
+    if (widget.planData['numberOfPlaces'] > 1) {
+      try {
+        // Fetch the travel time data
+        final placeId = selectedPlaces!.keys.toList();
+        final travelTime = await apiService.getTimeTravel(placeId);
+        print(
+            'Fetched travel time: $travelTime'); // Log the fetched travel time
 
-      if (travelTime.isNotEmpty) {
-        // Check if the widget is still mounted before updating the state
-        if (mounted) {
-          setState(() {
-            travelTimes = travelTime; // Store the travel time data
-          });
+        if (travelTime.isNotEmpty) {
+          // Check if the widget is still mounted before updating the state
+          if (mounted) {
+            setState(() {
+              travelTimes = travelTime; // Store the travel time data
+            });
+          }
+          print('Travel time data received successfully.');
+        } else {
+          print('API returned no travel time data.');
         }
-        print('Travel time data received successfully.');
-      } else {
-        print('API returned no travel time data.');
+      } catch (e) {
+        print('Error fetching travel time data: $e');
       }
-    } catch (e) {
-      print('Error fetching travel time data: $e');
     }
   }
-}
-
 
   void handleStartPlan() {
     showDialog(
@@ -352,7 +430,7 @@ class _PlanScreenState extends State<PlanScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: (){},
+            onPressed: () {},
             icon: const Icon(Icons.share),
           ),
         ],
@@ -434,93 +512,109 @@ class _PlanScreenState extends State<PlanScreen> {
             Column(
               children: [
                 LayoutBuilder(
-  builder: (context, constraints) {
-    double buttonWidth = constraints.maxWidth > 200 ? constraints.maxWidth : constraints.maxWidth * 0.4;
-    double halfWidth = constraints.maxWidth / 2 - 20; // Adjust for padding between buttons
+                  builder: (context, constraints) {
+                    double buttonWidth = constraints.maxWidth > 200
+                        ? constraints.maxWidth
+                        : constraints.maxWidth * 0.4;
+                    double halfWidth = constraints.maxWidth / 2 -
+                        20; // Adjust for padding between buttons
 
-    return Column(
-      children: [
-        ElevatedButton(
-          onPressed: () {
-            widget.onGoingPlan == widget.planData['planID'] ? handleStopPlan() : handleStartPlan();
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: widget.onGoingPlan != widget.planData['planID'] ? primaryColor : Colors.red,
-          ),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            child: SizedBox(
-              width: buttonWidth, // Fit the screen width
-              child: Center(
-                child: widget.onGoingPlan != widget.planData['planID']
-                    ? const Text(
-                        'Start the plan',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      )
-                    : const Text(
-                        'Stop the Plan',
-                        style: TextStyle(color: Colors.white, fontSize: 12),
-                      ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
-        const Text('Want to adjust plan?',
-                    style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey)),
-                const SizedBox(height: 24),
-        
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: ElevatedButton(
-                onPressed: () {
-                  _handleRegeneratePlan();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFF9574),
+                    return Column(
+                      children: [
+                        ElevatedButton(
+                          onPressed: () {
+                            widget.onGoingPlan == widget.planData['planID']
+                                ? handleStopPlan()
+                                : handleStartPlan();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor:
+                                widget.onGoingPlan != widget.planData['planID']
+                                    ? primaryColor
+                                    : Colors.red,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 12),
+                            child: SizedBox(
+                              width: buttonWidth, // Fit the screen width
+                              child: Center(
+                                child: widget.onGoingPlan !=
+                                        widget.planData['planID']
+                                    ? const Text(
+                                        'Start the plan',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      )
+                                    : const Text(
+                                        'Stop the Plan',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 30),
+                        const Text('Want to adjust plan?',
+                            style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey)),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  _handleRegeneratePlan();
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFF9574),
+                                ),
+                                child: const Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 10, vertical: 12),
+                                  child: Center(
+                                    child: Text(
+                                      'Regenerate',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 20),
+                            Expanded(
+                              child: OutlinedButton(
+                                onPressed: () {
+                                  _handleEditPlan();
+                                },
+                                style: OutlinedButton.styleFrom(
+                                  side:
+                                      BorderSide(color: primaryColor, width: 2),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 0, vertical: 12),
+                                  child: Center(
+                                    child: Text(
+                                      'Edit Plan',
+                                      style: TextStyle(
+                                          color: primaryColor, fontSize: 12),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    );
+                  },
                 ),
-                child: const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
-                  child: Center(
-                    child: Text(
-                      'Regenerate',
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 20),
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () {
-                  _handleEditPlan();
-                },
-                style: OutlinedButton.styleFrom(
-                  side: BorderSide(color: primaryColor, width: 2),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 12),
-                  child: Center(
-                    child: Text(
-                      'Edit Plan',
-                      style: TextStyle(color: primaryColor, fontSize: 12),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  },
-),
                 const SizedBox(height: 50),
               ],
             )
