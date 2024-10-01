@@ -72,23 +72,49 @@ class _PlanScreenState extends State<EditPlanScreen> {
     }
   }
 
-  void _editStartTime() async {
-    final TimeOfDay? newTime = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.fromDateTime(
-        DateTime.parse(
-            updatedPlan['startTime'] ?? DateTime.now().toIso8601String()),
-      ),
-    );
+  void _editStartDate() async {
+  DateTime initialDate;
 
-    if (newTime != null) {
-      final String newStartTime =
-          '${newTime.hour}:${newTime.minute.toString().padLeft(2, '0')}';
-      setState(() {
-        updatedPlan['startTime'] = newStartTime;
-      });
-    }
+  // Attempt to parse the string date and fallback to current date on failure
+  try {
+    // Parsing the start date string assuming it's in 'dd/MM/yyyy' format
+    initialDate = updatedPlan['startDate'] != null
+        ? DateFormat('dd/MM/yyyy').parse(updatedPlan['startDate'])
+        : DateTime.now();
+  } catch (e) {
+    // If the string format is invalid or parsing fails, fallback to current date
+    initialDate = DateTime.now();
   }
+
+  // Show the date picker with primaryColor
+  final DateTime? pickedDate = await showDatePicker(
+    context: context,
+    initialDate: initialDate,
+    firstDate: DateTime.now(),
+    lastDate: DateTime(2100),
+    builder: (BuildContext context, Widget? child) {
+      return Theme(
+        data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary:
+                  Theme.of(context).primaryColor, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface:
+                  Theme.of(context).primaryColor, // Calendar picker color
+            ),
+          ),
+        child: child!,
+      );
+    },
+  );
+
+  if (pickedDate != null) {
+    setState(() {
+      // Save the picked date as a formatted string in 'dd/MM/yyyy' format
+      updatedPlan['startDate'] = DateFormat('dd/MM/yyyy').format(pickedDate);
+    });
+  }
+}
 
   void _restoreDismissedPlaces() {
     setState(() {
@@ -199,10 +225,6 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: _editPlanName,
-            ),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -215,11 +237,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Handle share plan action
-            },
-          ),
+              icon: const Icon(Icons.edit),
+              onPressed: _editPlanName,
+            ),
         ],
       ),
       body: SingleChildScrollView(
@@ -247,15 +267,12 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   'Time duration  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                GestureDetector(
-                  onTap: _editStartTime,
-                  child: Text(
-                    updatedPlan['numberOfPlaces'] != null
-                      ? '${updatedPlan['numberOfPlaces']!} hours'
-                      : 'Unknown',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
+                Text(
+                  updatedPlan['numberOfPlaces'] != null
+                    ? '${updatedPlan['numberOfPlaces']!} hours'
+                    : 'Unknown',
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
                 ),
               ],
@@ -272,6 +289,13 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 Text(
                   updatedPlan['startDate'] ?? 'Unknown',
                   style: const TextStyle(fontSize: 16),
+                ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(Icons.edit, color: Colors.grey,),
+                  onPressed: () {
+                    _editStartDate();
+                  },
                 ),
               ],
             ),

@@ -133,7 +133,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -257,13 +257,12 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     });
 
     if (_formKey.currentState?.validate() ?? false) {
-      // Check if location is selected before generating plan
-      // if (_selectedLocation == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text('Please select a location on the map.')),
-      //   );
-      //   return;
-      // }
+      if (_selectedLocation == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select a location on the map.')),
+        );
+        return;
+      }
 
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
@@ -274,11 +273,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             .map((activity) => activity.toLowerCase())
             .toList(),
         'lad':
-            _selectedLocation?.latitude.toString(), // Ensure this is non-null
+            _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
       };
 
-      widget.onGeneratePlan(planData); // Pass the data to the parent
+      widget.onGeneratePlan(planData);
     }
   }
 
