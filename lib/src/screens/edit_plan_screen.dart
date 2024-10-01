@@ -483,16 +483,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   children: [
                     SlidableAction(
                       onPressed: (context) {
-                        // Regenerate place logic\
                         print('Regenerating place $key');
                         regenerateOnePlace(key);
-                        // setState(() {
-                        //   updatedPlan['selectedPlaces'][key] = {
-                        //     'imageUrl': newPlace.first['photoUrl'] ?? 'No image',
-                        //     'title': newPlace.first['title'] ?? 'No Name',
-                        //     'subtitle': newPlace.first['subtitle'] ?? 'No Type',
-                        //   };
-                        // });
                       },
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,

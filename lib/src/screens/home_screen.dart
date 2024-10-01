@@ -251,13 +251,13 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-   Widget _buildCarouselSlider() {
+  Widget _buildCarouselSlider() {
     return CarouselSlider.builder(
       itemCount: plans.length, // Use the number of plans
       itemBuilder: (BuildContext context, int index, int realIndex) {
         final plan = plans[index]; // Get current plan data
         return GestureDetector(
-          onTap: (){
+          onTap: () {
             widget.onPlan(plan['planID']); // Handle tap
           }, // Send out planID
           child: Card(
@@ -297,8 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   right: 0,
                   bottom: 0,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 20),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.4),
                       borderRadius: const BorderRadius.only(
@@ -319,21 +319,32 @@ class _HomeScreenState extends State<HomeScreen> {
                           ),
                         ),
                         const SizedBox(height: 4),
-                        Row(children: [
-                          Text(plan['category'].join(' • '), // Dynamic category
-                            style: const TextStyle(
-                              color: Colors.white70,
-                              fontSize: 12,
-                            )),
-                          const Text(' | ', style: TextStyle(color: Colors.white, fontSize: 12),),
-                          Text(
-                          "${plan['selectedPlaces'].length} Places",
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
+                        Row(
+                          children: [
+                            Text(
+                              (plan['category'].length > 3
+                                  ? plan['category'].take(3).join(' • ') +
+                                      ' • ...'
+                                  : plan['category'].join(' • ')),
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                            const Text(
+                              ' | ',
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 12),
+                            ),
+                            Text(
+                              "${plan['selectedPlaces'].length} Places",
+                              style: const TextStyle(
+                                color: Colors.white70,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
                         ),
-                        ],),
                         const SizedBox(height: 4),
                       ],
                     ),
