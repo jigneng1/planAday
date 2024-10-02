@@ -369,45 +369,43 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
-                Expanded(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-                color: Colors.grey.shade300,
-              ),
-              child: _currentLocation == null
-                  ? const Center(child: CircularProgressIndicator())
-                  : GoogleMap(
-                      onMapCreated: _onMapCreated,
-                      initialCameraPosition: CameraPosition(
-                        target: _currentLocation!,
-                        zoom: 14.0,
-                      ),
-                      onTap: _onMapTap, // Enable map tapping to select location
-                      markers: _selectedLocation != null
-                          ? {
-                              Marker(
-                                markerId: const MarkerId('selected_location'),
-                                position: _selectedLocation!,
-                              ),
-                            }
-                          : {},
-                      myLocationEnabled: true,
-                      myLocationButtonEnabled: true,
-                      scrollGesturesEnabled: true,
-                      zoomGesturesEnabled: true, 
-                      rotateGesturesEnabled: false,
-                      tiltGesturesEnabled: false, 
-                      // Apply platform-specific adjustments
-                      gestureRecognizers: Platform.isIOS 
-                          ? {
-                              Factory<ScaleGestureRecognizer>(
-                                  () => ScaleGestureRecognizer())
-                            }
-                          : {},
-                    ),
-            ),
-          ),
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.grey.shade300,
+                  ),
+                  child: _currentLocation == null
+                      ? const Center(child: CircularProgressIndicator())
+                      : GoogleMap(
+                          onMapCreated: _onMapCreated,
+                          initialCameraPosition: CameraPosition(
+                            target: _currentLocation!,
+                            zoom: 14.0,
+                          ),
+                          onTap: _onMapTap, // Enable map tapping to select location
+                          markers: _selectedLocation != null
+                              ? {
+                                  Marker(
+                                    markerId: const MarkerId('selected_location'),
+                                    position: _selectedLocation!,
+                                  ),
+                                }
+                              : {},
+                          myLocationEnabled: true,
+                          myLocationButtonEnabled: true,
+                          scrollGesturesEnabled: true,
+                          zoomGesturesEnabled: true, 
+                          rotateGesturesEnabled: false,
+                          tiltGesturesEnabled: false, 
+                          // Apply platform-specific adjustments
+                          gestureRecognizers: Platform.isIOS 
+                              ? {
+                                  Factory<ScaleGestureRecognizer>(
+                                      () => ScaleGestureRecognizer())
+                                }
+                              : {},
+                        ),
+                ),
                 const SizedBox(height: 12),
                 if (_selectedLocation != null)
                   Padding(
