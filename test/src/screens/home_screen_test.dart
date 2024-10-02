@@ -1,9 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:network_image_mock/network_image_mock.dart';
 
 void main() {
+  setUpAll(() {
+    print("setUpAll");
+  });
+
+  setUp(() {
+    print("setUp");
+  });
+
+  tearDownAll(() {
+    print("tearDownAll");
+  });
+
+  tearDown(() {
+    print("tearDown");
+  });
   group('HomeScreen Widget Test', () {
     // Mock data for all plans and ongoing plan
     final allPlans = [
@@ -34,7 +50,32 @@ void main() {
       'category': ['Adventure'],
       'numberOfPlaces': 3,
     };
+    // Given When Then: Given Create Plan Button when it's clicked then go to create Plan Screen
+    // Testing existence / Displayed may not necessarily for now
+    testWidgets('Logo is displayed', (WidgetTester tester) async {
+      // Create a testable widget
+      await tester.pumpWidget(MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Image.asset(
+              'assets/images/Asset_14x.png',
+              height: 50,
+            ),
+          ),
+        ),
+      ));
 
+      // Ensure that the image is found
+      final imageFinder = find.byType(Image);
+      expect(imageFinder, findsOneWidget);
+
+      // Ensure the image is visible
+      expect(
+          find.byWidgetPredicate(
+            (widget) => widget is Image && widget.height == 50,
+          ),
+          findsOneWidget);
+    });
     testWidgets('Existence: Verify elements on HomeScreen',
         (WidgetTester tester) async {
       await mockNetworkImagesFor(() async {
@@ -74,6 +115,11 @@ void main() {
         } else {
           fail('The "Create new plan" button was not found.');
         }
+
+        final createPlanButton = find.text('Create new plan');
+        await tester.tap(createPlanButton);
+        await tester.pump();
+        expect(find.byType(CreatePlanScreen), findsOneWidget);
 
         // Check for partial text match for "Where you want to" (in case of small differences)
         expect(find.textContaining('Where you want to'), findsOneWidget);

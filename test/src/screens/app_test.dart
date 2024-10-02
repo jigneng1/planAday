@@ -21,7 +21,7 @@ void main() {
           ),
         );
 
-        // Ensure shown by default
+        // Ensure HomeScreen is shown by default
         expect(find.byType(HomeScreen), findsOneWidget);
         expect(find.byType(BottomAppBar), findsOneWidget);
 
