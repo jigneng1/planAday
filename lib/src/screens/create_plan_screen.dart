@@ -276,8 +276,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'categories': _selectedActivities
             .map((activity) => activity.toLowerCase())
             .toList(),
-        'lad':
-            _selectedLocation?.latitude.toString(),
+        'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
       };
 
