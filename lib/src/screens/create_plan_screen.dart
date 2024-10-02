@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -367,47 +370,45 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.shade300,
-                  ),
-                  child: _currentLocation == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : GoogleMap(
-                          onMapCreated: _onMapCreated,
-                          initialCameraPosition: CameraPosition(
-                            target: _currentLocation!,
-                            zoom: 14.0,
-                          ),
-                          markers: _selectedLocation != null
-                              ? {
-                                  Marker(
-                                    markerId:
-                                        const MarkerId('selected_location'),
-                                    position: _selectedLocation!,
-                                  ),
-                                }
-                              : {},
-                          onTap:
-                              _onMapTap, // Use long press to select a location
-                          myLocationEnabled:
-                              true, // Show user's current location on map
-                          myLocationButtonEnabled:
-                              true, // Button to center on user's location
-                          scrollGesturesEnabled: true, // Enable scrolling
-                          zoomGesturesEnabled: true, // Enable zooming
-                          rotateGesturesEnabled: true, // Allow map rotation
-                          tiltGesturesEnabled: true, // Allow map tilting
-                          compassEnabled: true, // Display a compass
-                          mapToolbarEnabled: true, // Show map toolbar
-                          // Add padding to avoid overlap with other UI elements
-                          padding: const EdgeInsets.only(
-                              top: 50, left: 10, right: 10, bottom: 10),
-                        ),
-                ),
+                Expanded(
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Colors.grey.shade300,
+              ),
+              child: _currentLocation == null
+                  ? const Center(child: CircularProgressIndicator())
+                  : GoogleMap(
+                      onMapCreated: _onMapCreated,
+                      initialCameraPosition: CameraPosition(
+                        target: _currentLocation!,
+                        zoom: 14.0,
+                      ),
+                      onTap: _onMapTap, // Enable map tapping to select location
+                      markers: _selectedLocation != null
+                          ? {
+                              Marker(
+                                markerId: const MarkerId('selected_location'),
+                                position: _selectedLocation!,
+                              ),
+                            }
+                          : {},
+                      myLocationEnabled: true,
+                      myLocationButtonEnabled: true,
+                      scrollGesturesEnabled: true,
+                      zoomGesturesEnabled: true, 
+                      rotateGesturesEnabled: false,
+                      tiltGesturesEnabled: false, 
+                      // Apply platform-specific adjustments
+                      gestureRecognizers: Platform.isIOS 
+                          ? {
+                              Factory<ScaleGestureRecognizer>(
+                                  () => ScaleGestureRecognizer())
+                            }
+                          : {},
+                    ),
+            ),
+          ),
                 const SizedBox(height: 12),
                 if (_selectedLocation != null)
                   Padding(
