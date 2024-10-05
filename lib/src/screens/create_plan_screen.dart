@@ -425,9 +425,15 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                             // Apply platform-specific adjustments
                             gestureRecognizers: Platform.isIOS
                                 ? {
+                                    Factory<EagerGestureRecognizer>(
+                                        () => EagerGestureRecognizer()),
+                                    Factory<VerticalDragGestureRecognizer>(
+                                        () => VerticalDragGestureRecognizer()),
+                                    Factory<ScaleGestureRecognizer>(
+                                        () => ScaleGestureRecognizer()),
                                     Factory<ScaleGestureRecognizer>(
                                         () => ScaleGestureRecognizer())
-                                  }
+                                }
                                 : {},
                           ),
                   ),
