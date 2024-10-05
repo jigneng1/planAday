@@ -280,7 +280,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       // Show all errors if any
       if (errorMessages.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessages.join('\n'))), // Combine errors
+          SnackBar(content: Text(errorMessages.join('\n')),
+          behavior: SnackBarBehavior.floating),
         );
         return;
       }

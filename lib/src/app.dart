@@ -214,6 +214,7 @@ class _MainLayoutState extends State<MainLayout> {
     ];
 
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       body: children[_currentIndex], // Use the latest list
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
@@ -241,7 +242,7 @@ class _MainLayoutState extends State<MainLayout> {
         ),
       ),
       bottomNavigationBar: BottomAppBar(
-        color: Colors.white10,
+        color: Colors.white,
         child: Container(
           margin: const EdgeInsets.only(left: 12.0, right: 12.0),
           child: Row(
