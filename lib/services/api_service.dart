@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
 class ApiService {
+  String apiKey = dotenv.env['API_URL'] ?? 'No API key found';
   // Function to send planData to the API and return the random places data
   Future<Map<String, dynamic>?> getRandomPlan(
       Map<String, dynamic> inputplanData) async {
-    final url = Uri.parse('https://planaday-api.stthi.com/nearby-search');
-    // final url = Uri.parse('http://10.0.2.2:3000/nearby-search'); // Use this for Android Emulator
+    final url = Uri.parse('$apiKey/nearby-search');
 
     try {
       // Sending the request to get the plan ID
@@ -30,7 +31,7 @@ class ApiService {
 
         // Fetching random places
         final placesUrl = Uri.parse(
-            "https://planaday-api.stthi.com/randomPlaces?id=$planID&places=$numberOfPlace");
+            "$apiKey/randomPlaces?id=$planID&places=$numberOfPlace");
         final placesResponse = await http.get(placesUrl);
 
         if (placesResponse.statusCode == 200) {
@@ -71,7 +72,7 @@ class ApiService {
   Future<Map<String, dynamic>?> getRandomPlaces(
       String planID, int numberOfPlace) async {
     final placesUrl = Uri.parse(
-            "https://planaday-api.stthi.com/randomPlaces?id=$planID&places=$numberOfPlace");
+            "$apiKey/randomPlaces?id=$planID&places=$numberOfPlace");
         final placesResponse = await http.get(placesUrl);
 
         if (placesResponse.statusCode == 200) {
@@ -100,7 +101,7 @@ class ApiService {
     final String destination = placeIds[i + 1];
     
     final travelTimeUrl = Uri.parse(
-        "https://planaday-api.stthi.com/timeTravel?origin=$origin&destination=$destination");
+        "$apiKey/timeTravel?origin=$origin&destination=$destination");
     
     final travelTimeResponse = await http.get(travelTimeUrl);
     
@@ -132,7 +133,7 @@ class ApiService {
 Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     try {
       final response = await http
-          .get(Uri.parse('https://planaday-api.stthi.com/placeDetail/$placeId'));
+          .get(Uri.parse('$apiKey/placeDetail/$placeId'));
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
@@ -154,7 +155,7 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
 
   //ส่งสถานที่ทั้งหมดไปให้ API
   Future<Map<String, dynamic>?> getNewPlace(String placeReplaceID, List<String> places) async {
-    final url = Uri.parse('https://planaday-api.stthi.com/getNewPlace');
+    final url = Uri.parse('$apiKey/getNewPlace');
 
     try {
       final response = await http.post(
@@ -185,7 +186,7 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
 
   Future<Map<String, dynamic>?> generateMorePlace(String planID, List<String> places) async {
     final url = Uri.parse(
-            "https://planaday-api.stthi.com/getGenMorePlace");
+            "$apiKey/getGenMorePlace");
     try{
       final response = await http.post(
         url,
