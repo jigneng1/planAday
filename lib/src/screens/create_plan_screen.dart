@@ -245,7 +245,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         String placeName = '${place.name}, ${place.locality}, ${place.country}';
 
         setState(() {
-          // Store the place name to display later
           _selectedPlaceName = placeName;
         });
       }
@@ -256,15 +255,12 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
 
   void _generatePlan() {
     setState(() {
-      _hasTriedSubmitting = true; // Set flag to true when generating plan
+      _hasTriedSubmitting = true;
     });
 
     if (_formKey.currentState?.validate() ?? false) {
-      // Check if location is selected before generating plan
-      // List to hold all error messages
       List<String> errorMessages = [];
 
-      // Check for errors and add to the list if there is any
       if (_selectedLocation == null) {
         errorMessages.add('Please select a location on the map.');
       }
@@ -299,6 +295,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             .toList(),
         'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
+        // 'lad': '13.651366869948392',
+        // 'lng': '100.49641061073015',
       };
 
       widget.onGeneratePlan(planData); // Pass the data to the parent
@@ -424,16 +422,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                             tiltGesturesEnabled: false,
                             // Apply platform-specific adjustments
                             gestureRecognizers: Platform.isIOS
-                                ? {
-                                    Factory<EagerGestureRecognizer>(
-                                        () => EagerGestureRecognizer()),
-                                    Factory<VerticalDragGestureRecognizer>(
-                                        () => VerticalDragGestureRecognizer()),
-                                    Factory<ScaleGestureRecognizer>(
-                                        () => ScaleGestureRecognizer()),
-                                    Factory<ScaleGestureRecognizer>(
-                                        () => ScaleGestureRecognizer())
-                                }
+                                ? <Factory<OneSequenceGestureRecognizer>>{
+                                    Factory<OneSequenceGestureRecognizer>(
+                                      () => EagerGestureRecognizer(),
+                                    ),
+                                  }
                                 : {},
                           ),
                   ),
