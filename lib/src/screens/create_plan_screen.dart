@@ -261,9 +261,30 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
 
     if (_formKey.currentState?.validate() ?? false) {
       // Check if location is selected before generating plan
+      // List to hold all error messages
+      List<String> errorMessages = [];
+
+      // Check for errors and add to the list if there is any
       if (_selectedLocation == null) {
+        errorMessages.add('Please select a location on the map.');
+      }
+      if (_planNameController.text.isEmpty) {
+        errorMessages.add('Please enter the plan name.');
+      }
+      if (_startTimeController.text.isEmpty) {
+        errorMessages.add('Please select the start time.');
+      }
+      if (_startDateController.text.isEmpty) {
+        errorMessages.add('Please select the start date.');
+      }
+      if (_selectedActivities.isEmpty) {
+        errorMessages.add('Please select at least one activity.');
+      }
+
+      // Show all errors if any
+      if (errorMessages.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Please select a location on the map.')),
+          SnackBar(content: Text(errorMessages.join('\n'))), // Combine errors
         );
         return;
       }
@@ -343,7 +364,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 10,
-                  runSpacing: 10,
+                  runSpacing: 5,
                   children: _activities.map((activity) {
                     final isSelected = _selectedActivities.contains(activity);
                     return FilterChip(
@@ -370,7 +391,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 ),
                 const SizedBox(height: 12),
                 SizedBox(
-                  height: 300,
+                  height: 200,
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(8),
@@ -384,11 +405,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                               target: _currentLocation!,
                               zoom: 14.0,
                             ),
-                            onTap: _onMapTap, // Enable map tapping to select location
+                            onTap:
+                                _onMapTap, // Enable map tapping to select location
                             markers: _selectedLocation != null
                                 ? {
                                     Marker(
-                                      markerId: const MarkerId('selected_location'),
+                                      markerId:
+                                          const MarkerId('selected_location'),
                                       position: _selectedLocation!,
                                     ),
                                   }
@@ -396,11 +419,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                             myLocationEnabled: true,
                             myLocationButtonEnabled: true,
                             scrollGesturesEnabled: true,
-                            zoomGesturesEnabled: true, 
+                            zoomGesturesEnabled: true,
                             rotateGesturesEnabled: false,
-                            tiltGesturesEnabled: false, 
+                            tiltGesturesEnabled: false,
                             // Apply platform-specific adjustments
-                            gestureRecognizers: Platform.isIOS 
+                            gestureRecognizers: Platform.isIOS
                                 ? {
                                     Factory<ScaleGestureRecognizer>(
                                         () => ScaleGestureRecognizer())
@@ -510,21 +533,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Number of places',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '(optional)',
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
-                    ),
-                  ],
+                const Text(
+                  'Number of places',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 Row(
