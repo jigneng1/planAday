@@ -23,6 +23,7 @@ class _MainLayoutState extends State<MainLayout> {
   String _ongoingPlanID = '';
   String placeID = '';
   String planID = '';
+   bool _isLoading = false;
 
   Map<String, dynamic> _planData = {};
 
@@ -32,18 +33,25 @@ class _MainLayoutState extends State<MainLayout> {
 
   void onTabTapped(int index) {
     setState(() {
+      _isLoading = true; 
       _currentIndex = index;
+      _isLoading = false; 
     });
   }
 
   void _goToHomeScreen() {
     setState(() {
+      _isLoading = true;
       _currentIndex = 0;
+      _isLoading = false;
     });
   }
 
   void _goToPlanScreen(String planID) {
-    // Search for the plan by planID in the list of all plans or suggest plans
+    setState(() {
+      _isLoading = true;
+    });
+
     Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
       (plan) => plan['planID'] == planID,
       orElse: () => _suggestPlans.firstWhere(
@@ -56,7 +64,8 @@ class _MainLayoutState extends State<MainLayout> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _planData = selectedPlan;
-          _currentIndex = 3; // Assuming 3 is the index of the PlanScreen
+          _currentIndex = 3;
+          _isLoading = false;
         });
       });
     } else {
@@ -82,17 +91,24 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToCreatePlanScreen() {
     setState(() {
+      _isLoading = true;
       _currentIndex = 2;
+      _isLoading = false;
     });
   }
 
   void _goToPlaceDetailScreen(String placeIDinput, String planIDinput) {
+    setState(() {
+      _isLoading = true;
+    });
+
     print('Place ID: $placeIDinput');
     if (placeIDinput.isNotEmpty && planIDinput.isNotEmpty) {
       setState(() {
         placeID = placeIDinput;
         planID = planIDinput;
         _currentIndex = 6;
+        _isLoading = false;
       });
     } else {
       print('Place ID or Plan ID is empty');
@@ -150,6 +166,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _handleDoneEditPlan(Map<String, dynamic> planData) {
     setState(() {
+      _isLoading = true;
       _planData = planData; // Store the data from EditPlanScreen
 
       // Update the existing plan in the list if it exists
@@ -161,14 +178,17 @@ class _MainLayoutState extends State<MainLayout> {
 
       print('PlanScreen received plan data: $_planData');
       _currentIndex = 3;
+      _isLoading = false;
     });
   }
 
   void _handleEditPlan(Map<String, dynamic> planData) {
     setState(() {
+      _isLoading = true;
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
       _currentIndex = 5;
+      _isLoading = false;
     });
   }
 
@@ -215,7 +235,15 @@ class _MainLayoutState extends State<MainLayout> {
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: children[_currentIndex], // Use the latest list
+      body: Stack(children: [children[_currentIndex],
+      if (_isLoading)
+            // Display a loading indicator when isLoading is true
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
+            ),]), // Use the latest list
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 30),
