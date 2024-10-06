@@ -32,12 +32,12 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   final List<String> _activities = [
     'Restaurant',
     'Cafe',
+    'Park',
+    'Store',
     'Gym',
     'Art_gallery',
     'Movie_theater',
-    'Park',
     'Museum',
-    'Store'
   ];
   final Set<String> _selectedActivities = {}; // Initially empty
   GoogleMapController? _mapController; // Controller for Google Map
