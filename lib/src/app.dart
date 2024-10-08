@@ -4,6 +4,7 @@ import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/src/screens/other_plan_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
@@ -23,7 +24,7 @@ class _MainLayoutState extends State<MainLayout> {
   String _ongoingPlanID = '';
   String placeID = '';
   String planID = '';
-   bool _isLoading = false;
+  bool _isLoading = false;
 
   Map<String, dynamic> _planData = {};
 
@@ -33,9 +34,9 @@ class _MainLayoutState extends State<MainLayout> {
 
   void onTabTapped(int index) {
     setState(() {
-      _isLoading = true; 
+      _isLoading = true;
       _currentIndex = index;
-      _isLoading = false; 
+      _isLoading = false;
     });
   }
 
@@ -52,19 +53,37 @@ class _MainLayoutState extends State<MainLayout> {
       _isLoading = true;
     });
 
-    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
-      (plan) => plan['planID'] == planID,
-      orElse: () => _suggestPlans.firstWhere(
-        (suggestPlan) => suggestPlan['planID'] == planID,
-        orElse: () => {},
-      ),
-    );
+    Map<String, dynamic>? selectedPlan = _allPlans
+        .firstWhere((plan) => plan['planID'] == planID, orElse: () => {});
 
     if (selectedPlan.isNotEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _planData = selectedPlan;
           _currentIndex = 3;
+          _isLoading = false;
+        });
+      });
+    } else {
+      print('Plan with ID $planID not found.');
+    }
+  }
+
+  void _goToOtherPlanScreen(String planID) {
+    setState(() {
+      _isLoading = true;
+    });
+
+    Map<String, dynamic>? selectedPlan = _suggestPlans.firstWhere(
+      (suggestPlan) => suggestPlan['planID'] == planID,
+      orElse: () => {},
+    );
+
+    if (selectedPlan.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _planData = selectedPlan;
+          _currentIndex = 7;
           _isLoading = false;
         });
       });
@@ -198,6 +217,7 @@ class _MainLayoutState extends State<MainLayout> {
       HomeScreen(
         onCreatePlan: _goToCreatePlanScreen,
         onPlan: _goToPlanScreen,
+        onOtherPlan: _goToOtherPlanScreen,
         allPlans: _allPlans,
         ongoingPlanID: _ongoingPlanID,
         onGoingPlan: _planData,
@@ -231,19 +251,25 @@ class _MainLayoutState extends State<MainLayout> {
         planID: planID,
         onBack: _goToPlanScreen,
       ),
+      OtherPlanScreen(
+          onClose: _goToHomeScreen,
+          planData: _planData,
+          onViewPlaceDetail: _goToPlaceDetailScreen),
     ];
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
-      body: Stack(children: [children[_currentIndex],
-      if (_isLoading)
-            // Display a loading indicator when isLoading is true
-            Container(
-              color: Colors.black54,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
-            ),]), // Use the latest list
+      body: Stack(children: [
+        children[_currentIndex],
+        if (_isLoading)
+          // Display a loading indicator when isLoading is true
+          Container(
+            color: Colors.black54,
+            child: const Center(
+              child: CircularProgressIndicator(),
+            ),
+          ),
+      ]), // Use the latest list
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
         margin: const EdgeInsets.only(top: 30),

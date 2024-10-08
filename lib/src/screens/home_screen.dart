@@ -7,6 +7,7 @@ import 'package:plan_a_day/src/screens/data/place_details.dart';
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
   final Function(String id) onPlan;
+  final Function(String id) onOtherPlan;
   final String ongoingPlanID;
   final Map<String, dynamic> onGoingPlan;
   final List<Map<String, dynamic>> allPlans;
@@ -16,6 +17,7 @@ class HomeScreen extends StatefulWidget {
       {super.key,
       required this.onCreatePlan,
       required this.onPlan,
+      required this.onOtherPlan,
       required this.ongoingPlanID,
       required this.allPlans,
       required this.onGoingPlan,
@@ -258,7 +260,7 @@ class _HomeScreenState extends State<HomeScreen> {
         final plan = plans[index]; // Get current plan data
         return GestureDetector(
           onTap: () {
-            widget.onPlan(plan['planID']); // Handle tap
+            widget.onOtherPlan(plan['planID']); // Handle tap
           }, // Send out planID
           child: Card(
             margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
