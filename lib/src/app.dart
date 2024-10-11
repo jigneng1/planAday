@@ -295,41 +295,43 @@ class _MainLayoutState extends State<MainLayout> {
           ),
         ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Container(
-          margin: const EdgeInsets.only(left: 12.0, right: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
-                child: IconButton(
+      bottomNavigationBar: SafeArea(
+        child: BottomAppBar(
+          color: Colors.white,
+          child: Container(
+            margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                  child: IconButton(
+                    onPressed: () {
+                      onTabTapped(0);
+                    },
+                    iconSize: _currentIndex == 0 ? 40 : 30,
+                    icon: Icon(
+                      Icons.home_filled,
+                      color: _currentIndex == 0
+                          ? Colors.orange.shade900
+                          : Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+                IconButton(
                   onPressed: () {
-                    onTabTapped(0);
+                    onTabTapped(4);
                   },
-                  iconSize: _currentIndex == 0 ? 40 : 30,
+                  iconSize: _currentIndex == 4 ? 40 : 30,
                   icon: Icon(
-                    Icons.home_filled,
-                    color: _currentIndex == 0
+                    Icons.person,
+                    color: _currentIndex == 4
                         ? Colors.orange.shade900
                         : Colors.grey.shade400,
                   ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  onTabTapped(4);
-                },
-                iconSize: _currentIndex == 4 ? 40 : 30,
-                icon: Icon(
-                  Icons.person,
-                  color: _currentIndex == 4
-                      ? Colors.orange.shade900
-                      : Colors.grey.shade400,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
