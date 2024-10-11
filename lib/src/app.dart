@@ -213,6 +213,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
+
     final List<Widget> children = [
       HomeScreen(
         onCreatePlan: _goToCreatePlanScreen,
@@ -273,7 +275,7 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: Container(
+      floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0.0 ? null : Container(
         margin: EdgeInsets.only(
           top: 30,
           bottom: MediaQuery.of(context).viewInsets.bottom > 0
