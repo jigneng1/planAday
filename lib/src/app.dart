@@ -258,21 +258,28 @@ class _MainLayoutState extends State<MainLayout> {
     ];
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
-      body: Stack(children: [
-        children[_currentIndex],
-        if (_isLoading)
-          // Display a loading indicator when isLoading is true
-          Container(
-            color: Colors.black54,
-            child: const Center(
-              child: CircularProgressIndicator(),
+      resizeToAvoidBottomInset:
+          true, // Keep this true to prevent content from being resized
+      body: Stack(
+        children: [
+          children[_currentIndex],
+          if (_isLoading)
+            Container(
+              color: Colors.black54,
+              child: const Center(
+                child: CircularProgressIndicator(),
+              ),
             ),
-          ),
-      ]), // Use the latest list
+        ],
+      ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Container(
-        margin: const EdgeInsets.only(top: 30),
+        margin: EdgeInsets.only(
+          top: 30,
+          bottom: MediaQuery.of(context).viewInsets.bottom > 0
+              ? 0
+              : 20, // Adjust based on keyboard
+        ),
         height: 64,
         width: 64,
         child: FloatingActionButton(
@@ -295,43 +302,41 @@ class _MainLayoutState extends State<MainLayout> {
           ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: BottomAppBar(
-          color: Colors.white,
-          child: Container(
-            margin: const EdgeInsets.only(left: 12.0, right: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
-                  child: IconButton(
-                    onPressed: () {
-                      onTabTapped(0);
-                    },
-                    iconSize: _currentIndex == 0 ? 40 : 30,
-                    icon: Icon(
-                      Icons.home_filled,
-                      color: _currentIndex == 0
-                          ? Colors.orange.shade900
-                          : Colors.grey.shade400,
-                    ),
-                  ),
-                ),
-                IconButton(
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.white,
+        child: Container(
+          margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                child: IconButton(
                   onPressed: () {
-                    onTabTapped(4);
+                    onTabTapped(0);
                   },
-                  iconSize: _currentIndex == 4 ? 40 : 30,
+                  iconSize: _currentIndex == 0 ? 40 : 30,
                   icon: Icon(
-                    Icons.person,
-                    color: _currentIndex == 4
+                    Icons.home_filled,
+                    color: _currentIndex == 0
                         ? Colors.orange.shade900
                         : Colors.grey.shade400,
                   ),
                 ),
-              ],
-            ),
+              ),
+              IconButton(
+                onPressed: () {
+                  onTabTapped(4);
+                },
+                iconSize: _currentIndex == 4 ? 40 : 30,
+                icon: Icon(
+                  Icons.person,
+                  color: _currentIndex == 4
+                      ? Colors.orange.shade900
+                      : Colors.grey.shade400,
+                ),
+              ),
+            ],
           ),
         ),
       ),
