@@ -12,6 +12,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  String? _errorMessage; // To hold error messages
 
   @override
   void dispose() {
@@ -25,20 +26,52 @@ class _LoginScreenState extends State<LoginScreen> {
     final username = _usernameController.text;
     final password = _passwordController.text;
 
-    if (username.isNotEmpty && password.isNotEmpty) {
-      // Navigate to home screen or perform login logic
+    // Basic validation
+    if (username.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please enter both username and password';
+      });
+      return;
+    }
+
+    // Simulating a login process (replace this with your actual authentication logic)
+    if (username == 'testuser' && password == 'password123') {
+      // If login is successful
       print('Login successful');
+      setState(() {
+        _errorMessage = null; // Clear error message
+      });
+      // Navigate to home screen or perform further actions
     } else {
-      // Show error
-      print('Please enter both username and password');
+      // If login fails
+      setState(() {
+        _errorMessage = 'Incorrect username or password';
+      });
     }
   }
 
-  // Function to navigate to the Sign Up screen
+  // Function to navigate to the Sign Up screen with a right swipe animation
   void _navigateToSignUp() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const RegisterScreen()),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const RegisterScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(-1.0, 0.0); // Start from the right
+          const end = Offset.zero; // End at the center
+          const curve = Curves.easeInOut; // Curve for smooth transition
+
+          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+        transitionDuration: const Duration(milliseconds: 400), // Animation duration
+      ),
     );
   }
 
@@ -82,11 +115,11 @@ class _LoginScreenState extends State<LoginScreen> {
               height: double.infinity,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Email/Gmail field
+                    // Username field
                     TextField(
                       controller: _usernameController,
                       decoration: InputDecoration(
@@ -130,7 +163,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     // Forgot Password
                     const Align(
                       alignment: Alignment.centerRight,
@@ -144,6 +177,17 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 70),
+                    // Error message (if any)
+                    if (_errorMessage != null) ...[
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     // Sign In Button
                     GestureDetector(
                       onTap: _login,
@@ -168,7 +212,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 150),
+                    const SizedBox(height: 120),
                     // Sign Up Option
                     Align(
                       alignment: Alignment.center,
@@ -182,12 +226,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap: _navigateToSignUp, // Call the navigation function
+                            onTap: _navigateToSignUp,
                             child: const Text(
                               "Sign up",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 17,
+                                fontSize: 16,
                                 color: Colors.black,
                               ),
                             ),
@@ -202,26 +246,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ],
       ),
-    );
-  }
-}
-
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Login App',
-      theme: ThemeData(
-        useMaterial3: true,
-        primarySwatch: Colors.orange,
-      ),
-      home: const LoginScreen(),
     );
   }
 }
