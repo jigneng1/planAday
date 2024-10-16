@@ -99,7 +99,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               ),
             ),
             const SizedBox(height: 30),
-            // SIGN IN button with hover effect
             GestureDetector(
               onTap: () {
                 Navigator.push(

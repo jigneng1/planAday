@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
+import 'package:email_validator/email_validator.dart'; // For email validation
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -9,37 +10,92 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _fullNameController = TextEditingController();
+  final TextEditingController _userNameController = TextEditingController();
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
 
+  String? _errorMessage; // To display error messages
+
   @override
   void dispose() {
-    _fullNameController.dispose();
+    _userNameController.dispose();
     _emailOrPhoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  void _register() {
-    // Perform registration logic here
-    final fullName = _fullNameController.text;
+  // Regex for phone number validation (assumes 10 digits)
+  bool _isValidPhoneNumber(String input) {
+    final phoneRegExp = RegExp(r'^0[689]\d{8}$');
+    return phoneRegExp.hasMatch(input);
+  }
+
+  // Function to validate all fields
+  bool _validateFields() {
+    final userName = _userNameController.text;
     final emailOrPhone = _emailOrPhoneController.text;
     final password = _passwordController.text;
 
-    if (fullName.isNotEmpty && emailOrPhone.isNotEmpty && password.isNotEmpty) {
+    if (userName.isEmpty || emailOrPhone.isEmpty || password.isEmpty) {
+      setState(() {
+        _errorMessage = 'Please fill in all fields.';
+      });
+      return false;
+    }
+
+    if (!EmailValidator.validate(emailOrPhone) &&
+        !_isValidPhoneNumber(emailOrPhone)) {
+      setState(() {
+        _errorMessage = 'Please enter a valid email or phone number.';
+      });
+      return false;
+    }
+
+    if (password.length < 8) {
+      setState(() {
+        _errorMessage = 'Password must be at least 8 characters long.';
+      });
+      return false;
+    }
+
+    return true;
+  }
+
+  void _register() {
+    if (_validateFields()) {
       print('Registration successful');
+      setState(() {
+        _errorMessage = null; // Clear error message on success
+      });
     } else {
-      // Show error: fill all fields
-      print('Please fill in all fields');
+      print('Registration failed');
     }
   }
 
   void _navigateToSignIn() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const LoginScreen()),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const LoginScreen(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          const begin = Offset(1.0, 0.0); // Start from the right
+          const end = Offset.zero; // End at the center
+          const curve = Curves.easeInOut; // Curve for smooth transition
+
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var offsetAnimation = animation.drive(tween);
+
+          return SlideTransition(
+            position: offsetAnimation,
+            child: child,
+          );
+        },
+        transitionDuration:
+            const Duration(milliseconds: 400), // Animation duration
+      ),
     );
   }
 
@@ -83,20 +139,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
               height: double.infinity,
               width: double.infinity,
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     // Full Name field
                     TextField(
-                      controller: _fullNameController,
+                      controller: _userNameController,
                       decoration: InputDecoration(
-                        suffixIcon: const Icon(
-                          Icons.check,
-                          color: Colors.grey,
-                        ),
                         label: Text(
-                          'Full Name',
+                          'Username',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
@@ -109,10 +161,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     TextField(
                       controller: _emailOrPhoneController,
                       decoration: InputDecoration(
-                        suffixIcon: const Icon(
-                          Icons.check,
-                          color: Colors.grey,
-                        ),
                         label: Text(
                           'Phone or Gmail',
                           style: TextStyle(
@@ -149,8 +197,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 70),
-                    // Sign Up Button
+                    const SizedBox(height: 40),
+                    // Error message (if any)
+                    if (_errorMessage != null) ...[
+                      Text(
+                        _errorMessage!,
+                        style: const TextStyle(
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
                     GestureDetector(
                       onTap: _register,
                       child: Container(
@@ -190,13 +248,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                           ),
                           GestureDetector(
-                            onTap:
-                                _navigateToSignIn, // Call the navigation function
+                            onTap: _navigateToSignIn,
                             child: const Text(
                               "Sign in",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 17,
+                                fontSize: 16,
                                 color: Colors.black,
                               ),
                             ),
