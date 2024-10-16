@@ -1,27 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
 
-void main() {
-  runApp(const MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Register App',
-      theme: ThemeData(
-        useMaterial3: true,
-        primaryColor: const Color(0xFFFF6838),
-        primarySwatch: Colors.orange,
-      ),
-      home: const RegisterScreen(),
-    );
-  }
-}
-
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -33,17 +12,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _fullNameController = TextEditingController();
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
   bool _isPasswordVisible = false;
-  bool _isConfirmPasswordVisible = false;
 
   @override
   void dispose() {
     _fullNameController.dispose();
     _emailOrPhoneController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -52,26 +27,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final fullName = _fullNameController.text;
     final emailOrPhone = _emailOrPhoneController.text;
     final password = _passwordController.text;
-    final confirmPassword = _confirmPasswordController.text;
 
-    if (fullName.isNotEmpty &&
-        emailOrPhone.isNotEmpty &&
-        password.isNotEmpty &&
-        confirmPassword.isNotEmpty) {
-      if (password == confirmPassword) {
-        // Proceed with registration logic (e.g., API call)
-        print('Registration successful');
-      } else {
-        // Show error: passwords do not match
-        print('Passwords do not match');
-      }
+    if (fullName.isNotEmpty && emailOrPhone.isNotEmpty && password.isNotEmpty) {
+      print('Registration successful');
     } else {
       // Show error: fill all fields
       print('Please fill in all fields');
     }
   }
 
-  // Function to navigate to the Sign Up screen
   void _navigateToSignIn() {
     Navigator.push(
       context,
@@ -178,34 +142,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         label: Text(
                           'Password',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Confirm Password field
-                    TextField(
-                      controller: _confirmPasswordController,
-                      obscureText: !_isConfirmPasswordVisible,
-                      decoration: InputDecoration(
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isConfirmPasswordVisible
-                                ? Icons.visibility
-                                : Icons.visibility_off,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isConfirmPasswordVisible =
-                                  !_isConfirmPasswordVisible;
-                            });
-                          },
-                        ),
-                        label: Text(
-                          'Confirm Password',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
