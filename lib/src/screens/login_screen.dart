@@ -128,7 +128,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           color: Colors.grey,
                         ),
                         label: Text(
-                          'Gmail or Username',
+                          'Username',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
