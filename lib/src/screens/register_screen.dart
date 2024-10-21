@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
 import 'package:email_validator/email_validator.dart'; // For email validation
 
@@ -14,6 +15,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  AuthService authService = AuthService();
 
   String? _errorMessage; // To display error messages
 
@@ -62,27 +64,51 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return true;
   }
 
-  void _register() {
+  void _onSuccessfulAuth() {
+    // Clear any existing navigation stack and navigate to home
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/home', // Replace with your home route
+      (route) => false,
+    );
+  }
+
+  // Handle registration process
+  void _register() async {
     if (_validateFields()) {
-      print('Registration successful');
-      setState(() {
-        _errorMessage = null; // Clear error message on success
-      });
+      // Call the AuthService instance to register the user
+      final result = await authService.registerUser(
+        _userNameController.text,
+        _passwordController.text,
+      );
+
+      if (result['status'] == 'success') {
+        setState(() {
+          _errorMessage = null;
+        });
+        _onSuccessfulAuth();
+        // Handle successful registration, e.g., navigate to login screen
+        print('Registration successful');
+      } else {
+        setState(() {
+          _errorMessage = result['message'];
+        });
+      }
     } else {
-      print('Registration failed');
+      print('Validation failed');
     }
   }
 
   void _navigateToSignIn() {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const LoginScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0); // Start from the right
-          const end = Offset.zero; // End at the center
-          const curve = Curves.easeInOut; // Curve for smooth transition
+          const begin = Offset(1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
 
           var tween =
               Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
@@ -93,8 +119,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: child,
           );
         },
-        transitionDuration:
-            const Duration(milliseconds: 400), // Animation duration
+        transitionDuration: const Duration(milliseconds: 400),
       ),
     );
   }

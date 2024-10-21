@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/screens/register_screen.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -31,8 +32,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
     );
 
     // Slide-up animation for the text
-    _slideUpAnimation = Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero)
-        .animate(
+    _slideUpAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.2), end: Offset.zero).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
 
@@ -135,7 +136,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   }
 }
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 

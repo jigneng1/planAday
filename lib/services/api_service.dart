@@ -215,3 +215,58 @@ Future<Map<String, dynamic>?> getPlaceDetails(String placeId) async {
     }
   }
 }
+
+class AuthService {
+  String apiKey = dotenv.env['API_URL'] ?? 'No API key found';
+
+  // Register API
+  Future<Map<String, dynamic>> registerUser(
+      String username, String password) async {
+    final url = Uri.parse('$apiKey/register');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'status': 'error', 'message': 'Failed to register user'};
+      }
+    } catch (error) {
+      return {'status': 'error', 'message': error.toString()};
+    }
+  }
+
+  // Login API
+  Future<Map<String, dynamic>> loginUser(
+      String username, String password) async {
+    final url = Uri.parse('$apiKey/login');
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({
+          'username': username,
+          'password': password,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        return jsonDecode(response.body);
+      } else {
+        return {'status': 'error', 'message': 'Failed to login'};
+      }
+    } catch (error) {
+      return {'status': 'error', 'message': error.toString()};
+    }
+  }
+}
+

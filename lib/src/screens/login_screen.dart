@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   String? _errorMessage; // To hold error messages
+  AuthService authService = AuthService();
 
   @override
   void dispose() {
@@ -21,48 +23,58 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
-    // Perform login logic here
-    final username = _usernameController.text;
-    final password = _passwordController.text;
+  void _onSuccessfulAuth() {
+    // Clear any existing navigation stack and navigate to home
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/home', // Replace with your home route
+      (route) => false,
+    );
+  }
 
-    // Basic validation
-    if (username.isEmpty || password.isEmpty) {
+// Handle login process
+  void _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
         _errorMessage = 'Please enter both username and password';
       });
       return;
     }
 
-    // Simulating a login process (replace this with your actual authentication logic)
-    if (username == 'testuser' && password == 'password123') {
-      // If login is successful
-      print('Login successful');
+    // Call the AuthService instance to login
+    final result = await authService.loginUser(
+      _usernameController.text,
+      _passwordController.text,
+    );
+
+    if (result['status'] == 'success') {
       setState(() {
-        _errorMessage = null; // Clear error message
+        _errorMessage = null;
       });
-      // Navigate to home screen or perform further actions
+      _onSuccessfulAuth();
+      print('Login successful');
+      // Navigate to the next screen (e.g., home screen)
     } else {
-      // If login fails
       setState(() {
-        _errorMessage = 'Incorrect username or password';
+        _errorMessage = result['message'];
       });
     }
   }
 
   // Function to navigate to the Sign Up screen with a right swipe animation
   void _navigateToSignUp() {
-    Navigator.push(
+    Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
             const RegisterScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(-1.0, 0.0); // Start from the right
-          const end = Offset.zero; // End at the center
-          const curve = Curves.easeInOut; // Curve for smooth transition
+          const begin = Offset(-1.0, 0.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
+          var tween =
+              Tween(begin: begin, end: end).chain(CurveTween(curve: curve));
           var offsetAnimation = animation.drive(tween);
 
           return SlideTransition(
@@ -70,7 +82,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: child,
           );
         },
-        transitionDuration: const Duration(milliseconds: 400), // Animation duration
+        transitionDuration: const Duration(milliseconds: 400),
       ),
     );
   }
