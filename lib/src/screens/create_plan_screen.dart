@@ -39,13 +39,14 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Movie_theater',
     'Museum',
   ];
-  final Set<String> _selectedActivities = {}; // Initially empty
-  GoogleMapController? _mapController; // Controller for Google Map
-  LatLng? _selectedLocation; // Variable to store the selected location
-  LatLng? _currentLocation; // Variable to store the current location
+  final Set<String> _selectedActivities = {}; 
+  GoogleMapController? _mapController;
+  LatLng? _selectedLocation; 
+  LatLng? _currentLocation;
   bool _hasTriedSubmitting =
-      false; // Flag to track if user has attempted submission
-  String? _selectedPlaceName; // Variable to store the selected place name
+      false; 
+  String? _selectedPlaceName; 
+  int? _dayOfWeek;
 
   @override
   void initState() {
@@ -153,10 +154,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         );
       },
     );
+
     if (picked != null) {
+      int dayOfWeek = (picked.weekday % 7);
       final formattedDate = "${picked.day}/${picked.month}/${picked.year}";
       setState(() {
         _startDateController.text = formattedDate;
+        _dayOfWeek = dayOfWeek;
       });
     }
   }
@@ -280,8 +284,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       // Show all errors if any
       if (errorMessages.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessages.join('\n')),
-          behavior: SnackBarBehavior.floating),
+          SnackBar(
+              content: Text(errorMessages.join('\n')),
+              behavior: SnackBarBehavior.floating),
         );
         return;
       }
@@ -294,12 +299,14 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         'categories': _selectedActivities
             .map((activity) => activity.toLowerCase())
             .toList(),
+        'startDay': _dayOfWeek,
         'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
         // 'lad': '13.651366869948392',
         // 'lng': '100.49641061073015',
       };
 
+      // print(planData);
       widget.onGeneratePlan(planData); // Pass the data to the parent
     }
   }

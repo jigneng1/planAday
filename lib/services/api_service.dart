@@ -8,6 +8,8 @@ class ApiService {
   Future<Map<String, dynamic>?> getRandomPlan(
       Map<String, dynamic> inputplanData) async {
     final url = Uri.parse('$apiKey/nearby-search');
+    int hour = int.parse(inputplanData['startTime'].split(':')[0]);
+    int minute = int.parse(inputplanData['startTime'].split(':')[1]);
 
     try {
       // Sending the request to get the plan ID
@@ -18,6 +20,9 @@ class ApiService {
           "lad": inputplanData['lad'],
           "lng": inputplanData['lng'],
           "category": inputplanData['categories'],
+          "startDay" : inputplanData['startDay'],
+          "startHour" : hour,
+          "startMinute" : minute,
         }),
       );
 
