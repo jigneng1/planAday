@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/services/auth_token.dart';
+import 'package:plan_a_day/src/app.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
@@ -45,6 +46,57 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   void dispose() {
     _animationController.dispose();
     super.dispose();
+  }
+
+  // Fixed token check function
+  Future<bool> _checkTokenExistsAndExpire() async {
+    try {
+      String? token = await getToken();
+      return token != null && token.isNotEmpty && !isTokenExpired(token);
+    } catch (e) {
+      print('Error checking token: $e');
+      return false;
+    }
+  }
+
+  void _handleAuthCheck(BuildContext context) async {
+    // Show loading indicator
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
+    try {
+      bool isAuthenticated = await _checkTokenExistsAndExpire();
+
+      if (isAuthenticated) {
+        // Navigate to home or dashboard
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainLayout()),
+        );
+      } else {
+        // User is not authenticated
+        // Navigate to login page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+      }
+    } catch (e) {
+      // Show error message
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   @override
@@ -101,12 +153,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             ),
             const SizedBox(height: 30),
             GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              },
+              onTap: () => _handleAuthCheck(context),
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 200),
                 height: 53,

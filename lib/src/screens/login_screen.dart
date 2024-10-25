@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
+import 'package:plan_a_day/services/auth_token.dart';
+import 'package:plan_a_day/src/app.dart';
 import 'package:plan_a_day/src/screens/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -25,10 +27,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _onSuccessfulAuth() {
     // Clear any existing navigation stack and navigate to home
-    Navigator.pushNamedAndRemoveUntil(
+    Navigator.pushReplacement(
       context,
-      '/home', // Replace with your home route
-      (route) => false,
+      MaterialPageRoute(builder: (context) => const MainLayout()),
     );
   }
 
@@ -46,14 +47,14 @@ class _LoginScreenState extends State<LoginScreen> {
       _usernameController.text,
       _passwordController.text,
     );
-
     if (result['status'] == 'success') {
-      setState(() {
-        _errorMessage = null;
-      });
-      _onSuccessfulAuth();
-      print('Login successful');
-      // Navigate to the next screen (e.g., home screen)
+      // Store token
+      await storeToken(result['token']);
+      // Navigate to Home (Main Layout)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainLayout()),
+      );
     } else {
       setState(() {
         _errorMessage = result['message'];
