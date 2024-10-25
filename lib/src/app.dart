@@ -216,8 +216,6 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
-    bool keyboardIsOpened = MediaQuery.of(context).viewInsets.bottom != 0.0;
-
     final List<Widget> children = [
       HomeScreen(
         onCreatePlan: _goToCreatePlanScreen,
