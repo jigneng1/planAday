@@ -5,7 +5,8 @@ import 'package:plan_a_day/src/screens/components/plan_card.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback onCreatePlan;
+  final VoidCallback onCreatePlan; 
+  final VoidCallback onViewSuggestPlan; 
   final Function(String id) onPlan;
   final Function(String id) onOtherPlan;
   final String ongoingPlanID;
@@ -21,7 +22,8 @@ class HomeScreen extends StatefulWidget {
       required this.ongoingPlanID,
       required this.allPlans,
       required this.onGoingPlan,
-      required this.onEndGoingPlan});
+      required this.onEndGoingPlan, 
+      required this.onViewSuggestPlan});
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -122,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(height: 20),
                         ElevatedButton(
                           onPressed: () {
-                            // Handle regenerate action
+                            widget.onViewSuggestPlan();
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: primaryColor,

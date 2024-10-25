@@ -54,6 +54,8 @@ class PlanCard extends StatelessWidget {
                           children: [
                             Text(
                               title,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,

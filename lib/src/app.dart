@@ -11,6 +11,7 @@ import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
 import 'package:plan_a_day/src/screens/register_screen.dart';
+import 'package:plan_a_day/src/screens/suggest_screen.dart';
 import 'package:plan_a_day/src/screens/welcome_screen.dart';
 
 class MainLayout extends StatefulWidget {
@@ -119,6 +120,14 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _goToSuggestPlanScreen() {
+    setState(() {
+      _isLoading = true;
+      _currentIndex = 11;
+      _isLoading = false;
+    });
+  }
+
   void _goToPlaceDetailScreen(String placeIDinput, String planIDinput) {
     setState(() {
       _isLoading = true;
@@ -221,6 +230,7 @@ class _MainLayoutState extends State<MainLayout> {
         onCreatePlan: _goToCreatePlanScreen,
         onPlan: _goToPlanScreen,
         onOtherPlan: _goToOtherPlanScreen,
+        onViewSuggestPlan: _goToSuggestPlanScreen,
         allPlans: _allPlans,
         ongoingPlanID: _ongoingPlanID,
         onGoingPlan: _planData,
@@ -260,7 +270,8 @@ class _MainLayoutState extends State<MainLayout> {
           onViewPlaceDetail: _goToPlaceDetailScreen),
       const WelcomeScreen(),
       const RegisterScreen(),
-      const LoginScreen()
+      const LoginScreen(),
+      SuggestScreen(onClose: _goToHomeScreen,),
     ];
 
     return Scaffold(
