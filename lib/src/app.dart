@@ -4,11 +4,14 @@ import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
+import 'package:plan_a_day/src/screens/login_screen.dart';
 import 'package:plan_a_day/src/screens/other_plan_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
+import 'package:plan_a_day/src/screens/register_screen.dart';
+import 'package:plan_a_day/src/screens/welcome_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -255,6 +258,9 @@ class _MainLayoutState extends State<MainLayout> {
           onClose: _goToHomeScreen,
           planData: _planData,
           onViewPlaceDetail: _goToPlaceDetailScreen),
+      const WelcomeScreen(),
+      const RegisterScreen(),
+      const LoginScreen()
     ];
 
     return Scaffold(
@@ -273,35 +279,37 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0.0 ? null : Container(
-        margin: EdgeInsets.only(
-          top: 30,
-          bottom: MediaQuery.of(context).viewInsets.bottom > 0
-              ? 0
-              : 20, // Adjust based on keyboard
-        ),
-        height: 64,
-        width: 64,
-        child: FloatingActionButton(
-          backgroundColor: Colors.orange[900],
-          elevation: 0,
-          onPressed: () {
-            setState(() {
-              _indexBeforeCreate = _currentIndex;
-            });
-            onTabTapped(2); // Navigate to CreatePlanScreen
-          },
-          shape: RoundedRectangleBorder(
-            side: const BorderSide(width: 3, color: Colors.transparent),
-            borderRadius: BorderRadius.circular(100),
-          ),
-          child: const Icon(
-            size: 40,
-            Icons.add,
-            color: Colors.white,
-          ),
-        ),
-      ),
+      floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0.0
+          ? null
+          : Container(
+              margin: EdgeInsets.only(
+                top: 30,
+                bottom: MediaQuery.of(context).viewInsets.bottom > 0
+                    ? 0
+                    : 20, // Adjust based on keyboard
+              ),
+              height: 64,
+              width: 64,
+              child: FloatingActionButton(
+                backgroundColor: Colors.orange[900],
+                elevation: 0,
+                onPressed: () {
+                  setState(() {
+                    _indexBeforeCreate = _currentIndex;
+                  });
+                  onTabTapped(2); // Navigate to CreatePlanScreen
+                },
+                shape: RoundedRectangleBorder(
+                  side: const BorderSide(width: 3, color: Colors.transparent),
+                  borderRadius: BorderRadius.circular(100),
+                ),
+                child: const Icon(
+                  size: 40,
+                  Icons.add,
+                  color: Colors.white,
+                ),
+              ),
+            ),
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
         child: Container(
@@ -326,12 +334,12 @@ class _MainLayoutState extends State<MainLayout> {
               ),
               IconButton(
                 onPressed: () {
-                  onTabTapped(4);
+                  onTabTapped(1);
                 },
-                iconSize: _currentIndex == 4 ? 40 : 30,
+                iconSize: _currentIndex == 1 ? 40 : 30,
                 icon: Icon(
                   Icons.person,
-                  color: _currentIndex == 4
+                  color: _currentIndex == 1
                       ? Colors.orange.shade900
                       : Colors.grey.shade400,
                 ),
