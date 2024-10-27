@@ -39,13 +39,12 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Movie_theater',
     'Museum',
   ];
-  final Set<String> _selectedActivities = {}; 
+  final Set<String> _selectedActivities = {};
   GoogleMapController? _mapController;
-  LatLng? _selectedLocation; 
+  LatLng? _selectedLocation;
   LatLng? _currentLocation;
-  bool _hasTriedSubmitting =
-      false; 
-  String? _selectedPlaceName; 
+  bool _hasTriedSubmitting = false;
+  String? _selectedPlaceName;
   int? _dayOfWeek;
 
   @override
@@ -573,25 +572,26 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   ],
                 ),
                 const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _generatePlan,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _generatePlan,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 18), // Consistent vertical padding
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 110,
+                      child: const Text(
+                        'Generate Plan',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                       ),
-                    ),
-                    child: const Text(
-                      'Generate Plan',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
