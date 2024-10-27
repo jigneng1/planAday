@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/persona_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -6,6 +7,7 @@ class ProfileScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -52,7 +54,12 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.star_border,
                     text: 'My interests',
                     onTap: () {
-                      // Navigate to interests
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const PersonaScreen(),
+                        ),
+                      );
                     },
                   ),
                   _buildProfileMenuItem(
