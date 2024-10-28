@@ -91,9 +91,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> places = widget.plan['selectedPlaces'].values
-        .cast<Map<String, dynamic>>()
-        .toList();
+    List<Map<String, dynamic>> places = widget.plan['selectedPlaces'];
     
     // Function to launch the map with the current place
     Future<void> launchMapUrl() async {
