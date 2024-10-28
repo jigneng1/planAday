@@ -8,6 +8,7 @@ class ApiService {
   // Function to send planData to the API and return the random places data
   Future<Map<String, dynamic>?> getRandomPlan(
       Map<String, dynamic> inputplanData) async {
+
     final url = Uri.parse('$apiKey/nearby-search');
     int hour = int.parse(inputplanData['startTime'].split(':')[0]);
     int minute = int.parse(inputplanData['startTime'].split(':')[1]);
@@ -52,11 +53,18 @@ class ApiService {
           // Parse the places data
           final planData = jsonDecode(placesResponse.body);
           final List<dynamic> places = planData['data'];
-          final Map<String, dynamic> placesMap = {
-            for (var place in places) place['id']: place
-          };
+          final List<Map<String, dynamic>> placesList = [
+            for (var place in places)
+              {
+                "id": place['id'],
+                "displayName": place['displayName'],
+                "primaryType": place['primaryType'],
+                "shortFormattedAddress": place['shortFormattedAddress'],
+                "photosUrl": place['photosUrl'],
+                "time": place['time']
+              }
+          ];
 
-          // If onlyPlace is false, return the full plan
           final Map<String, dynamic> fullPlan = {
             'planName': inputplanData['planName'],
             'startTime': inputplanData['startTime'],
@@ -64,7 +72,7 @@ class ApiService {
             'category': inputplanData['categories'],
             'numberOfPlaces': inputplanData['numberOfPlaces'],
             'planID': planID,
-            'selectedPlaces': placesMap,
+            'selectedPlaces': placesList,
           };
           return fullPlan;
         } else {
@@ -81,30 +89,33 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>?> getRandomPlaces(
-      String planID, int numberOfPlace) async {
-    var token = await getToken();
-    final placesUrl =
-        Uri.parse("$apiKey/randomPlaces?id=$planID&places=$numberOfPlace");
-    final placesResponse =
-        await http.get(placesUrl, headers: {'Authorization': 'Bearer $token'});
+  Future<List<Map<String, dynamic>?>?> getRandomPlaces(
+    String planID, int numberOfPlace) async {
+  var token = await getToken();
+  final placesUrl =
+      Uri.parse("$apiKey/randomPlaces?id=$planID&places=$numberOfPlace");
+  final placesResponse =
+      await http.get(placesUrl, headers: {'Authorization': 'Bearer $token'});
 
-    if (placesResponse.statusCode == 200) {
-      print('Random places fetched successfully');
+  if (placesResponse.statusCode == 200) {
+    print('Random places fetched successfully');
 
-      // Parse the places data
-      final planData = jsonDecode(placesResponse.body);
-      final List<dynamic> places = planData['data'];
-      final Map<String, dynamic> placesMap = {
-        for (var place in places) place['id']: place
-      };
+    // Parse the places data
+    final planData = jsonDecode(placesResponse.body);
+    final List<dynamic> places = planData['data'];
 
-      return placesMap;
-    } else {
-      print('Failed to fetch random places: ${placesResponse.statusCode}');
-      return null;
-    }
+    // Convert the List<dynamic> to List<Map<String, dynamic>?>
+    List<Map<String, dynamic>?> placesList = [
+      for (var place in places) Map<String, dynamic>.from(place)
+    ];
+
+    return placesList; // Return the list instead of a map
+  } else {
+    print('Failed to fetch random places: ${placesResponse.statusCode}');
+    return null;
   }
+}
+
 
   Future<List<Map<String, String>>> getTimeTravel(List<String> placeIds) async {
     List<Map<String, String>> travelTimes = [];

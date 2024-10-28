@@ -16,7 +16,8 @@ class EditPlanScreen extends StatefulWidget {
     required this.onClose,
     required this.planData,
     required this.onDone,
-    required this.onCancel, required this.onViewPlaceDetail,
+    required this.onCancel,
+    required this.onViewPlaceDetail,
   });
 
   @override
@@ -73,28 +74,28 @@ class _PlanScreenState extends State<EditPlanScreen> {
   }
 
   void _editStartDate() async {
-  DateTime initialDate;
+    DateTime initialDate;
 
-  // Attempt to parse the string date and fallback to current date on failure
-  try {
-    // Parsing the start date string assuming it's in 'dd/MM/yyyy' format
-    initialDate = updatedPlan['startDate'] != null
-        ? DateFormat('dd/MM/yyyy').parse(updatedPlan['startDate'])
-        : DateTime.now();
-  } catch (e) {
-    // If the string format is invalid or parsing fails, fallback to current date
-    initialDate = DateTime.now();
-  }
+    // Attempt to parse the string date and fallback to current date on failure
+    try {
+      // Parsing the start date string assuming it's in 'dd/MM/yyyy' format
+      initialDate = updatedPlan['startDate'] != null
+          ? DateFormat('dd/MM/yyyy').parse(updatedPlan['startDate'])
+          : DateTime.now();
+    } catch (e) {
+      // If the string format is invalid or parsing fails, fallback to current date
+      initialDate = DateTime.now();
+    }
 
-  // Show the date picker with primaryColor
-  final DateTime? pickedDate = await showDatePicker(
-    context: context,
-    initialDate: initialDate,
-    firstDate: DateTime.now(),
-    lastDate: DateTime(2100),
-    builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: Theme.of(context).copyWith(
+    // Show the date picker with primaryColor
+    final DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
             colorScheme: ColorScheme.light(
               primary:
                   Theme.of(context).primaryColor, // Header background color
@@ -103,78 +104,87 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   Theme.of(context).primaryColor, // Calendar picker color
             ),
           ),
-        child: child!,
-      );
-    },
-  );
+          child: child!,
+        );
+      },
+    );
 
-  if (pickedDate != null) {
-    setState(() {
-      // Save the picked date as a formatted string in 'dd/MM/yyyy' format
-      updatedPlan['startDate'] = DateFormat('dd/MM/yyyy').format(pickedDate);
-    });
+    if (pickedDate != null) {
+      setState(() {
+        // Save the picked date as a formatted string in 'dd/MM/yyyy' format
+        updatedPlan['startDate'] = DateFormat('dd/MM/yyyy').format(pickedDate);
+      });
+    }
   }
-}
 
   void _restoreDismissedPlaces() {
     setState(() {
       for (var place in deletedPlaces) {
-        String id = place['id'];
-        updatedPlan['selectedPlaces'][id] = place;
+        // Directly add the place to the selectedPlaces list
+        updatedPlan['selectedPlaces']?.add(place);
       }
-
       deletedPlaces.clear();
 
-      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+      updatedPlan['numberOfPlaces'] =
+          updatedPlan['selectedPlaces']?.length ?? 0;
     });
   }
 
-  void _generateMorePlace() async{
+  void _generateMorePlace() async {
     // Fetch new place; assuming it returns a Map<String, dynamic> representing the place
     final newPlace = await apiService.generateMorePlace(
       updatedPlan['planID'],
-      updatedPlan['selectedPlaces'].keys.toList(),
+      updatedPlan['selectedPlaces'].map((place) => place['id']).toList(),
     );
 
     if (newPlace != null && newPlace.containsKey('id')) {
       setState(() {
-        // Ensure selectedPlaces is initialized as a Map
+        // Ensure selectedPlaces is initialized as a List
         if (updatedPlan['selectedPlaces'] == null) {
-          updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
+          updatedPlan['selectedPlaces'] = []; // Initialize as an empty list
         }
 
-        // Add the new place to selectedPlaces using its id as the key
-        updatedPlan['selectedPlaces'][newPlace['id']] = {
+        // Add the new place to selectedPlaces
+        updatedPlan['selectedPlaces']!.add({
           'id': newPlace['id'],
           'displayName': newPlace['displayName'] ?? 'No place name',
           'primaryType': newPlace['primaryType'] ?? 'No type',
-          'shortFormattedAddress': newPlace['shortFormattedAddress'] ?? 'No location',
+          'shortFormattedAddress':
+              newPlace['shortFormattedAddress'] ?? 'No location',
           'photosUrl': newPlace['photosUrl'] ?? 'Image not available',
-        };
+        });
 
         // Update the number of places
-        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces']!.length;
       });
-      } else {
+    } else {
       print('Error: New place data is invalid or missing ID');
-      }
+    }
   }
 
-  void regenerateOnePlace(String placeID) async{
-    List<String> places = updatedPlan['selectedPlaces'].keys.toList();
+  void regenerateOnePlace(String placeID) async {
+    List<String> places =
+        updatedPlan['selectedPlaces']!.map((place) => place['id']).toList();
     print(places);
+
     try {
       final newPlace = await apiService.getNewPlace(placeID, places);
 
       // Update the plan with the new place data
       setState(() {
-        updatedPlan['selectedPlaces'][placeID] = {
-          'id': newPlace?['id'],
-          'displayName': newPlace?['displayName'] ?? 'No place name',
-          'primaryType': newPlace?['primaryType'] ?? 'No type',
-          'shortFormattedAddress': newPlace?['shortFormattedAddress'] ?? 'No location',
-          'photosUrl': newPlace?['photosUrl'] ?? 'Image not available',
-        };
+        // Find the index of the place to update
+        int index = updatedPlan['selectedPlaces']!
+            .indexWhere((place) => place['id'] == placeID);
+        if (index != -1) {
+          updatedPlan['selectedPlaces']![index] = {
+            'id': newPlace?['id'],
+            'displayName': newPlace?['displayName'] ?? 'No place name',
+            'primaryType': newPlace?['primaryType'] ?? 'No type',
+            'shortFormattedAddress':
+                newPlace?['shortFormattedAddress'] ?? 'No location',
+            'photosUrl': newPlace?['photosUrl'] ?? 'Image not available',
+          };
+        }
       });
     } catch (e) {
       print('Error regenerating place: $e');
@@ -183,21 +193,23 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      List<MapEntry<String, dynamic>> entries =
-          updatedPlan['selectedPlaces'].entries.toList();
+      List<Map<String, dynamic>> selectedPlacesList =
+          updatedPlan['selectedPlaces']!;
+
       if (newIndex > oldIndex) newIndex -= 1;
 
-      final MapEntry<String, dynamic> movedEntry = entries.removeAt(oldIndex);
+      final Map<String, dynamic> movedPlace =
+          selectedPlacesList.removeAt(oldIndex);
 
-      entries.insert(newIndex, movedEntry);
+      selectedPlacesList.insert(newIndex, movedPlace);
 
-      updatedPlan['selectedPlaces'] = Map.fromEntries(entries);
+      updatedPlan['selectedPlaces'] = selectedPlacesList;
     });
   }
 
   String formatType(String type) {
     return type
-        .replaceAll('_', ' ')  
+        .replaceAll('_', ' ')
         .split(' ')
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');
@@ -237,9 +249,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
         ),
         actions: [
           IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: _editPlanName,
-            ),
+            icon: const Icon(Icons.edit),
+            onPressed: _editPlanName,
+          ),
         ],
       ),
       body: SingleChildScrollView(
@@ -269,8 +281,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 ),
                 Text(
                   updatedPlan['numberOfPlaces'] != null
-                    ? '${updatedPlan['numberOfPlaces']!} hours'
-                    : 'Unknown',
+                      ? '${updatedPlan['numberOfPlaces']!} hours'
+                      : 'Unknown',
                   style: const TextStyle(
                     fontSize: 16,
                   ),
@@ -292,7 +304,10 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 ),
                 const SizedBox(width: 10),
                 IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.grey,),
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.grey,
+                  ),
                   onPressed: () {
                     _editStartDate();
                   },
@@ -309,22 +324,24 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   false, // Disable default drag handles on the right
               children:
                   List.generate(updatedPlan['selectedPlaces'].length, (index) {
-                final key = updatedPlan['selectedPlaces'].keys.elementAt(index);
-                var details = updatedPlan['selectedPlaces'][key];
+                var details = updatedPlan['selectedPlaces']
+                    [index]; // Accessing using index
                 final startTimeString = updatedPlan['startTime'];
                 DateTime startTime;
 
                 try {
                   startTime = DateFormat('HH:mm').parse(startTimeString);
                 } catch (e) {
-                  startTime = DateTime(2024, 1, 1, 9, 0);
+                  startTime = DateTime(
+                      2024, 1, 1, 9, 0); // Default start time if parsing fails
                 }
 
+                // Calculate the time for this place based on its index
                 final placeTime = startTime.add(Duration(hours: index));
                 final time = DateFormat('h:mm a').format(placeTime);
 
                 return KeyedSubtree(
-                  key: Key(key), // Add the unique key here
+                  key: Key(details['id']), // Use place ID for a unique key
                   child: Row(
                     children: [
                       // Reorder icon placed in front
@@ -343,13 +360,17 @@ class _PlanScreenState extends State<EditPlanScreen> {
                             planID: widget.planData['planID'],
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
-                            type: formatType(details['primaryType'] ?? 'No type'),
-                            location: details['shortFormattedAddress'] ?? 'No location',
+                            type:
+                                formatType(details['primaryType'] ?? 'No type'),
+                            location: details['shortFormattedAddress'] ??
+                                'No location',
                             placeID: details['id'] ?? 'No place ID',
                             onViewPlaceDetail: widget.onViewPlaceDetail,
                           ),
-                          index == updatedPlan['selectedPlaces'].length - 1,
-                          key,
+                          index ==
+                              updatedPlan['selectedPlaces'].length -
+                                  1, // Check if it's the last item
+                          details['id'], // Using place ID for the routing
                           index,
                         ),
                       ),
@@ -406,7 +427,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         OutlinedButton(
                           onPressed: () {
                             _restoreDismissedPlaces();
-                            widget.onCancel(originalPlan['planID']); // Close the screen
+                            widget.onCancel(
+                                originalPlan['planID']); // Close the screen
                           },
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: primaryColor, width: 2),

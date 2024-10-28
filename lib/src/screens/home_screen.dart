@@ -5,8 +5,8 @@ import 'package:plan_a_day/src/screens/components/plan_card.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 
 class HomeScreen extends StatefulWidget {
-  final VoidCallback onCreatePlan; 
-  final VoidCallback onViewSuggestPlan; 
+  final VoidCallback onCreatePlan;
+  final VoidCallback onViewSuggestPlan;
   final Function(String id) onPlan;
   final Function(String id) onOtherPlan;
   final String ongoingPlanID;
@@ -22,7 +22,7 @@ class HomeScreen extends StatefulWidget {
       required this.ongoingPlanID,
       required this.allPlans,
       required this.onGoingPlan,
-      required this.onEndGoingPlan, 
+      required this.onEndGoingPlan,
       required this.onViewSuggestPlan});
 
   @override
@@ -190,9 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                               const EdgeInsets.only(bottom: 20),
                                           child: PlanCard(
                                             imageUrl: plan['selectedPlaces']
-                                                    .values
-                                                    .first['photosUrl'] ??
-                                                '', // Use the first place image
+                                                    .isNotEmpty
+                                                ? plan['selectedPlaces'][0]
+                                                        ['photosUrl'] ??
+                                                    ''
+                                                : '',
+                                            // Use the first place image
                                             title: plan['planName'] ?? '',
                                             subtitle: (plan['category']
                                                     as List<String>)
@@ -275,7 +278,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(24),
                   child: Image.network(
-                    plan['selectedPlaces'].values.first['photosUrl']!,
+                    plan['selectedPlaces'].isNotEmpty
+                        ? plan['selectedPlaces'][0]['photosUrl']!
+                        : 'default_image_url_here', // Provide a default image URL if the list is empty
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: double.infinity,
