@@ -25,14 +25,6 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _onSuccessfulAuth() {
-    // Clear any existing navigation stack and navigate to home
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainLayout()),
-    );
-  }
-
 // Handle login process
   void _login() async {
     if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
