@@ -41,7 +41,6 @@ class _PlanScreenState extends State<PlanScreen> {
 
   @override
   void dispose() {
-    // Cancel any ongoing timers, streams, or other resources
     super.dispose();
   }
 

@@ -56,6 +56,12 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   network_image_mock: ^2.0.1
+  flutter_launcher_icons: ^0.14.1
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/Asset_14x.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
