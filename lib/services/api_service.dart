@@ -234,6 +234,38 @@ class ApiService {
       return {}; // Return an empty map in case of error
     }
   }
+
+  Future<Map<String, dynamic>?> savePlan(
+      String planID, List<String> places) async {
+    final url = Uri.parse("$apiKey/getGenMorePlace");
+    var token = await getToken();
+    
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+        body: jsonEncode({
+          "planId": planID,
+          "placesList": places,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('Place data sent successfully');
+        final responseData = jsonDecode(response.body);
+        final newPlace = responseData['data'];
+        // print('++++++++++++');
+        // print('responsData $responseData');
+        return newPlace;
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
 }
 
 class AuthService {

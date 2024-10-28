@@ -7,8 +7,8 @@ class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
   final Function(String planID) onStartPlan;
-  final Function(String placeID, String planID) onViewPlaceDetail;
   final VoidCallback onStopPlan;
+  final Function(String placeID, String planID) onViewPlaceDetail;
   final String onGoingPlan;
   final Function(Map<String, dynamic>) onEditPlan;
   final Function(Map<String, dynamic>) onRegeneratePlan;
@@ -516,9 +516,6 @@ class _PlanScreenState extends State<PlanScreen> {
                     double buttonWidth = constraints.maxWidth > 200
                         ? constraints.maxWidth
                         : constraints.maxWidth * 0.4;
-                    double halfWidth = constraints.maxWidth / 2 -
-                        20; // Adjust for padding between buttons
-
                     return Column(
                       children: [
                         ElevatedButton(

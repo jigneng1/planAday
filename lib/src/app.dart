@@ -254,10 +254,13 @@ class _MainLayoutState extends State<MainLayout> {
         planID: planID,
         onBack: _goToPlanScreen,
       ),
-      OtherPlanScreen(
+      SavePlanScreen(
           onClose: _goToHomeScreen,
           planData: _planData,
-          onViewPlaceDetail: _goToPlaceDetailScreen),
+          onViewPlaceDetail: _goToPlaceDetailScreen,
+          onGoingPlan: _ongoingPlanID,
+          onStopPlan: _onStopPlan,
+          onStartPlan: _onStartPlan,),
       const WelcomeScreen(),
       const RegisterScreen(),
       const LoginScreen()

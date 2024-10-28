@@ -3,23 +3,29 @@ import 'package:intl/intl.dart';
 import '../../../../../services/api_service.dart';
 import './components/place_card.dart'; // Import the custom card widget
 
-class OtherPlanScreen extends StatefulWidget {
+class SavePlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
+  final String onGoingPlan;
   final Function(String placeID, String planID) onViewPlaceDetail;
+  final Function(String planID) onStartPlan;
+  final VoidCallback onStopPlan;
 
-  const OtherPlanScreen(
-      {super.key,
-      required this.onClose,
-      required this.planData,
-      required this.onViewPlaceDetail,
+  const SavePlanScreen({
+    super.key,
+    required this.onClose,
+    required this.planData,
+    required this.onViewPlaceDetail,
+    required this.onGoingPlan,
+    required this.onStartPlan,
+    required this.onStopPlan,
   });
 
   @override
-  _OtherPlanScreenState createState() => _OtherPlanScreenState();
+  _SavePlanScreenState createState() => _SavePlanScreenState();
 }
 
-class _OtherPlanScreenState extends State<OtherPlanScreen> {
+class _SavePlanScreenState extends State<SavePlanScreen> {
   Map<String, dynamic>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
@@ -83,6 +89,145 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
     }
   }
 
+  void handleStartPlan() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Are you ready to start the plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        // Handle notifications enabling
+                        Navigator.of(context).pop();
+                        widget.onStartPlan(widget.planData['planID']);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: const Color(0xFFFF6838),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Start the plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'Not now',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void handleStopPlan() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'Are you sure you want to end this plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onStopPlan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'End the plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'Not now',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
@@ -134,142 +279,271 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
     });
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
+          overflow: TextOverflow.ellipsis,
         ),
-        backgroundColor: Colors.transparent,
+        backgroundColor: primaryColor,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
           onPressed: widget.onClose,
         ),
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.share),
+            icon: const Icon(Icons.share, color: Colors.white),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row(
-            //   children: [
-            //     Icon(Icons.person, size: 25, color: primaryColor),
-            //     const SizedBox(width: 10),
-            //     const Text(
-            //       'Generated by  ',
-            //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            //     ),
-            //     const Text('User', style: TextStyle(fontSize: 16)),
-            //   ],
-            // ),
-            // const SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.timer, size: 25, color: primaryColor),
-                const SizedBox(width: 10),
-                const Text(
-                  'Time duration  ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.planData['numberOfPlaces'] != null
-                      ? '${widget.planData['numberOfPlaces']!} hours'
-                      : 'Unknown',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
+            // Plan Information Container
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Duration Row
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Generated by:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'User',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Icon(Icons.timer, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Time Duration:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.planData['numberOfPlaces'] != null
+                            ? '${widget.planData['numberOfPlaces']} hours'
+                            : 'Unknown',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  // Start Date Row
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Start Date:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.planData['startDate'] ?? 'Today',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 25, color: primaryColor),
-                const SizedBox(width: 10),
-                const Text(
-                  'Start date  ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.planData['startDate'] ?? 'Today',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
+            const SizedBox(height: 20),
+            // Routing Details Container
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...routingWidgets,
+                ],
+              ),
             ),
-            const SizedBox(height: 40),
-            ...routingWidgets,
-            const SizedBox(height: 50),
+            const SizedBox(height: 30),
+            SizedBox(
+              width: double.infinity, // Max width
+              child: ElevatedButton(
+                onPressed: () {
+                  widget.onGoingPlan == widget.planData['planID']
+                      ? handleStopPlan()
+                      : handleStartPlan();
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:
+                      widget.onGoingPlan != widget.planData['planID']
+                          ? primaryColor
+                          : Colors.red,
+                ),
+                child: Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  child: Center(
+                    child: widget.onGoingPlan != widget.planData['planID']
+                        ? const Text(
+                            'Start the plan',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          )
+                        : const Text(
+                            'Stop the Plan',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 80)
           ],
         ),
       ),
     );
   }
 
-  Widget buildRouting(Color primaryColor, String time, Widget placeCard,
-      bool isLast, Map<String, dynamic>? travelTime) {
-    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Column(
-        children: [
-          CircleAvatar(
-            radius: 10,
-            backgroundColor: primaryColor,
-          ),
-          Container(
-            height: isLast ? 180 : 250, // Height of the vertical line
-            width: 3,
-            color: primaryColor,
-          ),
-        ],
-      ),
-      const SizedBox(width: 16), // Spacing between point and card
-      Expanded(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
+  Widget buildRouting(
+    Color primaryColor,
+    String time,
+    Widget placeCard,
+    bool isLast,
+    Map<String, dynamic>? travelTime,
+  ) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
           children: [
-            Text(
-              time,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            CircleAvatar(
+              radius: 10,
+              backgroundColor: primaryColor,
             ),
-            const SizedBox(height: 12),
-            placeCard,
-            const SizedBox(height: 16),
-            if (!isLast) ...[
-              Row(
-                children: [
-                  const Icon(Icons.directions_walk,
-                      size: 30, color: Colors.grey),
-                  const SizedBox(width: 5),
-                  Text(
-                    travelTime?['walking'] ?? 'Loading',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(width: 20),
-                  const Icon(Icons.directions_car,
-                      size: 30, color: Colors.grey),
-                  const SizedBox(width: 5),
-                  Text(
-                    travelTime?['driving'] ?? 'Loading',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
-                  ),
-                ],
-              )
-            ],
+            Container(
+              height:
+                  isLast ? 170 : 250, // Adjusted height for consistent design
+              width: 2.5,
+              color: primaryColor,
+            ),
           ],
         ),
-      ),
-    ]);
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Time Display
+              Text(
+                time,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 10),
+
+              placeCard,
+              const SizedBox(height: 16),
+
+              // Travel Time Display
+              if (!isLast)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.directions_walk,
+                              size: 24, color: primaryColor),
+                          const SizedBox(width: 5),
+                          Text(
+                            travelTime?['walking'] ?? 'Loading',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.directions_car,
+                              size: 24, color: primaryColor),
+                          const SizedBox(width: 5),
+                          Text(
+                            travelTime?['driving'] ?? 'Loading',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
   }
 }
