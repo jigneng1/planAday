@@ -9,80 +9,76 @@ class ProfileScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            // Profile picture and name
-            const SizedBox(height: 30),
-            const CircleAvatar(
-              radius: 60,
-              backgroundImage: NetworkImage(
-                  'https://via.placeholder.com/150'), // Placeholder image
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              "MR. Sompong",
-              style: TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(height: 16),
+              const Text(
+                "MR. Sompong",
+                style: TextStyle(
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Divider(thickness: 1, indent: 40, endIndent: 40),
-
-            // Menu items
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                children: [
-                  _buildProfileMenuItem(
-                    icon: Icons.lock_outline,
-                    text: 'Reset Password',
-                    onTap: () {
-                      // Navigate to reset password
-                    },
-                  ),
-                  _buildProfileMenuItem(
-                    icon: Icons.favorite_border,
-                    text: 'Favorite Place',
-                    onTap: () {
-                      // Navigate to favorite places
-                    },
-                  ),
-                  _buildProfileMenuItem(
-                    icon: Icons.star_border,
-                    text: 'My interests',
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const PersonaScreen(),
-                        ),
-                      );
-                    },
-                  ),
-                  _buildProfileMenuItem(
-                    icon: Icons.history,
-                    text: 'History',
-                    onTap: () {
-                      // Navigate to history
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Divider(thickness: 1),
-                  _buildProfileMenuItem(
-                    icon: Icons.logout,
-                    text: 'Logout',
-                    onTap: () {
-                      // Perform logout
-                    },
-                    color: Colors.red, // Red icon for logout
-                  ),
-                ],
+              const SizedBox(height: 8),
+              const Divider(thickness: 1, indent: 40, endIndent: 40),
+          
+              // Menu items
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  children: [
+                                        _buildProfileMenuItem(
+                      icon: Icons.star_border,
+                      text: 'My interests',
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const PersonaScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.bookmark_added_outlined,
+                      text: 'Bookmarks',
+                      onTap: () {
+                        // Navigate to favorite places
+                      },
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.history,
+                      text: 'History',
+                      onTap: () {
+                        // Navigate to history
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    const Divider(thickness: 1),
+                                        _buildProfileMenuItem(
+                      icon: Icons.lock_outline,
+                      text: 'Reset Password',
+                      onTap: () {
+                        // Navigate to reset password
+                      },
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.logout,
+                      text: 'Logout',
+                      onTap: () {
+                        // Perform logout
+                      },
+                      color: Colors.red, // Red icon for logout
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
