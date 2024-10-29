@@ -61,7 +61,7 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/images/Asset_14x.png"
+  image_path: "assets/images/launchLogo.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -81,6 +81,7 @@ flutter:
     - assets/images/undraw_Navigation_re_wxx4.png
     - assets/images/undraw_Coolness_re_sllr.png
     - assets/images/undraw_Exciting_news_re_y1iw.png
+    - assets/images/undraw_Notify_re_65on.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
