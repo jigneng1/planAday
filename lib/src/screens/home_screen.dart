@@ -12,7 +12,6 @@ class HomeScreen extends StatefulWidget {
   final Function(String id) onOtherPlan;
   final String ongoingPlanID;
   final Map<String, dynamic> onGoingPlan;
-  final List<Map<String, dynamic>> allPlans;
   final VoidCallback onEndGoingPlan;
 
   const HomeScreen(
@@ -21,7 +20,6 @@ class HomeScreen extends StatefulWidget {
       required this.onPlan,
       required this.onOtherPlan,
       required this.ongoingPlanID,
-      required this.allPlans,
       required this.onGoingPlan,
       required this.onEndGoingPlan,
       required this.onViewSuggestPlan, });
@@ -33,11 +31,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   final ApiService apiService = ApiService();
   List<Map<String, dynamic>> suggestPlans = [];
+  List<Map<String, dynamic>> allPlans = [];
 
   @override
   void initState() {
     super.initState();
     getHomeSuggestPlans();
+    getPlanHistory();
+
   }
 
   void getHomeSuggestPlans() async {
@@ -49,8 +50,19 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void getPlanHistory() async {
+    final List<Map<String, dynamic>>? plans = await apiService.getPlanHistory();
+    if (mounted) {
+      setState(() {
+        allPlans = plans!;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('All plans: $allPlans');
+
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
@@ -185,7 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       const SizedBox(height: 20),
                       Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 30),
-                          child: widget.allPlans.isEmpty
+                          child: allPlans.isEmpty
                               ? const Padding(
                                   padding: EdgeInsets.all(30),
                                   child: Center(
@@ -198,31 +210,22 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ))
                               : Column(
-                                  children: widget.allPlans.map((plan) {
-                                    return GestureDetector(
-                                        onTap: () =>
-                                            widget.onPlan(plan['planID']),
-                                        child: Padding(
-                                          padding:
-                                              const EdgeInsets.only(bottom: 20),
-                                          child: PlanCard(
-                                            imageUrl: plan['selectedPlaces']
-                                                    .isNotEmpty
-                                                ? plan['selectedPlaces'][0]
-                                                        ['photosUrl'] ??
-                                                    ''
-                                                : '',
-                                            // Use the first place image
-                                            title: plan['planName'] ?? '',
-                                            subtitle: (plan['category']
-                                                    as List<String>)
-                                                .join(', '),
-                                            time: plan['numberOfPlaces']
-                                                .toString(),
-                                          ),
-                                        ));
-                                  }).toList(),
-                                )),
+  children: allPlans.map((plan) {
+    return GestureDetector(
+      onTap: () => widget.onPlan(plan['planId']),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 20),
+        child: PlanCard(
+          imageUrl: plan['imageURL'] ?? '', // Use imageURL from the data
+          title: plan['planName'] ?? '', // Plan name
+          subtitle: (plan['category'] as List<dynamic>).map((e) => e.toString()).join(', '), // Convert to String
+          time: plan['numberofPlaces'].toString(), // Use numberofPlaces
+        ),
+      ),
+    );
+  }).toList(),
+)
+),
                       const SizedBox(height: 50),
                     ],
                   ),

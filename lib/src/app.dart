@@ -3,6 +3,7 @@ import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
+import 'package:plan_a_day/src/screens/generated_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
 import 'package:plan_a_day/src/screens/other_plan_screen.dart';
@@ -31,8 +32,6 @@ class _MainLayoutState extends State<MainLayout> {
   bool _isLoading = false;
 
   Map<String, dynamic> _planData = {};
-
-  // List to store multiple plans
   final List<Map<String, dynamic>> _allPlans = [];
   // final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
@@ -52,7 +51,31 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _goToPlanScreen(String planID) {
+  void _goToPlanScreen(String planID) async { // Mark the method as async
+  setState(() {
+    _isLoading = true;
+  });
+
+  // Await the async call to get the plan detail
+  Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
+
+  if (selectedPlan != null) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _planData = selectedPlan;
+        _currentIndex = 3;
+        _isLoading = false;
+      });
+    });
+  } else {
+    print('Plan with ID $planID not found.');
+    setState(() {
+      _isLoading = false; // Ensure loading state is reset even if the plan is not found
+    });
+  }
+}
+
+  void _goToGeneratedPlanScreen(String planID) {
     setState(() {
       _isLoading = true;
     });
@@ -64,7 +87,7 @@ class _MainLayoutState extends State<MainLayout> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _planData = selectedPlan;
-          _currentIndex = 3;
+          _currentIndex = 12;
           _isLoading = false;
         });
       });
@@ -88,22 +111,6 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 }
-
-  void setOnGoingPlan(String planID) {
-    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
-      (plan) => plan['planID'] == planID,
-      orElse: () => {},
-    );
-    if (selectedPlan.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _planData = selectedPlan;
-        });
-      });
-    } else {
-      print('Plan with ID $planID not found.');
-    }
-  }
 
   void _goToCreatePlanScreen() {
     setState(() {
@@ -139,12 +146,11 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
-  void _onStartPlan(String planID) {
-    Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
-      (plan) => plan['planID'] == planID,
-      orElse: () => {},
-    );
-    if (selectedPlan.isNotEmpty) {
+  void _onStartPlan(String planID) async{
+    Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
+    print('Start Plan: $planID');
+
+    if (selectedPlan != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _ongoingPlanID = planID;
@@ -164,6 +170,14 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void onDone(Map<String, dynamic> planData) async {
+    apiService.savePlan(planData);
+
+    setState(() {
+      _currentIndex = 3;
+    });
+  }
+
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
     try {
       final plan = await apiService.getRandomPlan(planInput);
@@ -175,7 +189,7 @@ class _MainLayoutState extends State<MainLayout> {
           // Add the new plan to the list of all plans
           _allPlans.add(plan);
 
-          _currentIndex = 3;
+          _currentIndex = 12;
         });
       } else {
         print('Failed to receive new plan data');
@@ -201,7 +215,7 @@ class _MainLayoutState extends State<MainLayout> {
       }
 
       print('PlanScreen received plan data: $_planData');
-      _currentIndex = 3;
+      _currentIndex = 12;
       _isLoading = false;
     });
   }
@@ -224,7 +238,6 @@ class _MainLayoutState extends State<MainLayout> {
         onPlan: _goToPlanScreen,
         onOtherPlan: _goToOtherPlanScreen,
         onViewSuggestPlan: _goToSuggestPlanScreen,
-        allPlans: _allPlans,
         ongoingPlanID: _ongoingPlanID,
         onGoingPlan: _planData,
         onEndGoingPlan: _onStopPlan,
@@ -237,18 +250,16 @@ class _MainLayoutState extends State<MainLayout> {
       PlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
-        onEditPlan: _handleEditPlan,
         onStartPlan: _onStartPlan,
         onGoingPlan: _ongoingPlanID,
         onStopPlan: _onStopPlan,
         onViewPlaceDetail: _goToPlaceDetailScreen,
-        onRegeneratePlan: _handleDoneEditPlan,
       ),
       const PersonaScreen(),
       EditPlanScreen(
         planData: _planData, // Pass the updated plan data
         onClose: _goToHomeScreen,
-        onCancel: _goToPlanScreen,
+        onCancel: _goToGeneratedPlanScreen,
         onDone: _handleDoneEditPlan,
         onViewPlaceDetail: _goToPlaceDetailScreen,
       ),
@@ -268,6 +279,7 @@ class _MainLayoutState extends State<MainLayout> {
       const RegisterScreen(),
       const LoginScreen(),
       SuggestScreen(onClose: _goToHomeScreen,),
+      GeneratedPlanScreen(onClose: _goToHomeScreen, planData: _planData, onEditPlan: _handleEditPlan, onDone: onDone, onViewPlaceDetail: _goToPlaceDetailScreen, onRegeneratePlan: _handleGeneratePlan,),
     ];
 
     return Scaffold(
