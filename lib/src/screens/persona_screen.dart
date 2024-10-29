@@ -21,7 +21,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const HeaderText(),
-              const SizedBox(height: 4),
+              const SizedBox(height: 6),
               LayoutBuilder(
                 builder: (context, constraints) {
                   int crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
