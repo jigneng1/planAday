@@ -128,10 +128,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     TextField(
                       controller: _usernameController,
                       decoration: InputDecoration(
-                        suffixIcon: const Icon(
-                          Icons.check,
-                          color: Colors.grey,
-                        ),
                         label: Text(
                           'Username',
                           style: TextStyle(
@@ -217,7 +213,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 120),
+                    const SizedBox(height: 80),
                     // Sign Up Option
                     Align(
                       alignment: Alignment.center,

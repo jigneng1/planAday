@@ -22,34 +22,18 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _userNameController.dispose();
-    _emailOrPhoneController.dispose();
     _passwordController.dispose();
     super.dispose();
-  }
-
-  // Regex for phone number validation (assumes 10 digits)
-  bool _isValidPhoneNumber(String input) {
-    final phoneRegExp = RegExp(r'^0[689]\d{8}$');
-    return phoneRegExp.hasMatch(input);
   }
 
   // Function to validate all fields
   bool _validateFields() {
     final userName = _userNameController.text;
-    final emailOrPhone = _emailOrPhoneController.text;
     final password = _passwordController.text;
 
-    if (userName.isEmpty || emailOrPhone.isEmpty || password.isEmpty) {
+    if (userName.isEmpty || password.isEmpty) {
       setState(() {
         _errorMessage = 'Please fill in all fields.';
-      });
-      return false;
-    }
-
-    if (!EmailValidator.validate(emailOrPhone) &&
-        !_isValidPhoneNumber(emailOrPhone)) {
-      setState(() {
-        _errorMessage = 'Please enter a valid email or phone number.';
       });
       return false;
     }
@@ -182,20 +166,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    // Phone or Gmail field
-                    TextField(
-                      controller: _emailOrPhoneController,
-                      decoration: InputDecoration(
-                        label: Text(
-                          'Phone or Gmail',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
                     // Password field
                     TextField(
                       controller: _passwordController,
@@ -222,7 +192,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: 36),
                     // Error message (if any)
                     if (_errorMessage != null) ...[
                       Text(
@@ -232,7 +202,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 28),
                     ],
                     GestureDetector(
                       onTap: _register,
@@ -257,13 +227,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 80),
+                    const SizedBox(height: 120),
                     // Don't have an account text
                     Align(
-                      alignment: Alignment.bottomCenter,
+                      alignment: Alignment.center,
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
                           const Text(
                             "Already have an account?",
