@@ -503,33 +503,50 @@ class _PlanScreenState extends State<PlanScreen> {
             const SizedBox(height: 12),
             placeCard,
             const SizedBox(height: 16),
-            if (!isLast) ...[
-              Row(
-                children: [
-                  const Icon(Icons.directions_walk,
-                      size: 30, color: Colors.grey),
-                  const SizedBox(width: 5),
-                  Text(
-                    travelTime?['walking'] ?? 'Loading',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
+            if (!isLast)
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                  const SizedBox(width: 20),
-                  const Icon(Icons.directions_car,
-                      size: 30, color: Colors.grey),
-                  const SizedBox(width: 5),
-                  Text(
-                    travelTime?['driving'] ?? 'Loading',
-                    style: const TextStyle(
-                        fontSize: 16,
-                        color: Colors.grey,
-                        fontWeight: FontWeight.bold),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          Icon(Icons.directions_walk,
+                              size: 24, color: primaryColor),
+                          const SizedBox(width: 5),
+                          Text(
+                            travelTime?['walking'] ?? 'Loading',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Icon(Icons.directions_car,
+                              size: 24, color: primaryColor),
+                          const SizedBox(width: 5),
+                          Text(
+                            travelTime?['driving'] ?? 'Loading',
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              )
-            ],
+                ),
           ],
         ),
       ),
