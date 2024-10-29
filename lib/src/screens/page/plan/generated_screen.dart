@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../services/api_service.dart';
-import 'components/place_card.dart'; // Import the custom card widget
+import '../../../../services/api_service.dart';
+import '../../components/place_card.dart'; // Import the custom card widget
 
 class GeneratedPlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;

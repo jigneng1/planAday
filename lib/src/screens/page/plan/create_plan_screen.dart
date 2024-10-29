@@ -35,10 +35,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Park',
     'Store',
     'Gym',
-    'Art Gallery',
-    'Cinema',
-    // 'Art_gallery',
-    // 'Movie_theater',
+    'Art_gallery',
+    'Movie_theater',
     'Museum',
   ];
   final Set<String> _selectedActivities = {};
@@ -258,68 +256,59 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     }
   }
 
-void _generatePlan() {
-  setState(() {
-    _hasTriedSubmitting = true;
-  });
+  void _generatePlan() {
+    setState(() {
+      _hasTriedSubmitting = true;
+    });
 
-  if (_formKey.currentState?.validate() ?? false) {
-    List<String> errorMessages = [];
+    if (_formKey.currentState?.validate() ?? false) {
+      List<String> errorMessages = [];
 
-    if (_selectedLocation == null) {
-      errorMessages.add('Please select a location on the map.');
-    }
-    if (_planNameController.text.isEmpty) {
-      errorMessages.add('Please enter the plan name.');
-    }
-    if (_startTimeController.text.isEmpty) {
-      errorMessages.add('Please select the start time.');
-    }
-    if (_startDateController.text.isEmpty) {
-      errorMessages.add('Please select the start date.');
-    }
-    if (_selectedActivities.isEmpty) {
-      errorMessages.add('Please select at least one activity.');
-    }
+      if (_selectedLocation == null) {
+        errorMessages.add('Please select a location on the map.');
+      }
+      if (_planNameController.text.isEmpty) {
+        errorMessages.add('Please enter the plan name.');
+      }
+      if (_startTimeController.text.isEmpty) {
+        errorMessages.add('Please select the start time.');
+      }
+      if (_startDateController.text.isEmpty) {
+        errorMessages.add('Please select the start date.');
+      }
+      if (_selectedActivities.isEmpty) {
+        errorMessages.add('Please select at least one activity.');
+      }
 
-    // Show all errors if any
-    if (errorMessages.isNotEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-            content: Text(errorMessages.join('\n')),
-            behavior: SnackBarBehavior.floating),
-      );
-      return;
-    }
+      // Show all errors if any
+      if (errorMessages.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(errorMessages.join('\n')),
+              behavior: SnackBarBehavior.floating),
+        );
+        return;
+      }
 
-    final activityMapping = {
-      'art_gallery': 'Art Gallery',
-      'movie_theater': 'Cinema',
-    };
-
-    // Ensure the time is in a proper format
-    final startTime = _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
-
-    final Map<String, dynamic> planData = {
-      'planName': _planNameController.text,
-      'startTime': startTime,
-      'startDate': _startDateController.text,
-      'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
-      'categories': _selectedActivities
-          .map((activity) =>
-              activityMapping[activity.toLowerCase()] ?? activity)
-          .toList(),
-      'startDay': _dayOfWeek ?? '',
+      final Map<String, dynamic> planData = {
+        'planName': _planNameController.text,
+        'startTime': _startTimeController.text,
+        'startDate': _startDateController.text,
+        'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
+        'categories': _selectedActivities
+            .map((activity) => activity.toLowerCase())
+            .toList(),
+        'startDay': _dayOfWeek,
         'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
         // 'lad': '13.651366869948392',
         // 'lng': '100.49641061073015',
-    };
+      };
 
-    print(planData);
-    widget.onGeneratePlan(planData); // Pass the data to the parent
+      // print(planData);
+      widget.onGeneratePlan(planData); // Pass the data to the parent
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {

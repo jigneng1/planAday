@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_a_day/services/api_service.dart';
-import 'components/place_card.dart';
+import '../../components/place_card.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class EditPlanScreen extends StatefulWidget {

@@ -1,32 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../../../../services/api_service.dart';
-import './components/place_card.dart'; // Import the custom card widget
+import '../../../../services/api_service.dart';
+import '../../components/place_card.dart'; // Import the custom card widget
 
-class SavePlanScreen extends StatefulWidget {
+class PlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
-  final String onGoingPlan;
-  final Function(String placeID, String planID) onViewPlaceDetail;
   final Function(String planID) onStartPlan;
   final VoidCallback onStopPlan;
+  final Function(String placeID, String planID) onViewPlaceDetail;
+  final String onGoingPlan;
 
-  const SavePlanScreen({
-    super.key,
-    required this.onClose,
-    required this.planData,
-    required this.onViewPlaceDetail,
-    required this.onGoingPlan,
-    required this.onStartPlan,
-    required this.onStopPlan,
-  });
+  const PlanScreen(
+      {super.key,
+      required this.onClose,
+      required this.planData,
+      required this.onStartPlan,
+      required this.onGoingPlan,
+      required this.onStopPlan,
+      required this.onViewPlaceDetail});
 
   @override
-  _SavePlanScreenState createState() => _SavePlanScreenState();
+  _PlanScreenState createState() => _PlanScreenState();
 }
 
-class _SavePlanScreenState extends State<SavePlanScreen> {
-  Map<String, dynamic>? selectedPlaces;
+class _PlanScreenState extends State<PlanScreen> {
+  List<Map<String, dynamic>>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
 
@@ -38,35 +37,26 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
 
   @override
   void dispose() {
-    // Cancel any ongoing timers, streams, or other resources
     super.dispose();
   }
 
   void _initializePlan() {
-  // Check if planData contains selectedPlaces
-  if (widget.planData.containsKey('selectedPlaces')) {
-    // Convert the List of places into a Map with id as key
-    List<dynamic> placesList = widget.planData['selectedPlaces'];
-    selectedPlaces = {};
-    
-    for (var place in placesList) {
-      // Use the place's id as the key and the entire place object as the value
-      selectedPlaces![place['id']] = {
-        'id': place['id'],
-        'displayName': place['displayName'],
-        'primaryType': place['primaryType'] ?? 'unknown',
-        'shortFormattedAddress': place['shortFormattedAddress'],
-        'photosUrl': place['photosUrl'],
-      };
+    // Use existing selected places if available
+    if (widget.planData.containsKey('selectedPlaces')) {
+      // Ensure that 'selectedPlaces' is a list
+      if (widget.planData['selectedPlaces'] is List) {
+        selectedPlaces =
+            List<Map<String, dynamic>>.from(widget.planData['selectedPlaces']);
+        getTimeTravel(); // Call to get travel times if places are selected
+      } else {
+        // Handle the case where 'selectedPlaces' is not a list
+        print('selectedPlaces is not a List.');
+        selectedPlaces = []; // Initialize with an empty list if not available
+      }
+    } else {
+      selectedPlaces = []; // Initialize with an empty list if not available
     }
-    
-    if (selectedPlaces!.isNotEmpty) {
-      getTimeTravel();
-    }
-  } else {
-    selectedPlaces = {}; // Initialize with an empty map if not available
   }
-}
 
   String formatType(String type) {
     return type
@@ -79,9 +69,15 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
   void getTimeTravel() async {
     if (widget.planData['numberOfPlaces'] > 1) {
       try {
+        // Extract place IDs from the selectedPlaces list and cast them to List<String>
+        final placeIds = selectedPlaces
+                ?.map((place) =>
+                    place['id'] as String) // Explicitly cast to String
+                .toList() ??
+            [];
+
         // Fetch the travel time data
-        final placeId = selectedPlaces!.keys.toList();
-        final travelTime = await apiService.getTimeTravel(placeId);
+        final travelTime = await apiService.getTimeTravel(placeIds);
         print(
             'Fetched travel time: $travelTime'); // Log the fetched travel time
 
@@ -244,6 +240,7 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
+    print(widget.planData['_id']);
     final primaryColor = Theme.of(context).primaryColor;
 
     // Check if selectedPlaces is not null and has places to display
@@ -253,24 +250,27 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
 
     // Generate routing widgets based on the selected places
     List<Widget> routingWidgets = [];
-    selectedPlaces!.forEach((key, details) {
-      // Parse the startTime from 'HH:mm' format
-      final startTimeString = widget.planData['startTime'];
-      DateTime startTime;
+    final startTimeString = widget.planData['startTime'];
+    DateTime startTime;
 
-      try {
-        startTime = DateFormat('HH:mm')
-            .parse(startTimeString); // Parse the time as a DateTime object
-      } catch (e) {
-        startTime = DateTime(2024, 1, 1, 9, 0);
-        print('Error parsing start time: $e');
-      }
+    try {
+      startTime = DateFormat('HH:mm')
+          .parse(startTimeString); // Parse the time as a DateTime object
+    } catch (e) {
+      startTime = DateTime(2024, 1, 1, 9, 0);
+      print('Error parsing start time: $e');
+    }
+
+// Iterate over the list of selected places
+    for (int i = 0; i < selectedPlaces!.length; i++) {
+      final details = selectedPlaces![i];
 
       // Calculate the time for each place
-      final placeTime = startTime.add(Duration(hours: routingWidgets.length));
+      final placeTime = startTime.add(Duration(hours: i));
       final time = DateFormat('h:mm a').format(placeTime);
 
-      selectedPlaces![key]['time'] = time;
+      // Update the 'time' field in the current place details
+      selectedPlaces![i]['time'] = time;
 
       routingWidgets.add(buildRouting(
         primaryColor,
@@ -284,44 +284,39 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
           placeID: details['id'] ?? 'No ID',
           onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
-        routingWidgets.length == selectedPlaces!.length - 1,
-        routingWidgets.length < travelTimes.length
-            ? travelTimes[routingWidgets.length]
-            : null,
+        i == selectedPlaces!.length - 1, // Check if it's the last item
+        i < travelTimes.length ? travelTimes[i] : null,
       ));
-    });
+    }
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         title: Text(
           widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(
-              fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
-          overflow: TextOverflow.ellipsis,
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
         ),
         backgroundColor: primaryColor,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
           onPressed: widget.onClose,
         ),
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
+            icon: const Icon(Icons.share, color: Colors.white,),
           ),
         ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 20.0),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Plan Information Container
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
@@ -405,7 +400,6 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Routing Details Container
             Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(15),
@@ -413,6 +407,7 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
                 boxShadow: [
                   BoxShadow(
                     color: Colors.grey.withOpacity(0.15),
+                    spreadRadius: 1,
                     blurRadius: 10,
                     offset: const Offset(0, 4),
                   ),
@@ -427,136 +422,117 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
               ),
             ),
             const SizedBox(height: 30),
-            SizedBox(
-              width: double.infinity, // Max width
-              child: ElevatedButton(
-                onPressed: () {
-                  widget.onGoingPlan == widget.planData['planID']
-                      ? handleStopPlan()
-                      : handleStartPlan();
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      widget.onGoingPlan != widget.planData['planID']
-                          ? primaryColor
-                          : Colors.red,
-                ),
-                child: Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: Center(
-                    child: widget.onGoingPlan != widget.planData['planID']
-                        ? const Text(
-                            'Start the plan',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
-                          )
-                        : const Text(
-                            'Stop the Plan',
-                            style: TextStyle(color: Colors.white, fontSize: 12),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double buttonWidth = constraints.maxWidth > 200
+                    ? constraints.maxWidth
+                    : constraints.maxWidth * 0.4;
+                return Column(
+                  children: [
+                    ElevatedButton(
+                      onPressed: () {
+                        widget.onGoingPlan == widget.planData['planID']
+                            ? handleStopPlan()
+                            : handleStartPlan();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor:
+                            widget.onGoingPlan != widget.planData['planID']
+                                ? primaryColor
+                                : Colors.red,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 20, vertical: 12),
+                        child: SizedBox(
+                          width: buttonWidth,
+                          child: Center(
+                            child:
+                                widget.onGoingPlan != widget.planData['planID']
+                                    ? const Text(
+                                        'Start the plan',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      )
+                                    : const Text(
+                                        'Stop the Plan',
+                                        style: TextStyle(
+                                            color: Colors.white, fontSize: 12),
+                                      ),
                           ),
-                  ),
-                ),
-              ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
             ),
-            const SizedBox(height: 80)
+            const SizedBox(height: 50),
           ],
         ),
       ),
     );
   }
 
-  Widget buildRouting(
-    Color primaryColor,
-    String time,
-    Widget placeCard,
-    bool isLast,
-    Map<String, dynamic>? travelTime,
-  ) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Column(
+  Widget buildRouting(Color primaryColor, String time, Widget placeCard,
+      bool isLast, Map<String, dynamic>? travelTime) {
+    return Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Column(
+        children: [
+          CircleAvatar(
+            radius: 10,
+            backgroundColor: primaryColor,
+          ),
+          Container(
+            height: isLast ? 180 : 250, // Height of the vertical line
+            width: 3,
+            color: primaryColor,
+          ),
+        ],
+      ),
+      const SizedBox(width: 16), // Spacing between point and card
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            CircleAvatar(
-              radius: 10,
-              backgroundColor: primaryColor,
+            Text(
+              time,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
-            Container(
-              height:
-                  isLast ? 170 : 250, // Adjusted height for consistent design
-              width: 2.5,
-              color: primaryColor,
-            ),
+            const SizedBox(height: 12),
+            placeCard,
+            const SizedBox(height: 16),
+            if (!isLast) ...[
+              Row(
+                children: [
+                  const Icon(Icons.directions_walk,
+                      size: 30, color: Colors.grey),
+                  const SizedBox(width: 5),
+                  Text(
+                    travelTime?['walking'] ?? 'Loading',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(width: 20),
+                  const Icon(Icons.directions_car,
+                      size: 30, color: Colors.grey),
+                  const SizedBox(width: 5),
+                  Text(
+                    travelTime?['driving'] ?? 'Loading',
+                    style: const TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        fontWeight: FontWeight.bold),
+                  ),
+                ],
+              )
+            ],
           ],
         ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Time Display
-              Text(
-                time,
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 10),
-
-              placeCard,
-              const SizedBox(height: 16),
-
-              // Travel Time Display
-              if (!isLast)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.directions_walk,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['walking'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.directions_car,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['driving'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
-    );
+      ),
+    ]);
   }
 }

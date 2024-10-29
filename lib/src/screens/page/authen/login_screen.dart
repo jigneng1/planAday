@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/app.dart';
-import 'package:plan_a_day/src/screens/register_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});

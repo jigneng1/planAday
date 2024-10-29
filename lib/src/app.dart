@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
-import 'package:plan_a_day/src/screens/create_plan_screen.dart';
+import 'package:plan_a_day/src/screens/page/plan/create_plan_screen.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
-import 'package:plan_a_day/src/screens/edit_plan_screen.dart';
-import 'package:plan_a_day/src/screens/generated_screen.dart';
+import 'package:plan_a_day/src/screens/page/plan/edit_plan_screen.dart';
+import 'package:plan_a_day/src/screens/page/plan/generated_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
-import 'package:plan_a_day/src/screens/login_screen.dart';
-import 'package:plan_a_day/src/screens/other_plan_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
+import 'package:plan_a_day/src/screens/page/plan/other_plan_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
-import 'package:plan_a_day/src/screens/plan_screen.dart';
+import 'package:plan_a_day/src/screens/page/plan/plan_screen.dart';
 import 'package:plan_a_day/src/screens/profile_screen.dart';
-import 'package:plan_a_day/src/screens/register_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/register_screen.dart';
 import 'package:plan_a_day/src/screens/suggest_screen.dart';
-import 'package:plan_a_day/src/screens/welcome_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/welcome_screen.dart';
 
 class MainLayout extends StatefulWidget {
   const MainLayout({super.key});
@@ -32,6 +32,7 @@ class _MainLayoutState extends State<MainLayout> {
   bool _isLoading = false;
 
   Map<String, dynamic> _planData = {};
+  Map<String, dynamic> _ongoingplanData = {};
   final List<Map<String, dynamic>> _allPlans = [];
   // final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
@@ -51,29 +52,31 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
-  void _goToPlanScreen(String planID) async { // Mark the method as async
-  setState(() {
-    _isLoading = true;
-  });
-
-  // Await the async call to get the plan detail
-  Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
-
-  if (selectedPlan != null) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      setState(() {
-        _planData = selectedPlan;
-        _currentIndex = 3;
-        _isLoading = false;
-      });
-    });
-  } else {
-    print('Plan with ID $planID not found.');
+  void _goToPlanScreen(String planID) async {
+    // Mark the method as async
     setState(() {
-      _isLoading = false; // Ensure loading state is reset even if the plan is not found
+      _isLoading = true;
     });
+
+    // Await the async call to get the plan detail
+    Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
+
+    if (selectedPlan != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _planData = selectedPlan;
+          _currentIndex = 3;
+          _isLoading = false;
+        });
+      });
+    } else {
+      print('Plan with ID $planID not found.');
+      setState(() {
+        _isLoading =
+            false; // Ensure loading state is reset even if the plan is not found
+      });
+    }
   }
-}
 
   void _goToGeneratedPlanScreen(String planID) {
     setState(() {
@@ -97,20 +100,20 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToOtherPlanScreen(String planID) async {
-  setState(() {
-    _isLoading = true;
-  });
-
-  Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
-
-  if (mounted) {
     setState(() {
-      _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
-      _currentIndex = 7;
-      _isLoading = false;
+      _isLoading = true;
     });
+
+    Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
+
+    if (mounted) {
+      setState(() {
+        _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
+        _currentIndex = 7;
+        _isLoading = false;
+      });
+    }
   }
-}
 
   void _goToCreatePlanScreen() {
     setState(() {
@@ -146,7 +149,7 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
-  void _onStartPlan(String planID) async{
+  void _onStartPlan(String planID) async {
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
     print('Start Plan: $planID');
 
@@ -154,7 +157,7 @@ class _MainLayoutState extends State<MainLayout> {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _ongoingPlanID = planID;
-          _planData = selectedPlan;
+          _ongoingplanData = selectedPlan;
           _currentIndex = 0;
         });
       });
@@ -239,7 +242,7 @@ class _MainLayoutState extends State<MainLayout> {
         onOtherPlan: _goToOtherPlanScreen,
         onViewSuggestPlan: _goToSuggestPlanScreen,
         ongoingPlanID: _ongoingPlanID,
-        onGoingPlan: _planData,
+        onGoingPlan: _ongoingplanData,
         onEndGoingPlan: _onStopPlan,
       ),
       const ProfileScreen(),
@@ -268,18 +271,28 @@ class _MainLayoutState extends State<MainLayout> {
         planID: planID,
         onBack: _goToPlanScreen,
       ),
-      SavePlanScreen(
-          onClose: _goToHomeScreen,
-          planData: _planData,
-          onViewPlaceDetail: _goToPlaceDetailScreen,
-          onGoingPlan: _ongoingPlanID,
-          onStopPlan: _onStopPlan,
-          onStartPlan: _onStartPlan,),
+      OtherPlanScreen(
+        onClose: _goToHomeScreen,
+        planData: _planData,
+        onViewPlaceDetail: _goToPlaceDetailScreen,
+        onGoingPlan: _ongoingPlanID,
+        onStopPlan: _onStopPlan,
+        onStartPlan: _onStartPlan,
+      ),
       const WelcomeScreen(),
       const RegisterScreen(),
       const LoginScreen(),
-      SuggestScreen(onClose: _goToHomeScreen,),
-      GeneratedPlanScreen(onClose: _goToHomeScreen, planData: _planData, onEditPlan: _handleEditPlan, onDone: onDone, onViewPlaceDetail: _goToPlaceDetailScreen, onRegeneratePlan: _handleGeneratePlan,),
+      SuggestScreen(
+        onClose: _goToHomeScreen,
+      ),
+      GeneratedPlanScreen(
+        onClose: _goToHomeScreen,
+        planData: _planData,
+        onEditPlan: _handleEditPlan,
+        onDone: onDone,
+        onViewPlaceDetail: _goToPlaceDetailScreen,
+        onRegeneratePlan: _handleGeneratePlan,
+      ),
     ];
 
     return Scaffold(

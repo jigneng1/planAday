@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/auth_token.dart';
-import 'package:plan_a_day/src/screens/login_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});

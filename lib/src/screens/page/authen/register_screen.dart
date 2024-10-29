@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
-import 'package:plan_a_day/src/screens/login_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 import 'package:email_validator/email_validator.dart'; // For email validation
 
 class RegisterScreen extends StatefulWidget {
