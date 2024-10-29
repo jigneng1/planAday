@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:plan_a_day/services/auth_token.dart';
@@ -181,6 +182,25 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> getPlanDetail(String planID) async {
+    final url = Uri.parse('$apiKey/getPlanDetailByid/$planID');
+    var token = await getToken();
+
+    try {
+      final response = await http.get(url, headers : {'Authorization': 'Bearer $token'});
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return responseData;
+      } else {
+        print('Failed to fetch plan details: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
+
   //ส่งสถานที่ทั้งหมดไปให้ API
   Future<Map<String, dynamic>?> getNewPlace(
       String placeReplaceID, List<String> places) async {
@@ -277,6 +297,60 @@ class ApiService {
       return {}; // Return an empty map in case of error
     }
   }
+
+  Future<List<Map<String, dynamic>?>?> getSuggestPlans() async {
+    final url = Uri.parse('$apiKey/suggestPlan');
+    var token = await getToken();
+
+    final response = await http.get(url, headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'});
+    if(response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      final List<dynamic> plansList = responseData['plansList'];
+      final List<Map<String, dynamic>> suggestPlans = plansList
+        .map((plan) => plan as Map<String, dynamic>)
+        .toList();
+
+      return suggestPlans;
+    } else {
+      print('Failed to fetch suggest plans: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> getHomeSuggestPlans() async {
+  final url = Uri.parse('$apiKey/suggestPlan');
+  var token = await getToken();
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = jsonDecode(response.body);
+    final List<dynamic> plansList = responseData['plansList'];
+
+    // Convert each item in plansList to Map<String, dynamic>
+    final List<Map<String, dynamic>> allPlans = plansList
+        .map((plan) => plan as Map<String, dynamic>)
+        .toList();
+
+    // Shuffle and get the first 3 items if the list is large enough
+    if (allPlans.length > 3) {
+      allPlans.shuffle(Random());
+      return allPlans.take(3).toList();
+    }
+
+    // If less than or exactly 3 items, return the entire list
+    return allPlans;
+  } else {
+    print('Failed to fetch suggest plans: ${response.statusCode}');
+    return null;
+  }
+}
 }
 
 class AuthService {

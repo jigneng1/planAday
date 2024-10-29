@@ -43,17 +43,30 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
   }
 
   void _initializePlan() {
-    // Use existing selected places if available
-    if (widget.planData.containsKey('selectedPlaces')) {
-      selectedPlaces =
-          Map<String, dynamic>.from(widget.planData['selectedPlaces']);
-      if (selectedPlaces != null) {
-        getTimeTravel();
-      }
-    } else {
-      selectedPlaces = {}; // Initialize with an empty map if not available
+  // Check if planData contains selectedPlaces
+  if (widget.planData.containsKey('selectedPlaces')) {
+    // Convert the List of places into a Map with id as key
+    List<dynamic> placesList = widget.planData['selectedPlaces'];
+    selectedPlaces = {};
+    
+    for (var place in placesList) {
+      // Use the place's id as the key and the entire place object as the value
+      selectedPlaces![place['id']] = {
+        'id': place['id'],
+        'displayName': place['displayName'],
+        'primaryType': place['primaryType'] ?? 'unknown',
+        'shortFormattedAddress': place['shortFormattedAddress'],
+        'photosUrl': place['photosUrl'],
+      };
     }
+    
+    if (selectedPlaces!.isNotEmpty) {
+      getTimeTravel();
+    }
+  } else {
+    selectedPlaces = {}; // Initialize with an empty map if not available
   }
+}
 
   String formatType(String type) {
     return type

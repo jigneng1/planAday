@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
@@ -23,14 +24,30 @@ class HomeScreen extends StatefulWidget {
       required this.allPlans,
       required this.onGoingPlan,
       required this.onEndGoingPlan,
-      required this.onViewSuggestPlan});
+      required this.onViewSuggestPlan, });
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Map<String, dynamic>> plans = getSuggestPlan();
+  final ApiService apiService = ApiService();
+  List<Map<String, dynamic>> suggestPlans = [];
+
+  @override
+  void initState() {
+    super.initState();
+    getHomeSuggestPlans();
+  }
+
+  void getHomeSuggestPlans() async {
+    final response = await apiService.getHomeSuggestPlans();
+    if (mounted) {
+      setState(() {
+        suggestPlans = response!;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -258,121 +275,127 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildCarouselSlider() {
-    return CarouselSlider.builder(
-      itemCount: plans.length, // Use the number of plans
-      itemBuilder: (BuildContext context, int index, int realIndex) {
-        final plan = plans[index]; // Get current plan data
-        return GestureDetector(
-          onTap: () {
-            widget.onOtherPlan(plan['planID']); // Handle tap
-          }, // Send out planID
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            elevation: 4,
-            child: Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Image.network(
-                    plan['selectedPlaces'].isNotEmpty
-                        ? plan['selectedPlaces'][0]['photosUrl']!
-                        : 'default_image_url_here', // Provide a default image URL if the list is empty
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
+Widget _buildCarouselSlider() {
+  if (suggestPlans.isEmpty) {
+    return const Center(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text(
+          'Loading plan...',
+          style: TextStyle(color: Colors.grey, fontSize: 16),
+        ),
+      ),
+    );
+  }
+  return CarouselSlider.builder(
+    itemCount: suggestPlans.length, // Use the number of plans
+    itemBuilder: (BuildContext context, int index, int realIndex) {
+      final plan = suggestPlans[index]; // Get current plan data
+      return GestureDetector(
+        onTap: () {
+          widget.onOtherPlan(plan['planId']); // Send out planId
+        },
+        child: Card(
+          margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          elevation: 4,
+          child: Stack(
+            children: [
+              ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.network(
+                  plan['imageURL'] ?? 'default_image_url_here', // Check for null and provide default
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
                 ),
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(24),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.6),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          plan['planName']!, // Dynamic plan name
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Text(
-                              (plan['category'].length > 3
-                                  ? plan['category'].take(3).join(' • ') +
-                                      ' • ...'
-                                  : plan['category'].join(' • ')),
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                            const Text(
-                              ' | ',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
-                            ),
-                            Text(
-                              "${plan['selectedPlaces'].length} Places",
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
+              ),
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        Colors.black.withOpacity(0.6),
+                        Colors.transparent,
                       ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.4),
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(24),
+                      bottomRight: Radius.circular(24),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        plan['planName'] ?? 'Unnamed Plan', // Check for null
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Text(
+                            (plan['category'].length > 3
+                                ? plan['category'].take(3).join(' • ') + ' • ...'
+                                : plan['category'].join(' • ')),
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                          const Text(
+                            ' | ',
+                            style: TextStyle(color: Colors.white, fontSize: 12),
+                          ),
+                          Text(
+                            "${plan['numberofPlaces']} Places",
+                            style: const TextStyle(
+                              color: Colors.white70,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        );
-      },
-      options: CarouselOptions(
-        height: 220,
-        viewportFraction: 0.85,
-        enlargeCenterPage: true,
-        autoPlay: true,
-        autoPlayInterval: const Duration(seconds: 3),
-        autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        enlargeStrategy: CenterPageEnlargeStrategy.height,
-      ),
-    );
-  }
+        ),
+      );
+    },
+    options: CarouselOptions(
+      height: 220,
+      viewportFraction: 0.85,
+      enlargeCenterPage: true,
+      autoPlay: true,
+      autoPlayInterval: const Duration(seconds: 3),
+      autoPlayAnimationDuration: const Duration(milliseconds: 800),
+      enlargeStrategy: CenterPageEnlargeStrategy.height,
+    ),
+  );
+}
 }
