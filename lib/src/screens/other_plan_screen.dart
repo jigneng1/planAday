@@ -311,7 +311,7 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
         actions: [
           IconButton(
             onPressed: () {},
-            icon: const Icon(Icons.share, color: Colors.white),
+            icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
           ),
         ],
       ),

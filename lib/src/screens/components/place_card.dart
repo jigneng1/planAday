@@ -33,6 +33,7 @@ class _PlaceDetailCardState extends State<PlaceCard> {
         widget.onViewPlaceDetail(widget.placeID, widget.planID);
       }, // Handle tap
       child: Card(
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
