@@ -34,7 +34,7 @@ class _MainLayoutState extends State<MainLayout> {
 
   // List to store multiple plans
   final List<Map<String, dynamic>> _allPlans = [];
-  final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
+  // final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
   void onTabTapped(int index) {
     setState(() {
@@ -73,28 +73,21 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
-  void _goToOtherPlanScreen(String planID) {
+  void _goToOtherPlanScreen(String planID) async {
+  setState(() {
+    _isLoading = true;
+  });
+
+  Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
+
+  if (mounted) {
     setState(() {
-      _isLoading = true;
+      _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
+      _currentIndex = 7;
+      _isLoading = false;
     });
-
-    Map<String, dynamic>? selectedPlan = _suggestPlans.firstWhere(
-      (suggestPlan) => suggestPlan['planID'] == planID,
-      orElse: () => {},
-    );
-
-    if (selectedPlan.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _planData = selectedPlan;
-          _currentIndex = 7;
-          _isLoading = false;
-        });
-      });
-    } else {
-      print('Plan with ID $planID not found.');
-    }
   }
+}
 
   void setOnGoingPlan(String planID) {
     Map<String, dynamic>? selectedPlan = _allPlans.firstWhere(
