@@ -276,7 +276,7 @@ class _PlanScreenState extends State<PlanScreen> {
         primaryColor,
         time,
         PlaceCard(
-          planID: widget.planData['planID'],
+          planID: widget.planData['_id'],
           imageUrl: details['photosUrl'] ?? '',
           title: details['displayName'] ?? 'No Title',
           type: formatType(details['primaryType'] ?? 'No Type'),

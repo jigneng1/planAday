@@ -134,7 +134,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
     // Fetch new place; assuming it returns a Map<String, dynamic> representing the place
     final newPlace = await apiService.generateMorePlace(
       updatedPlan['planID'],
-      updatedPlan['selectedPlaces'].map((place) => place['id']).toList(),
+      updatedPlan['selectedPlaces']!
+          .map<String>((place) => place['id'] as String)
+          .toList(),
     );
 
     if (newPlace != null && newPlace.containsKey('id')) {
@@ -163,8 +165,9 @@ class _PlanScreenState extends State<EditPlanScreen> {
   }
 
   void regenerateOnePlace(String placeID) async {
-    List<String> places =
-        updatedPlan['selectedPlaces']!.map((place) => place['id']).toList();
+    List<String> places = updatedPlan['selectedPlaces']!
+        .map<String>((place) => (place as Map<String, dynamic>)['id'] as String)
+        .toList();
     print(places);
 
     try {
@@ -542,13 +545,23 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       onPressed: (context) {
                         // Delete place logic
                         setState(() {
-                          if (updatedPlan['selectedPlaces'].containsKey(key)) {
-                            deletedPlaces
-                                .add(updatedPlan['selectedPlaces'][key]);
-                            updatedPlan['selectedPlaces'].remove(key);
+                          // Find the index of the place to delete
+                          int index = updatedPlan['selectedPlaces']!.indexWhere(
+                              (place) =>
+                                  place['id'] ==
+                                  key); // Assuming key is the place ID
 
+                          if (index != -1) {
+                            // Add the deleted place to deletedPlaces list
+                            deletedPlaces
+                                .add(updatedPlan['selectedPlaces']![index]);
+
+                            // Remove the place from selectedPlaces
+                            updatedPlan['selectedPlaces']!.removeAt(index);
+
+                            // Update the number of places
                             updatedPlan['numberOfPlaces'] =
-                                updatedPlan['selectedPlaces'].length;
+                                updatedPlan['selectedPlaces']!.length;
                           }
                         });
                       },
