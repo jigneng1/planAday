@@ -431,13 +431,13 @@ class _PlanScreenState extends State<PlanScreen> {
                   children: [
                     ElevatedButton(
                       onPressed: () {
-                        widget.onGoingPlan == widget.planData['planID']
+                        widget.onGoingPlan == widget.planData['_id']
                             ? handleStopPlan()
                             : handleStartPlan();
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor:
-                            widget.onGoingPlan != widget.planData['planID']
+                            widget.onGoingPlan != widget.planData['_id']
                                 ? primaryColor
                                 : Colors.red,
                       ),
@@ -448,7 +448,7 @@ class _PlanScreenState extends State<PlanScreen> {
                           width: buttonWidth,
                           child: Center(
                             child:
-                                widget.onGoingPlan != widget.planData['planID']
+                                widget.onGoingPlan != widget.planData['_id']
                                     ? const Text(
                                         'Start the plan',
                                         style: TextStyle(

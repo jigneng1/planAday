@@ -36,6 +36,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         print('Plan data sent successfully');
+        print(response.body);
 
         // Parsing the response and getting the plan ID
         final responseData = jsonDecode(response.body);
@@ -332,7 +333,7 @@ class ApiService {
 
   if (response.statusCode == 200) {
     final responseData = jsonDecode(response.body);
-    print(responseData);
+    // print(responseData);
     final List<dynamic> plansList = responseData['plansList'];
 
     // Convert each item in plansList to Map<String, dynamic>
