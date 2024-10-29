@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:plan_a_day/services/api_service.dart';
@@ -320,6 +322,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
             ),
             const SizedBox(height: 40),
             ReorderableListView(
+              proxyDecorator: proxyDecorator,
               shrinkWrap: true,
               physics:
                   const NeverScrollableScrollPhysics(), // Prevent scroll conflicts
@@ -585,4 +588,27 @@ class _PlanScreenState extends State<EditPlanScreen> {
       ],
     );
   }
+
+Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
+  return AnimatedBuilder(
+    animation: animation,
+    builder: (BuildContext context, Widget? child) {
+      final elevation = lerpDouble(0, 6, animation.value) ?? 0;
+      return Material(
+        elevation: elevation,
+        color: Colors.white,
+        shadowColor: Colors.black.withOpacity(0.2), // Reduced opacity for a subtler shadow
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12), // Adding rounded corners for a modern look
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12), // Clip the child to match the rounded corners
+          child: child,
+        ),
+      );
+    },
+    child: child,
+  );
+}
+
 }

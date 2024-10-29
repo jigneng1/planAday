@@ -66,6 +66,7 @@ class _MainLayoutState extends State<MainLayout> {
         setState(() {
           _planData = selectedPlan;
           _currentIndex = 3;
+          _indexBeforeCreate = 3;
           _isLoading = false;
         });
       });
@@ -76,6 +77,12 @@ class _MainLayoutState extends State<MainLayout> {
             false; // Ensure loading state is reset even if the plan is not found
       });
     }
+  }
+
+  void _goBack(){
+    setState(() {
+      _currentIndex = _indexBeforeCreate;
+    });
   }
 
   void _goToGeneratedPlanScreen(String planID) {
@@ -91,6 +98,7 @@ class _MainLayoutState extends State<MainLayout> {
         setState(() {
           _planData = selectedPlan;
           _currentIndex = 12;
+          _indexBeforeCreate = 12;
           _isLoading = false;
         });
       });
@@ -110,6 +118,7 @@ class _MainLayoutState extends State<MainLayout> {
       setState(() {
         _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
         _currentIndex = 7;
+        _indexBeforeCreate = 7;
         _isLoading = false;
       });
     }
@@ -119,6 +128,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _isLoading = true;
       _currentIndex = 2;
+      _indexBeforeCreate = 2;
       _isLoading = false;
     });
   }
@@ -127,6 +137,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _isLoading = true;
       _currentIndex = 11;
+      _indexBeforeCreate = 11;
       _isLoading = false;
     });
   }
@@ -150,6 +161,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _onStartPlan(String planID) async {
+    setState(() {
+      _isLoading = true;
+    });
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
     print('Start Plan: $planID');
 
@@ -159,6 +173,7 @@ class _MainLayoutState extends State<MainLayout> {
           _ongoingPlanID = planID;
           _ongoingplanData = selectedPlan;
           _currentIndex = 0;
+          _isLoading = false;
         });
       });
     } else {
@@ -174,11 +189,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void onDone(Map<String, dynamic> planData) async {
-    apiService.savePlan(planData);
+    await apiService.savePlan(planData);
 
-    setState(() {
-      _currentIndex = 3;
-    });
+    _goToPlanScreen(planData['planID']);
   }
 
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
@@ -193,6 +206,7 @@ class _MainLayoutState extends State<MainLayout> {
           _allPlans.add(plan);
 
           _currentIndex = 12;
+          _indexBeforeCreate = 12;
         });
       } else {
         print('Failed to receive new plan data');
@@ -229,6 +243,7 @@ class _MainLayoutState extends State<MainLayout> {
       _planData = planData; // Store the data from CreatePlanScreen
       print('PlanScreen received plan data: $_planData');
       _currentIndex = 5;
+      _indexBeforeCreate = 5;
       _isLoading = false;
     });
   }
@@ -269,7 +284,7 @@ class _MainLayoutState extends State<MainLayout> {
       PlaceDetailPage(
         placeID: placeID,
         planID: planID,
-        onBack: _goToPlanScreen,
+        onBack: _goBack,
       ),
       OtherPlanScreen(
         onClose: _goToHomeScreen,
@@ -342,43 +357,47 @@ class _MainLayoutState extends State<MainLayout> {
                 ),
               ),
             ),
-      bottomNavigationBar: BottomAppBar(
-        color: Colors.white,
-        child: Container(
-          margin: const EdgeInsets.only(left: 12.0, right: 12.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
-                child: IconButton(
+      bottomNavigationBar: Builder(
+        builder: (BuildContext context){
+          return BottomAppBar(
+          color: Colors.white,
+          child: Container(
+            margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                  child: IconButton(
+                    onPressed: () {
+                      onTabTapped(0);
+                    },
+                    iconSize: _currentIndex == 0 ? 40 : 30,
+                    icon: Icon(
+                      Icons.home_filled,
+                      color: _currentIndex == 0
+                          ? Colors.orange.shade900
+                          : Colors.grey.shade400,
+                    ),
+                  ),
+                ),
+                IconButton(
                   onPressed: () {
-                    onTabTapped(0);
+                    onTabTapped(1);
                   },
-                  iconSize: _currentIndex == 0 ? 40 : 30,
+                  iconSize: _currentIndex == 1 ? 40 : 30,
                   icon: Icon(
-                    Icons.home_filled,
-                    color: _currentIndex == 0
+                    Icons.person,
+                    color: _currentIndex == 1
                         ? Colors.orange.shade900
                         : Colors.grey.shade400,
                   ),
                 ),
-              ),
-              IconButton(
-                onPressed: () {
-                  onTabTapped(1);
-                },
-                iconSize: _currentIndex == 1 ? 40 : 30,
-                icon: Icon(
-                  Icons.person,
-                  color: _currentIndex == 1
-                      ? Colors.orange.shade900
-                      : Colors.grey.shade400,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
+        );
+        },
       ),
     );
   }
