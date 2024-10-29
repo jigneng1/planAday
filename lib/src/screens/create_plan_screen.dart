@@ -35,8 +35,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Park',
     'Store',
     'Gym',
-    'Art_gallery',
-    'Movie_theater',
+    'Art Gallery',
+    'Cinema',
+    // 'Art_gallery',
+    // 'Movie_theater',
     'Museum',
   ];
   final Set<String> _selectedActivities = {};
@@ -290,13 +292,19 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return;
       }
 
+      final activityMapping = {
+        'art_gallery': 'Art Gallery',
+        'movie_theater': 'Cinema',
+      };
+
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
         'startTime': _startTimeController.text,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
         'categories': _selectedActivities
-            .map((activity) => activity.toLowerCase())
+            .map((activity) =>
+                activityMapping[activity.toLowerCase()] ?? activity)
             .toList(),
         'startDay': _dayOfWeek,
         'lad': _selectedLocation?.latitude.toString(),
