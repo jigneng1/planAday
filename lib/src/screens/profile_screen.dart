@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/bookmark_plan.dart';
+import 'package:plan_a_day/src/screens/history_plan_screen.dart';
 import 'package:plan_a_day/src/screens/persona_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,7 +16,7 @@ class ProfileScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              const SizedBox(height: 16),
+              const SizedBox(height: 24),
               const Text(
                 "MR. Sompong",
                 style: TextStyle(
@@ -47,14 +49,24 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.bookmark_added_outlined,
                       text: 'Bookmarks',
                       onTap: () {
-                        // Navigate to favorite places
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const BookmarkPlanScreen(),
+                          ),
+                        );
                       },
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
                       onTap: () {
-                        // Navigate to history
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HistoryPlanScreen(),
+                          ),
+                        );
                       },
                     ),
                     const SizedBox(height: 20),
