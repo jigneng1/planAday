@@ -133,7 +133,7 @@ class _SavePlanScreenState extends State<SavePlanScreen> {
                       onPressed: () {
                         // Handle notifications enabling
                         Navigator.of(context).pop();
-                        widget.onStartPlan(widget.planData['planID']);
+                        widget.onStartPlan(widget.planData['_id']);
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
