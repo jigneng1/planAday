@@ -290,9 +290,11 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         return;
       }
 
+      final startTime = _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
+
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
-        'startTime': _startTimeController.text,
+        'startTime': startTime,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
         'categories': _selectedActivities
