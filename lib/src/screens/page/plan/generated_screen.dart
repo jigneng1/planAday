@@ -232,6 +232,75 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
     }
   }
 
+  void onBack(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Throw_away_re_x60k.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'The plan will be discarded. Are you sure you want to close this plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                        widget.onClose();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: Theme.of(context).primaryColor,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Yes',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   void savePlan(){
     showDialog(
       context: context,
@@ -249,10 +318,10 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 // Image at the top
-                Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
+                Image.asset('assets/images/undraw_Notify_re_65on.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'If you click done, the plan cannot be edit anymore. Are you sure you want to save the plan?',
+                  'If you click done, the plan cannot be edit anymore. Are you sure you want to save this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -266,7 +335,7 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
-                        backgroundColor: Colors.red,
+                        backgroundColor: Theme.of(context).primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
@@ -357,20 +426,20 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
       appBar: AppBar(
         title: Text(
           widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24, color: Colors.black),
         ),
-        backgroundColor: primaryColor,
+        backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
-          onPressed: widget.onClose,
+          icon: const Icon(Icons.close, color: Colors.black,size: 30,),
+          onPressed: onBack,
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share, color: Colors.white,),
+            onPressed: savePlan,
+            icon: const Icon(Icons.check, color: Colors.black,size: 30,),
           ),
         ],
       ),
@@ -545,33 +614,33 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
                       ],
                     ),
                     const SizedBox(height: 50),
-                    ElevatedButton(
-                      onPressed: () {
-                        savePlan();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: primaryColor,
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 12),
-                        child: SizedBox(
-                          width: buttonWidth,
-                          child: const Center(
-                            child: Text(
-                                        'Done',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      )
-                          ),
-                        ),
-                      ),
-                    ),
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     savePlan();
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: primaryColor,
+                    //   ),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 20, vertical: 12),
+                    //     child: SizedBox(
+                    //       width: buttonWidth,
+                    //       child: const Center(
+                    //         child: Text(
+                    //                     'Done',
+                    //                     style: TextStyle(
+                    //                         color: Colors.white, fontSize: 12),
+                    //                   )
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 );
               },
             ),
-            const SizedBox(height: 50),
+            // const SizedBox(height: 50),
           ],
         ),
       ),

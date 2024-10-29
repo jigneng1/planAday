@@ -221,6 +221,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Row(
           children: [

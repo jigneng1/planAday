@@ -431,13 +431,13 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
               width: double.infinity, // Max width
               child: ElevatedButton(
                 onPressed: () {
-                  widget.onGoingPlan == widget.planData['planID']
+                  widget.onGoingPlan == widget.planData['_id']
                       ? handleStopPlan()
                       : handleStartPlan();
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor:
-                      widget.onGoingPlan != widget.planData['planID']
+                      widget.onGoingPlan != widget.planData['_id']
                           ? primaryColor
                           : Colors.red,
                 ),
@@ -445,7 +445,7 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                   child: Center(
-                    child: widget.onGoingPlan != widget.planData['planID']
+                    child: widget.onGoingPlan != widget.planData['_id']
                         ? const Text(
                             'Start the plan',
                             style: TextStyle(color: Colors.white, fontSize: 12),
