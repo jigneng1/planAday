@@ -21,7 +21,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               const HeaderText(),
-              const SizedBox(height: 6),
+              const SizedBox(height: 18),
               LayoutBuilder(
                 builder: (context, constraints) {
                   int crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
@@ -192,10 +192,10 @@ class Interest {
 }
 
 final List<Interest> interests = [
-  Interest(Icons.whatshot, 'Popular'),
   Interest(Icons.local_cafe, 'Cafe'),
-  Interest(Icons.fastfood, 'Food and Drink'),
+  Interest(Icons.fastfood, 'Resturant'),
   Interest(Icons.shopping_bag, 'Shopping'),
+  Interest(Icons.park, 'Park'),
   Interest(Icons.fitness_center, 'Sport'),
   Interest(Icons.theater_comedy, 'Entertainment'),
   Interest(Icons.museum, 'Museum'),
