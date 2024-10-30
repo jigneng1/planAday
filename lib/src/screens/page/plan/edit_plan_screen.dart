@@ -431,57 +431,41 @@ class _PlanScreenState extends State<EditPlanScreen> {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            _restoreDismissedPlaces();
-                            widget.onCancel(
-                                originalPlan['planID']); // Close the screen
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: primaryColor, width: 2),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              _restoreDismissedPlaces();
+                              widget.onCancel(originalPlan['planID']);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: primaryColor, width: 2),
                             ),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: Center(
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    color: primaryColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    color: primaryColor, fontSize: 14),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            widget.onDone(updatedPlan);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: const Center(
-                                child: Text(
-                                  'Done',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              widget.onDone(updatedPlan);
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColor),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              child: Text(
+                                'Done',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
                               ),
                             ),
                           ),
@@ -589,26 +573,28 @@ class _PlanScreenState extends State<EditPlanScreen> {
     );
   }
 
-Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
-  return AnimatedBuilder(
-    animation: animation,
-    builder: (BuildContext context, Widget? child) {
-      final elevation = lerpDouble(0, 6, animation.value) ?? 0;
-      return Material(
-        elevation: elevation,
-        color: Colors.white,
-        shadowColor: Colors.black.withOpacity(0.2), // Reduced opacity for a subtler shadow
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(12), // Adding rounded corners for a modern look
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(12), // Clip the child to match the rounded corners
-          child: child,
-        ),
-      );
-    },
-    child: child,
-  );
-}
-
+  Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget? child) {
+        final elevation = lerpDouble(0, 6, animation.value) ?? 0;
+        return Material(
+          elevation: elevation,
+          color: Colors.white,
+          shadowColor: Colors.black
+              .withOpacity(0.2), // Reduced opacity for a subtler shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+                12), // Adding rounded corners for a modern look
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+                12), // Clip the child to match the rounded corners
+            child: child,
+          ),
+        );
+      },
+      child: child,
+    );
+  }
 }
