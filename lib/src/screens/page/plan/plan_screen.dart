@@ -28,6 +28,7 @@ class _PlanScreenState extends State<PlanScreen> {
   List<Map<String, dynamic>>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
+  bool isPublic = false;
 
   @override
   void initState() {
@@ -40,7 +41,14 @@ class _PlanScreenState extends State<PlanScreen> {
     super.dispose();
   }
 
-  void _initializePlan() {
+  void _initializePlan() async{
+    // final publicPlan = await apiService.sharePlan(widget.planData['_id']);
+
+    // if (publicPlan) {
+    //   setState(() {
+    //     isPublic = true;
+    //   });
+    // }
     // Use existing selected places if available
     if (widget.planData.containsKey('selectedPlaces')) {
       // Ensure that 'selectedPlaces' is a list
@@ -237,6 +245,78 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
+  void publicPlan() async{
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                const SizedBox(height: 16),
+                const Text(
+                  'If you share this plan, it will be visible to everyone. Are you sure you want to share this plan?',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        apiService.sharePlan(widget.planData['_id']);
+                        setState(() {
+                          isPublic = true;
+                        });
+                        Navigator.of(context).pop();
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: const Color(0xFFFF6838),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Share the plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'Not now',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
@@ -305,10 +385,11 @@ class _PlanScreenState extends State<PlanScreen> {
           onPressed: widget.onClose,
         ),
         actions: [
+          isPublic ?
           IconButton(
-            onPressed: () {},
+            onPressed: publicPlan,
             icon: const Icon(Icons.share, color: Colors.white,),
-          ),
+          ) : const SizedBox(),
         ],
       ),
       body: SingleChildScrollView(

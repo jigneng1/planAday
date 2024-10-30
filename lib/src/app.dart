@@ -37,23 +37,29 @@ class _MainLayoutState extends State<MainLayout> {
   // final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
   void onTabTapped(int index) {
-    setState(() {
-      _isLoading = true;
-      _currentIndex = index;
-      _isLoading = false;
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = index;
+        _isLoading = false;
+      });
     });
   }
 
   void _goToHomeScreen() {
-    setState(() {
-      _isLoading = true;
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      setState(() {
+        _isLoading = true;
       _currentIndex = 0;
       _isLoading = false;
+      });
     });
   }
 
   void _goToPlanScreen(String planID) async {
-    // Mark the method as async
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -61,6 +67,7 @@ class _MainLayoutState extends State<MainLayout> {
     // Await the async call to get the plan detail
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
 
+    if (!mounted) return;
     if (selectedPlan != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
@@ -125,6 +132,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToCreatePlanScreen() {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _currentIndex = 2;
@@ -134,6 +142,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToSuggestPlanScreen() {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _currentIndex = 11;
@@ -143,12 +152,14 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _goToPlaceDetailScreen(String placeIDinput, String planIDinput) {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
 
     print('Place ID: $placeIDinput');
     if (placeIDinput.isNotEmpty && planIDinput.isNotEmpty) {
+      if (!mounted) return;
       setState(() {
         placeID = placeIDinput;
         planID = planIDinput;
@@ -161,6 +172,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _onStartPlan(String planID) async {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
@@ -168,6 +180,7 @@ class _MainLayoutState extends State<MainLayout> {
     print('Start Plan: $planID');
 
     if (selectedPlan != null) {
+      if (!mounted) return;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _ongoingPlanID = planID;
@@ -182,6 +195,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _onStopPlan() {
+    if (!mounted) return;
     setState(() {
       _ongoingPlanID = '';
       // _currentIndex = 0;
@@ -189,9 +203,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void onDone(Map<String, dynamic> planData) async {
-    await apiService.savePlan(planData);
+    final planId = await apiService.savePlan(planData);
 
-    _goToPlanScreen(planData['planID']);
+    _goToPlanScreen(planId);
   }
 
   void _handleGeneratePlan(Map<String, dynamic> planInput) async {
@@ -199,6 +213,7 @@ class _MainLayoutState extends State<MainLayout> {
       final plan = await apiService.getRandomPlan(planInput);
 
       if (plan != null) {
+        if (!mounted) return;
         setState(() {
           _planData = plan;
 
@@ -220,6 +235,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _handleDoneEditPlan(Map<String, dynamic> planData) {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _planData = planData; // Store the data from EditPlanScreen
@@ -238,6 +254,7 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void _handleEditPlan(Map<String, dynamic> planData) {
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _planData = planData; // Store the data from CreatePlanScreen
@@ -338,7 +355,7 @@ class _MainLayoutState extends State<MainLayout> {
               height: 64,
               width: 64,
               child: FloatingActionButton(
-                backgroundColor: Colors.orange[900],
+                backgroundColor: Theme.of(context).primaryColor,
                 elevation: 0,
                 onPressed: () {
                   setState(() {
