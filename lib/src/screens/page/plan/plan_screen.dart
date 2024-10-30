@@ -41,15 +41,10 @@ class _PlanScreenState extends State<PlanScreen> {
     super.dispose();
   }
 
-  void _initializePlan() async{
-    // final publicPlan = await apiService.sharePlan(widget.planData['_id']);
-
-    // if (publicPlan) {
-    //   setState(() {
-    //     isPublic = true;
-    //   });
-    // }
-    // Use existing selected places if available
+  void _initializePlan() async {
+    setState(() {
+      isPublic = widget.planData['public'] ?? false;
+    });
     if (widget.planData.containsKey('selectedPlaces')) {
       // Ensure that 'selectedPlaces' is a list
       if (widget.planData['selectedPlaces'] is List) {
@@ -245,7 +240,7 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
-  void publicPlan() async{
+  void publicPlan() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -374,22 +369,30 @@ class _PlanScreenState extends State<PlanScreen> {
       appBar: AppBar(
         title: Text(
           widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
         ),
         backgroundColor: primaryColor,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
+          icon: const Icon(
+            Icons.arrow_back_ios,
+            color: Colors.white,
+          ),
           onPressed: widget.onClose,
         ),
         actions: [
-          isPublic ?
-          IconButton(
-            onPressed: publicPlan,
-            icon: const Icon(Icons.share, color: Colors.white,),
-          ) : const SizedBox(),
+          isPublic
+              ? const SizedBox()
+              : IconButton(
+                  onPressed: publicPlan,
+                  icon: const Icon(
+                    Icons.share,
+                    color: Colors.white,
+                  ),
+                ),
         ],
       ),
       body: SingleChildScrollView(
@@ -528,18 +531,17 @@ class _PlanScreenState extends State<PlanScreen> {
                         child: SizedBox(
                           width: buttonWidth,
                           child: Center(
-                            child:
-                                widget.onGoingPlan != widget.planData['_id']
-                                    ? const Text(
-                                        'Start the plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      )
-                                    : const Text(
-                                        'Stop the Plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      ),
+                            child: widget.onGoingPlan != widget.planData['_id']
+                                ? const Text(
+                                    'Start the plan',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  )
+                                : const Text(
+                                    'Stop the Plan',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
                           ),
                         ),
                       ),
@@ -585,49 +587,49 @@ class _PlanScreenState extends State<PlanScreen> {
             placeCard,
             const SizedBox(height: 16),
             if (!isLast)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.directions_walk,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['walking'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.directions_car,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['driving'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.directions_walk,
+                            size: 24, color: primaryColor),
+                        const SizedBox(width: 5),
+                        Text(
+                          travelTime?['walking'] ?? 'Loading',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.directions_car,
+                            size: 24, color: primaryColor),
+                        const SizedBox(width: 5),
+                        Text(
+                          travelTime?['driving'] ?? 'Loading',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
