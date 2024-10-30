@@ -302,7 +302,7 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
 
-    return Column(
+return Column(
       children: [
         // Carousel Slider
         CarouselSlider.builder(
@@ -373,13 +373,16 @@ class _HomeScreenState extends State<HomeScreen> {
                             const SizedBox(height: 4),
                             Row(
                               children: [
-                                Text(
-                                  (plan['category'].length > 3
-                                      ? plan['category'].take(3).join(' • ') + ' • ...'
-                                      : plan['category'].join(' • ')),
-                                  style: const TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 12,
+                                Flexible(
+                                  child: Text(
+                                    (plan['category'].length > 3
+                                        ? plan['category'].take(3).join(' • ') + ' • ...'
+                                        : plan['category'].join(' • ')),
+                                    style: const TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 12,
+                                    ),
+                                    overflow: TextOverflow.ellipsis, // Add ellipsis if it overflows
                                   ),
                                 ),
                                 const Text(
