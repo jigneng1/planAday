@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/login_screen.dart';
-import 'package:email_validator/email_validator.dart'; // For email validation
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,7 +11,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   AuthService authService = AuthService();

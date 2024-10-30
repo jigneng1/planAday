@@ -42,7 +42,7 @@ dependencies:
   flutter_rating: ^2.0.2
   google_maps_flutter_web: ^0.5.10
   flutter_dotenv: ^5.0.2
-  email_validator: ^2.0.1 
+  # email_validator: ^2.0.1 
   flutter_secure_storage: ^9.2.2
   jwt_decoder: ^2.0.1
 
