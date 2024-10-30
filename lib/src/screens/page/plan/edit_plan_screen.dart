@@ -1,7 +1,9 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:plan_a_day/src/screens/data/place_details.dart';
-import 'components/place_card.dart';
+import 'package:plan_a_day/services/api_service.dart';
+import '../../components/place_card.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 
 class EditPlanScreen extends StatefulWidget {
@@ -9,6 +11,7 @@ class EditPlanScreen extends StatefulWidget {
   final VoidCallback onClose;
   final Function(Map<String, dynamic>) onDone;
   final Function(String planID) onCancel;
+  final Function(String placeID, String planID) onViewPlaceDetail;
 
   const EditPlanScreen({
     super.key,
@@ -16,6 +19,7 @@ class EditPlanScreen extends StatefulWidget {
     required this.planData,
     required this.onDone,
     required this.onCancel,
+    required this.onViewPlaceDetail,
   });
 
   @override
@@ -23,6 +27,7 @@ class EditPlanScreen extends StatefulWidget {
 }
 
 class _PlanScreenState extends State<EditPlanScreen> {
+  final ApiService apiService = ApiService();
   late Map<String, dynamic> updatedPlan;
   late Map<String, dynamic> originalPlan;
   List<Map<String, dynamic>> deletedPlaces = [];
@@ -70,20 +75,46 @@ class _PlanScreenState extends State<EditPlanScreen> {
     }
   }
 
-  void _editStartTime() async {
-    final TimeOfDay? newTime = await showTimePicker(
+  void _editStartDate() async {
+    DateTime initialDate;
+
+    // Attempt to parse the string date and fallback to current date on failure
+    try {
+      // Parsing the start date string assuming it's in 'dd/MM/yyyy' format
+      initialDate = updatedPlan['startDate'] != null
+          ? DateFormat('dd/MM/yyyy').parse(updatedPlan['startDate'])
+          : DateTime.now();
+    } catch (e) {
+      // If the string format is invalid or parsing fails, fallback to current date
+      initialDate = DateTime.now();
+    }
+
+    // Show the date picker with primaryColor
+    final DateTime? pickedDate = await showDatePicker(
       context: context,
-      initialTime: TimeOfDay.fromDateTime(
-        DateTime.parse(
-            updatedPlan['startTime'] ?? DateTime.now().toIso8601String()),
-      ),
+      initialDate: initialDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary:
+                  Theme.of(context).primaryColor, // Header background color
+              onPrimary: Colors.white, // Header text color
+              onSurface:
+                  Theme.of(context).primaryColor, // Calendar picker color
+            ),
+          ),
+          child: child!,
+        );
+      },
     );
 
-    if (newTime != null) {
-      final String newStartTime =
-          '${newTime.hour}:${newTime.minute.toString().padLeft(2, '0')}';
+    if (pickedDate != null) {
       setState(() {
-        updatedPlan['startTime'] = newStartTime;
+        // Save the picked date as a formatted string in 'dd/MM/yyyy' format
+        updatedPlan['startDate'] = DateFormat('dd/MM/yyyy').format(pickedDate);
       });
     }
   }
@@ -91,66 +122,99 @@ class _PlanScreenState extends State<EditPlanScreen> {
   void _restoreDismissedPlaces() {
     setState(() {
       for (var place in deletedPlaces) {
-        String id = place['id'];
-        updatedPlan['selectedPlaces'][id] = place;
+        // Directly add the place to the selectedPlaces list
+        updatedPlan['selectedPlaces']?.add(place);
       }
-
       deletedPlaces.clear();
 
-      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
+      updatedPlan['numberOfPlaces'] =
+          updatedPlan['selectedPlaces']?.length ?? 0;
     });
   }
 
-  void _generateMorePlaces() {
-    // Fetch new places; assuming getRandomizedPlaces returns a List<Map<String, String>>
-    List<Map<String, String>> newPlaces =
-        getRandomizedPlaces(1); // Number of places to add
+  void _generateMorePlace() async {
+    // Fetch new place; assuming it returns a Map<String, dynamic> representing the place
+    final newPlace = await apiService.generateMorePlace(
+      updatedPlan['planID'],
+      updatedPlan['selectedPlaces']!
+          .map<String>((place) => place['id'] as String)
+          .toList(),
+    );
 
-    setState(() {
-      // Ensure selectedPlaces is initialized as a Map
-      if (updatedPlan['selectedPlaces'] == null) {
-        updatedPlan['selectedPlaces'] = {}; // Initialize as an empty map
-      }
-
-      // Add new places to the selectedPlaces map
-      for (var place in newPlaces) {
-        if (place['id'] != null &&
-            place['photoUrl'] != null &&
-            place['title'] != null &&
-            place['subtitle'] != null) {
-          String id = place['id']!; // Assuming each place has a unique ID
-          updatedPlan['selectedPlaces'][id] = {
-            'photoUrl': place['photoUrl']!,
-            'displayName': place['title']!,
-            'primaryType': place['subtitle']!,
-          };
-        } else {
-          print('One or more fields in the new place are null: $place');
+    if (newPlace != null && newPlace.containsKey('id')) {
+      setState(() {
+        // Ensure selectedPlaces is initialized as a List
+        if (updatedPlan['selectedPlaces'] == null) {
+          updatedPlan['selectedPlaces'] = []; // Initialize as an empty list
         }
-      }
 
-      // Update the number of places
-      updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces'].length;
-    });
+        // Add the new place to selectedPlaces
+        updatedPlan['selectedPlaces']!.add({
+          'id': newPlace['id'],
+          'displayName': newPlace['displayName'] ?? 'No place name',
+          'primaryType': newPlace['primaryType'] ?? 'No type',
+          'shortFormattedAddress':
+              newPlace['shortFormattedAddress'] ?? 'No location',
+          'photosUrl': newPlace['photosUrl'] ?? 'Image not available',
+        });
+
+        // Update the number of places
+        updatedPlan['numberOfPlaces'] = updatedPlan['selectedPlaces']!.length;
+      });
+    } else {
+      print('Error: New place data is invalid or missing ID');
+    }
+  }
+
+  void regenerateOnePlace(String placeID) async {
+    List<String> places = updatedPlan['selectedPlaces']!
+        .map<String>((place) => (place as Map<String, dynamic>)['id'] as String)
+        .toList();
+    print(places);
+
+    try {
+      final newPlace = await apiService.getNewPlace(placeID, places);
+
+      // Update the plan with the new place data
+      setState(() {
+        // Find the index of the place to update
+        int index = updatedPlan['selectedPlaces']!
+            .indexWhere((place) => place['id'] == placeID);
+        if (index != -1) {
+          updatedPlan['selectedPlaces']![index] = {
+            'id': newPlace?['id'],
+            'displayName': newPlace?['displayName'] ?? 'No place name',
+            'primaryType': newPlace?['primaryType'] ?? 'No type',
+            'shortFormattedAddress':
+                newPlace?['shortFormattedAddress'] ?? 'No location',
+            'photosUrl': newPlace?['photosUrl'] ?? 'Image not available',
+          };
+        }
+      });
+    } catch (e) {
+      print('Error regenerating place: $e');
+    }
   }
 
   void _onReorder(int oldIndex, int newIndex) {
     setState(() {
-      List<MapEntry<String, dynamic>> entries =
-          updatedPlan['selectedPlaces'].entries.toList();
+      List<Map<String, dynamic>> selectedPlacesList =
+          updatedPlan['selectedPlaces']!;
+
       if (newIndex > oldIndex) newIndex -= 1;
 
-      final MapEntry<String, dynamic> movedEntry = entries.removeAt(oldIndex);
+      final Map<String, dynamic> movedPlace =
+          selectedPlacesList.removeAt(oldIndex);
 
-      entries.insert(newIndex, movedEntry);
+      selectedPlacesList.insert(newIndex, movedPlace);
 
-      updatedPlan['selectedPlaces'] = Map.fromEntries(entries);
+      updatedPlan['selectedPlaces'] = selectedPlacesList;
     });
   }
 
   String formatType(String type) {
     return type
-        .replaceAll('_', ' ')  
+        .replaceAll('_', ' ')
         .split(' ')
         .map((word) => word[0].toUpperCase() + word.substring(1))
         .join(' ');
@@ -158,10 +222,11 @@ class _PlanScreenState extends State<EditPlanScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print('EditScreen Received plan data: ${widget.planData}');
+    // print('EditScreen Received plan data: ${widget.planData}');
     final primaryColor = Theme.of(context).primaryColor;
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: Row(
           children: [
@@ -178,10 +243,6 @@ class _PlanScreenState extends State<EditPlanScreen> {
                 ),
               ),
             ),
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: _editPlanName,
-            ),
           ],
         ),
         backgroundColor: Colors.transparent,
@@ -194,10 +255,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: () {
-              // Handle share plan action
-            },
+            icon: const Icon(Icons.edit),
+            onPressed: _editPlanName,
           ),
         ],
       ),
@@ -206,18 +265,18 @@ class _PlanScreenState extends State<EditPlanScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Icon(Icons.person, size: 25, color: primaryColor),
-                const SizedBox(width: 10),
-                const Text(
-                  'Generated by  ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const Text('John Doe', style: TextStyle(fontSize: 16)),
-              ],
-            ),
-            const SizedBox(height: 10),
+            // Row(
+            //   children: [
+            //     Icon(Icons.person, size: 25, color: primaryColor),
+            //     const SizedBox(width: 10),
+            //     const Text(
+            //       'Generated by  ',
+            //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            //     ),
+            //     const Text('John Doe', style: TextStyle(fontSize: 16)),
+            //   ],
+            // ),
+            // const SizedBox(height: 10),
             Row(
               children: [
                 Icon(Icons.timer, size: 25, color: primaryColor),
@@ -226,15 +285,12 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   'Time duration  ',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                GestureDetector(
-                  onTap: _editStartTime,
-                  child: Text(
-                    updatedPlan['numberOfPlaces'] != null
+                Text(
+                  updatedPlan['numberOfPlaces'] != null
                       ? '${updatedPlan['numberOfPlaces']!} hours'
                       : 'Unknown',
-                    style: const TextStyle(
-                      fontSize: 16,
-                    ),
+                  style: const TextStyle(
+                    fontSize: 16,
                   ),
                 ),
               ],
@@ -252,10 +308,21 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   updatedPlan['startDate'] ?? 'Unknown',
                   style: const TextStyle(fontSize: 16),
                 ),
+                const SizedBox(width: 10),
+                IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    _editStartDate();
+                  },
+                ),
               ],
             ),
             const SizedBox(height: 40),
             ReorderableListView(
+              proxyDecorator: proxyDecorator,
               shrinkWrap: true,
               physics:
                   const NeverScrollableScrollPhysics(), // Prevent scroll conflicts
@@ -264,22 +331,24 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   false, // Disable default drag handles on the right
               children:
                   List.generate(updatedPlan['selectedPlaces'].length, (index) {
-                final key = updatedPlan['selectedPlaces'].keys.elementAt(index);
-                var details = updatedPlan['selectedPlaces'][key];
+                var details = updatedPlan['selectedPlaces']
+                    [index]; // Accessing using index
                 final startTimeString = updatedPlan['startTime'];
                 DateTime startTime;
 
                 try {
                   startTime = DateFormat('HH:mm').parse(startTimeString);
                 } catch (e) {
-                  startTime = DateTime(2024, 1, 1, 9, 0);
+                  startTime = DateTime(
+                      2024, 1, 1, 9, 0); // Default start time if parsing fails
                 }
 
+                // Calculate the time for this place based on its index
                 final placeTime = startTime.add(Duration(hours: index));
                 final time = DateFormat('h:mm a').format(placeTime);
 
                 return KeyedSubtree(
-                  key: Key(key), // Add the unique key here
+                  key: Key(details['id']), // Use place ID for a unique key
                   child: Row(
                     children: [
                       // Reorder icon placed in front
@@ -294,15 +363,21 @@ class _PlanScreenState extends State<EditPlanScreen> {
                         child: buildRouting(
                           primaryColor,
                           time,
-                          PlaceDetailCard(
+                          PlaceCard(
+                            planID: widget.planData['planID'],
                             imageUrl: details['photosUrl'] ?? 'No image',
                             title: details['displayName'] ?? 'No place name',
-                            type: formatType(details['primaryType'] ?? 'No type'),
-                            location: details['shortFormattedAddress'] ?? 'No location',
+                            type:
+                                formatType(details['primaryType'] ?? 'No type'),
+                            location: details['shortFormattedAddress'] ??
+                                'No location',
                             placeID: details['id'] ?? 'No place ID',
+                            onViewPlaceDetail: widget.onViewPlaceDetail,
                           ),
-                          index == updatedPlan['selectedPlaces'].length - 1,
-                          key,
+                          index ==
+                              updatedPlan['selectedPlaces'].length -
+                                  1, // Check if it's the last item
+                          details['id'], // Using place ID for the routing
                           index,
                         ),
                       ),
@@ -315,7 +390,7 @@ class _PlanScreenState extends State<EditPlanScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: GestureDetector(
-                onTap: _generateMorePlaces,
+                onTap: _generateMorePlace,
                 child: Row(
                   children: <Widget>[
                     Expanded(
@@ -356,56 +431,41 @@ class _PlanScreenState extends State<EditPlanScreen> {
                     return Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            _restoreDismissedPlaces();
-                            widget.onCancel(originalPlan['planID']); // Close the screen
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: BorderSide(color: primaryColor, width: 2),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 14,
-                              vertical: 12,
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: () {
+                              _restoreDismissedPlaces();
+                              widget.onCancel(originalPlan['planID']);
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: primaryColor, width: 2),
                             ),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: Center(
-                                child: Text(
-                                  'Cancel',
-                                  style: TextStyle(
-                                    color: primaryColor,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              child: Text(
+                                'Cancel',
+                                style: TextStyle(
+                                    color: primaryColor, fontSize: 14),
                               ),
                             ),
                           ),
                         ),
                         const SizedBox(width: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            widget.onDone(updatedPlan);
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: primaryColor,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                            child: SizedBox(
-                              width: buttonWidth,
-                              child: const Center(
-                                child: Text(
-                                  'Done',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 14,
-                                  ),
-                                ),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: () {
+                              widget.onDone(updatedPlan);
+                            },
+                            style: ElevatedButton.styleFrom(
+                                backgroundColor: primaryColor),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 12),
+                              child: Text(
+                                'Done',
+                                style: TextStyle(
+                                    color: Colors.white, fontSize: 14),
                               ),
                             ),
                           ),
@@ -460,16 +520,8 @@ class _PlanScreenState extends State<EditPlanScreen> {
                   children: [
                     SlidableAction(
                       onPressed: (context) {
-                        // Regenerate place logic
-                        List<Map<String, String>> newPlace =
-                            getRandomizedPlaces(1);
-                        setState(() {
-                          updatedPlan['selectedPlaces'][key] = {
-                            'imageUrl': newPlace.first['photoUrl'] ?? 'No image',
-                            'title': newPlace.first['title'] ?? 'No Name',
-                            'subtitle': newPlace.first['subtitle'] ?? 'No Type',
-                          };
-                        });
+                        print('Regenerating place $key');
+                        regenerateOnePlace(key);
                       },
                       backgroundColor: primaryColor,
                       foregroundColor: Colors.white,
@@ -480,13 +532,23 @@ class _PlanScreenState extends State<EditPlanScreen> {
                       onPressed: (context) {
                         // Delete place logic
                         setState(() {
-                          if (updatedPlan['selectedPlaces'].containsKey(key)) {
-                            deletedPlaces
-                                .add(updatedPlan['selectedPlaces'][key]);
-                            updatedPlan['selectedPlaces'].remove(key);
+                          // Find the index of the place to delete
+                          int index = updatedPlan['selectedPlaces']!.indexWhere(
+                              (place) =>
+                                  place['id'] ==
+                                  key); // Assuming key is the place ID
 
+                          if (index != -1) {
+                            // Add the deleted place to deletedPlaces list
+                            deletedPlaces
+                                .add(updatedPlan['selectedPlaces']![index]);
+
+                            // Remove the place from selectedPlaces
+                            updatedPlan['selectedPlaces']!.removeAt(index);
+
+                            // Update the number of places
                             updatedPlan['numberOfPlaces'] =
-                                updatedPlan['selectedPlaces'].length;
+                                updatedPlan['selectedPlaces']!.length;
                           }
                         });
                       },
@@ -508,6 +570,31 @@ class _PlanScreenState extends State<EditPlanScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget proxyDecorator(Widget child, int index, Animation<double> animation) {
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (BuildContext context, Widget? child) {
+        final elevation = lerpDouble(0, 6, animation.value) ?? 0;
+        return Material(
+          elevation: elevation,
+          color: Colors.white,
+          shadowColor: Colors.black
+              .withOpacity(0.2), // Reduced opacity for a subtler shadow
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(
+                12), // Adding rounded corners for a modern look
+          ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(
+                12), // Clip the child to match the rounded corners
+            child: child,
+          ),
+        );
+      },
+      child: child,
     );
   }
 }

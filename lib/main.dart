@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/app.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:plan_a_day/src/screens/page/authen/welcome_screen.dart';
 
-void main() {
+void main() async {
+  await dotenv.load(fileName: ".env");
   runApp(const MyApp());
 }
 
@@ -37,7 +39,7 @@ class MyApp extends StatelessWidget {
           // ),
         ),
       ),
-      home: const MainLayout(),
+      home: const WelcomeScreen(),
     );
   }
 }

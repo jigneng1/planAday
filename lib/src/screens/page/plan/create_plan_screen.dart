@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
@@ -29,20 +32,20 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   final List<String> _activities = [
     'Restaurant',
     'Cafe',
+    'Park',
+    'Store',
     'Gym',
     'Art_gallery',
     'Movie_theater',
-    'Park',
     'Museum',
-    'Store'
   ];
-  final Set<String> _selectedActivities = {}; // Initially empty
-  GoogleMapController? _mapController; // Controller for Google Map
-  LatLng? _selectedLocation; // Variable to store the selected location
-  LatLng? _currentLocation; // Variable to store the current location
-  bool _hasTriedSubmitting =
-      false; // Flag to track if user has attempted submission
-  String? _selectedPlaceName; // Variable to store the selected place name
+  final Set<String> _selectedActivities = {};
+  GoogleMapController? _mapController;
+  LatLng? _selectedLocation;
+  LatLng? _currentLocation;
+  bool _hasTriedSubmitting = false;
+  String? _selectedPlaceName;
+  int? _dayOfWeek;
 
   @override
   void initState() {
@@ -133,7 +136,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(2000),
+      firstDate: DateTime.now(),
       lastDate: DateTime(2100),
       builder: (BuildContext context, Widget? child) {
         return Theme(
@@ -150,10 +153,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         );
       },
     );
+
     if (picked != null) {
+      int dayOfWeek = (picked.weekday % 7);
       final formattedDate = "${picked.day}/${picked.month}/${picked.year}";
       setState(() {
         _startDateController.text = formattedDate;
+        _dayOfWeek = dayOfWeek;
       });
     }
   }
@@ -242,7 +248,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         String placeName = '${place.name}, ${place.locality}, ${place.country}';
 
         setState(() {
-          // Store the place name to display later
           _selectedPlaceName = placeName;
         });
       }
@@ -253,31 +258,56 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
 
   void _generatePlan() {
     setState(() {
-      _hasTriedSubmitting = true; // Set flag to true when generating plan
+      _hasTriedSubmitting = true;
     });
 
     if (_formKey.currentState?.validate() ?? false) {
-      // Check if location is selected before generating plan
-      // if (_selectedLocation == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     const SnackBar(content: Text('Please select a location on the map.')),
-      //   );
-      //   return;
-      // }
+      List<String> errorMessages = [];
+
+      if (_selectedLocation == null) {
+        errorMessages.add('Please select a location on the map.');
+      }
+      if (_planNameController.text.isEmpty) {
+        errorMessages.add('Please enter the plan name.');
+      }
+      if (_startTimeController.text.isEmpty) {
+        errorMessages.add('Please select the start time.');
+      }
+      if (_startDateController.text.isEmpty) {
+        errorMessages.add('Please select the start date.');
+      }
+      if (_selectedActivities.isEmpty) {
+        errorMessages.add('Please select at least one activity.');
+      }
+
+      // Show all errors if any
+      if (errorMessages.isNotEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(errorMessages.join('\n')),
+              behavior: SnackBarBehavior.floating),
+        );
+        return;
+      }
+
+      final startTime = _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
 
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
-        'startTime': _startTimeController.text,
+        'startTime': startTime,
         'startDate': _startDateController.text,
         'numberOfPlaces': int.tryParse(_numberOfPlacesController.text) ?? 1,
         'categories': _selectedActivities
             .map((activity) => activity.toLowerCase())
             .toList(),
-        'lad':
-            _selectedLocation?.latitude.toString(), // Ensure this is non-null
+        'startDay': _dayOfWeek,
+        'lad': _selectedLocation?.latitude.toString(),
         'lng': _selectedLocation?.longitude.toString(),
+        // 'lad': '13.651366869948392',
+        // 'lng': '100.49641061073015',
       };
 
+      // print(planData);
       widget.onGeneratePlan(planData); // Pass the data to the parent
     }
   }
@@ -341,7 +371,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                 const SizedBox(height: 12),
                 Wrap(
                   spacing: 10,
-                  runSpacing: 10,
+                  runSpacing: 5,
                   children: _activities.map((activity) {
                     final isSelected = _selectedActivities.contains(activity);
                     return FilterChip(
@@ -367,32 +397,48 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
-                Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.grey.shade300,
-                  ),
-                  child: _currentLocation == null
-                      ? const Center(child: CircularProgressIndicator())
-                      : GoogleMap(
-                          onMapCreated: _onMapCreated,
-                          initialCameraPosition: CameraPosition(
-                            target: _currentLocation!,
-                            zoom: 14.0,
+                SizedBox(
+                  height: 200,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Colors.grey.shade300,
+                    ),
+                    child: _currentLocation == null
+                        ? const Center(child: CircularProgressIndicator())
+                        : GoogleMap(
+                            onMapCreated: _onMapCreated,
+                            initialCameraPosition: CameraPosition(
+                              target: _currentLocation!,
+                              zoom: 14.0,
+                            ),
+                            onTap:
+                                _onMapTap, // Enable map tapping to select location
+                            markers: _selectedLocation != null
+                                ? {
+                                    Marker(
+                                      markerId:
+                                          const MarkerId('selected_location'),
+                                      position: _selectedLocation!,
+                                    ),
+                                  }
+                                : {},
+                            myLocationEnabled: true,
+                            myLocationButtonEnabled: true,
+                            scrollGesturesEnabled: true,
+                            zoomGesturesEnabled: true,
+                            rotateGesturesEnabled: false,
+                            tiltGesturesEnabled: false,
+                            // Apply platform-specific adjustments
+                            gestureRecognizers: Platform.isIOS
+                                ? <Factory<OneSequenceGestureRecognizer>>{
+                                    Factory<OneSequenceGestureRecognizer>(
+                                      () => EagerGestureRecognizer(),
+                                    ),
+                                  }
+                                : {},
                           ),
-                          markers: _selectedLocation != null
-                              ? {
-                                  Marker(
-                                    markerId:
-                                        const MarkerId('selected_location'),
-                                    position: _selectedLocation!,
-                                  ),
-                                }
-                              : {},
-                          onTap: _onMapTap,
-                        ),
+                  ),
                 ),
                 const SizedBox(height: 12),
                 if (_selectedLocation != null)
@@ -495,21 +541,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   ],
                 ),
                 const SizedBox(height: 30),
-                const Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Number of places',
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-                    ),
-                    SizedBox(width: 8),
-                    Text(
-                      '(optional)',
-                      style: TextStyle(fontSize: 15, color: Colors.grey),
-                    ),
-                  ],
+                const Text(
+                  'Number of places',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -540,25 +574,26 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                   ],
                 ),
                 const SizedBox(height: 40),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: _generatePlan,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: primaryColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _generatePlan,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 18), // Consistent vertical padding
                       ),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 20,
-                        horizontal: 110,
+                      child: const Text(
+                        'Generate Plan',
+                        style: TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.w600),
                       ),
-                    ),
-                    child: const Text(
-                      'Generate Plan',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                     ),
                   ),
                 ),
