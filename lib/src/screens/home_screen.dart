@@ -4,6 +4,7 @@ import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/components/onGoingPlan_card.dart';
 import 'package:plan_a_day/src/screens/components/plan_card.dart';
 import 'package:plan_a_day/src/screens/data/place_details.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback onCreatePlan;
@@ -33,6 +34,8 @@ class _HomeScreenState extends State<HomeScreen> {
   final ApiService apiService = ApiService();
   List<Map<String, dynamic>> suggestPlans = [];
   List<Map<String, dynamic>> allPlans = [];
+  int carousalActiveIndex = 0; // To track the current index
+  final CarouselSliderController _controller = CarouselSliderController();  // Ensure this line is correct for your package version.
 
   @override
   void initState() {
@@ -102,14 +105,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         : Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              const SizedBox(height: 70),
+                              const SizedBox(height: 75),
                               Center(
                                 child: Image.asset(
                                   'assets/images/Asset_14x.png',
                                   height: 50,
                                 ),
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 15),
                               const Center(
                                 child: Column(
                                   children: [
@@ -298,119 +301,144 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       );
     }
-    return CarouselSlider.builder(
-      itemCount: suggestPlans.length, // Use the number of plans
-      itemBuilder: (BuildContext context, int index, int realIndex) {
-        final plan = suggestPlans[index]; // Get current plan data
-        return GestureDetector(
-          onTap: () {
-            widget.onOtherPlan(plan['planId']); // Send out planId
-          },
-          child: Card(
-            margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(24),
-            ),
-            elevation: 4,
-            child: Stack(
-              children: [
-                ClipRRect(
+
+    return Column(
+      children: [
+        // Carousel Slider
+        CarouselSlider.builder(
+          itemCount: suggestPlans.length,
+          itemBuilder: (BuildContext context, int index, int realIndex) {
+            final plan = suggestPlans[index]; // Get current plan data
+            return GestureDetector(
+              onTap: () {
+                widget.onOtherPlan(plan['planId']); // Send out planId
+              },
+              child: Card(
+                margin: const EdgeInsets.symmetric(horizontal: 5, vertical: 10),
+                shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(24),
-                  child: Image.network(
-                    plan['imageURL'] ??
-                        'default_image_url_here', // Check for null and provide default
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                  ),
                 ),
-                Positioned.fill(
-                  child: Container(
-                    decoration: BoxDecoration(
+                elevation: 4,
+                child: Stack(
+                  children: [
+                    ClipRRect(
                       borderRadius: BorderRadius.circular(24),
-                      gradient: LinearGradient(
-                        begin: Alignment.bottomCenter,
-                        end: Alignment.topCenter,
-                        colors: [
-                          Colors.black.withOpacity(0.6),
-                          Colors.transparent,
-                        ],
+                      child: Image.network(
+                        plan['imageURL'] ?? 'default_image_url_here', // Provide default
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
                       ),
                     ),
-                  ),
-                ),
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 30, vertical: 20),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.4),
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(24),
-                        bottomRight: Radius.circular(24),
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          plan['planName'] ?? 'Unnamed Plan', // Check for null
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            letterSpacing: 1.2,
+                    Positioned.fill(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(24),
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.6),
+                              Colors.transparent,
+                            ],
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Row(
+                      ),
+                    ),
+                    Positioned(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.4),
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(24),
+                            bottomRight: Radius.circular(24),
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              (plan['category'].length > 3
-                                  ? plan['category'].take(3).join(' • ') +
-                                      ' • ...'
-                                  : plan['category'].join(' • ')),
+                              plan['planName'] ?? 'Unnamed Plan', // Check for null
                               style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 1.2,
                               ),
                             ),
-                            const Text(
-                              ' | ',
-                              style:
-                                  TextStyle(color: Colors.white, fontSize: 12),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Text(
+                                  (plan['category'].length > 3
+                                      ? plan['category'].take(3).join(' • ') + ' • ...'
+                                      : plan['category'].join(' • ')),
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                const Text(
+                                  ' | ',
+                                  style: TextStyle(color: Colors.white, fontSize: 12),
+                                ),
+                                Text(
+                                  "${plan['numberofPlaces']} Places",
+                                  style: const TextStyle(
+                                    color: Colors.white70,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              "${plan['numberofPlaces']} Places",
-                              style: const TextStyle(
-                                color: Colors.white70,
-                                fontSize: 12,
-                              ),
-                            ),
+                            const SizedBox(height: 4),
                           ],
                         ),
-                        const SizedBox(height: 4),
-                      ],
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            );
+          },
+          options: CarouselOptions(
+            height: 220,
+            viewportFraction: 0.85,
+            enlargeCenterPage: true,
+            autoPlay: true,
+            autoPlayInterval: const Duration(seconds: 3),
+            autoPlayAnimationDuration: const Duration(milliseconds: 800),
+            enlargeStrategy: CenterPageEnlargeStrategy.height,
+            onPageChanged: (index, reason) {
+              setState(() {
+                carousalActiveIndex = index; // Update active index when page changes
+              });
+            },
           ),
-        );
-      },
-      options: CarouselOptions(
-        height: 220,
-        viewportFraction: 0.85,
-        enlargeCenterPage: true,
-        autoPlay: true,
-        autoPlayInterval: const Duration(seconds: 3),
-        autoPlayAnimationDuration: const Duration(milliseconds: 800),
-        enlargeStrategy: CenterPageEnlargeStrategy.height,
-      ),
+          carouselController: _controller, // Optional controller for manual control
+        ),
+
+        const SizedBox(height: 10),
+
+        // Dot Indicator
+        AnimatedSmoothIndicator(
+          activeIndex: carousalActiveIndex,
+          count: suggestPlans.length,
+          effect: const SlideEffect(
+            dotHeight: 10,
+            dotWidth: 10,
+            activeDotColor: Color(0xFFFF6838),
+            dotColor: Colors.grey,
+          ),
+          onDotClicked: (index) {
+            _controller.animateToPage(index);
+          },
+        ),
+      ],
     );
   }
 }
