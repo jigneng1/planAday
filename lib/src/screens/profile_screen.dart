@@ -41,8 +41,8 @@ class ProfileScreen extends StatelessWidget {
             children: [
               const SizedBox(height: 24),
               const Text(
-                "MR. Sompong",
-                style: TextStyle(
+                "username",
+                style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
@@ -50,7 +50,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const Divider(thickness: 1, indent: 40, endIndent: 40),
-          
+
               // Menu items
               Expanded(
                 child: ListView(
@@ -70,12 +70,13 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.bookmark_added_outlined,
-                      text: 'Bookmarks',
+                      text: 'Saved',
                       onTap: () {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const BookmarkPlanScreen(),
+                            builder: (context) =>
+                                const BookmarkedPlanScreen(),
                           ),
                         );
                       },
@@ -94,13 +95,6 @@ class ProfileScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     const Divider(thickness: 1),
-                    _buildProfileMenuItem(
-                      icon: Icons.lock_outline,
-                      text: 'Reset Password',
-                      onTap: () {
-                        // Navigate to reset password
-                      },
-                    ),
                     _buildProfileMenuItem(
                       icon: Icons.logout,
                       text: 'Logout',
