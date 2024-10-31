@@ -535,6 +535,35 @@ class ApiService {
       return false; 
     }
   }
+
+  Future<Map<String, dynamic>?> getUserDetail() async {
+  final url = Uri.parse('$apiKey/userDetail');
+  var token = await getToken();
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = jsonDecode(response.body);
+    
+    // Check if the request was successful and return the user data
+    if (responseData['success']) {
+      return responseData['user'];  // Return the user data directly
+    } else {
+      print('Failed to fetch user details: No user data');
+      return null;
+    }
+  } else {
+    print('Failed to fetch user details: ${response.statusCode}');
+    return null;
+  }
+}
+
 }
 
 class AuthService {
