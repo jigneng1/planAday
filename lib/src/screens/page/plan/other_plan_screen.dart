@@ -29,6 +29,7 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
   Map<String, dynamic>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
+  bool isBookmark = false;
 
   @override
   void initState() {
@@ -241,6 +242,35 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
     );
   }
 
+  void handleBookmark() async{
+    if(!isBookmark){
+      bool setBookmark = await apiService.createBookmark(widget.planData['_id']);
+      if(setBookmark){
+        setState(() {
+        isBookmark = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Bookmark plan successfully!'),
+              behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+    else{
+      bool setBookmark = await apiService.deleteBookmark(widget.planData['_id']);
+      if(setBookmark){
+        setState(() {
+        isBookmark = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              content: Text('Remove bookmark successfully!'),
+              behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
@@ -310,8 +340,8 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
+            onPressed: handleBookmark,
+            icon: isBookmark ? const Icon(Icons.bookmark, color: Colors.white, size: 30,) : const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
           ),
         ],
       ),

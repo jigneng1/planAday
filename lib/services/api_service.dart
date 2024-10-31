@@ -433,6 +433,108 @@ class ApiService {
       return false; // Return false in case of error
     }
   }
+
+  Future<bool> createBookmark(String planID) async{
+    final url = Uri.parse("$apiKey/createBookmark/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false; 
+    }
+
+    try {
+      final response = await http.post(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == "success") {
+          print('Bookmark $planID created successfully');
+          return true; 
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false; 
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false; 
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false; 
+    }
+  }
+
+  Future<bool> deleteBookmark(String planID) async{
+    final url = Uri.parse("$apiKey/deleteBookmark/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false;
+    }
+
+    try {
+      final response = await http.post(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == "success") {
+          print('Bookmark $planID deleted successfully');
+          return true; 
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false; 
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false; 
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false; 
+    }
+  }
+
+  Future<bool> deletePlan(String planID) async {
+    final url = Uri.parse("$apiKey/deletePlan/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false; 
+    }
+
+    try {
+      final response = await http.delete(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] = true) {
+          print('Plan $planID deleted successfully');
+          return true; 
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false; 
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false; 
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false; 
+    }
+  }
 }
 
 class AuthService {
