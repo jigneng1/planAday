@@ -1,30 +1,85 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
+import 'package:url_launcher/url_launcher.dart';
+import '../../../services/api_service.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
-class PlaceDetailPage extends StatelessWidget {
-  final VoidCallback onPlan;
-  final String imageUrl;
-  final String title;
-  final String rating;
-  final String openHours;
-  final double ladtitude;
-  final double longtitude;
-  final Map<String, bool> tagsData;
+class PlaceDetailPage extends StatefulWidget {
+  final String placeID;
+  final String planID;
+  final VoidCallback onBack;
 
-  const PlaceDetailPage({
-    super.key,
-    required this.onPlan,
-    required this.imageUrl,
-    required this.title,
-    required this.rating,
-    required this.openHours,
-    required this.tagsData,
-    required this.ladtitude,
-    required this.longtitude,
-  });
+  const PlaceDetailPage(
+      {super.key,
+      required this.placeID,
+      required this.onBack,
+      required this.planID});
+
+  @override
+  _PlaceDetailPageState createState() => _PlaceDetailPageState();
+}
+
+class _PlaceDetailPageState extends State<PlaceDetailPage> {
+  final ApiService apiService = ApiService();
+  late String imageUrl = 'No image';
+  late String title = 'No title';
+  late double rating = 0.0;
+  late String openHours = 'No opening hours';
+  late double ladtitude = 0.0;
+  late double longtitude = 0.0;
+  late Map<String, bool> tagsData = {};
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchPlaceDetails();
+  }
+
+  Future<void> _fetchPlaceDetails() async {
+  try {
+    final placeDetails = await apiService.getPlaceDetails(widget.placeID);
+    print(placeDetails);
+
+    // Check if `currentOpeningHours` is a list
+    String formattedOpenHours = '';
+    if (placeDetails?['currentOpeningHours'] is List) {
+      formattedOpenHours = (placeDetails?['currentOpeningHours'] as List<dynamic>).join('\n');
+    } else if (placeDetails?['currentOpeningHours'] is String) {
+      formattedOpenHours = placeDetails?['currentOpeningHours'] as String;
+    }
+
+    setState(() {
+      imageUrl = placeDetails?['photo'];
+      title = placeDetails?['displayName'];
+      rating = placeDetails?['rating'];
+      openHours = formattedOpenHours;
+      tagsData = {
+        'Wheelchair Parking': placeDetails!['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
+        'Wheelchair Entrance': placeDetails['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
+        'Wheelchair Restroom': placeDetails['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
+        'Wheelchair Seating': placeDetails['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
+        'Free Parking Lot': placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
+        'Free Street Parking': placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
+        'Takeout': placeDetails['takeout'] ?? false,
+        'Dog Friendly': placeDetails['allowsDogs'] ?? false,
+        'Live Music': placeDetails['liveMusic'] ?? false,
+      };
+      ladtitude = double.tryParse(placeDetails['location']['latitude'].toString()) ?? 0.0;
+      longtitude = double.tryParse(placeDetails['location']['longitude'].toString()) ?? 0.0;
+
+      isLoading = false;
+    });
+  } catch (error) {
+    setState(() {
+      isLoading = false;
+    });
+    // Handle the error appropriately, e.g., show a dialog or a message
+    print('Error fetching place details: $error');
+  }
+}
+
 
   Widget _buildTag(String text) {
     return Container(
@@ -41,11 +96,27 @@ class PlaceDetailPage extends StatelessWidget {
     );
   }
 
+  // Function to launch Google Maps with latitude and longitude
+  Future<void> _openGoogleMaps(double lat, double lng) async {
+    final googleMapsUrl =
+        Uri.parse('https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    if (await canLaunchUrl(googleMapsUrl)) {
+      await launchUrl(googleMapsUrl);
+    } else {
+      throw 'Could not open Google Maps';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Google map controller
     final Completer<GoogleMapController> _controller =
         Completer<GoogleMapController>();
+
+    if (isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
 
     // Tag conditions: true
     List<Widget> tags = tagsData.entries
@@ -61,20 +132,22 @@ class PlaceDetailPage extends StatelessWidget {
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
               background: Image.network(
-                imageUrl,
+                imageUrl.isNotEmpty
+                    ? imageUrl
+                    : 'https://via.placeholder.com/300',
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) {
-                  return const Center(
-                    child: Text(
-                      'Image not available',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
+                  return Image.network(
+                    'https://via.placeholder.com/300',
+                    fit: BoxFit.cover,
                   );
                 },
               ),
             ),
             leading: IconButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                widget.onBack();
+              },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             ),
             actions: const [
@@ -130,17 +203,15 @@ class PlaceDetailPage extends StatelessWidget {
                           // Rating section
                           Row(
                             children: [
-                              // const Icon(Icons.star, color: Colors.orange),
-                              if (rating.isNotEmpty) ...[
+                              if (rating != 0)
                                 StarRating(
-                                  rating: double.parse(rating),
+                                  rating: rating,
                                   color: Colors.orange,
                                 ),
-                                const SizedBox(width: 4),
-                              ],
+                              const SizedBox(width: 4),
                               const SizedBox(width: 4),
                               Text(
-                                rating.isNotEmpty ? rating : 'No Rating',
+                                rating.toString(),
                                 style: const TextStyle(fontSize: 16),
                               ),
                             ],
@@ -156,6 +227,31 @@ class PlaceDetailPage extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(height: 16),
+
+                          // Add the Google Map widget here
+                          Padding(
+                            padding: const EdgeInsets.all(24.0),
+                            child: SizedBox(
+                              height: 200, // Set a fixed height for the map
+                              child: GoogleMap(
+                                onTap: (LatLng latlng) {
+                                  _openGoogleMaps(ladtitude, longtitude);
+                                },
+                                initialCameraPosition: CameraPosition(
+                                    target: LatLng(ladtitude, longtitude),
+                                    zoom: 14),
+                                onMapCreated: (GoogleMapController controller) {
+                                  _controller.complete(controller);
+                                },
+                                markers: {
+                                  Marker(
+                                    markerId: const MarkerId('placeLocation'),
+                                    position: LatLng(ladtitude, longtitude),
+                                  ),
+                                },
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                     ),
