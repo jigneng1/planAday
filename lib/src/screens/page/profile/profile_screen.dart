@@ -6,7 +6,8 @@ import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback onBookmarkTap;
+  const ProfileScreen({super.key, required this.onBookmarkTap});
 
   // Function to handle logout
   void _handleLogout(BuildContext context) async {
@@ -72,7 +73,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.bookmark_added_outlined,
                       text: 'Saved',
                       onTap: () {
-                        
+                        onBookmarkTap();
                       },
                     ),
                     _buildProfileMenuItem(

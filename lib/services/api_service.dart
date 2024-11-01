@@ -506,6 +506,45 @@ class ApiService {
     }
   }
 
+Future<List<Map<String, dynamic>>> getBookmarkLists() async {
+  final url = Uri.parse('$apiKey/getBookmark');
+  var token = await getToken();
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      
+      // Check if the response indicates success and contains the planList
+      if (responseData['success']) {
+        final List<dynamic> plansList = responseData['planList'];
+        
+        // Ensure that we correctly map the plansList to List<Map<String, dynamic>>
+        final List<Map<String, dynamic>> historyPlans = 
+            List<Map<String, dynamic>>.from(plansList.map((plan) => plan as Map<String, dynamic>));
+
+        return historyPlans;
+      } else {
+        print('Failed to fetch Bookmark lists: No plan list found or not successful');
+        return []; // Return an empty list if no plans found
+      }
+    } else {
+      print('Failed to fetch Bookmark lists: ${response.statusCode}');
+      return []; // Return an empty list on HTTP error
+    }
+  } catch (e) {
+    print('Error fetching Bookmark lists: $e');
+    return []; // Return an empty list on error
+  }
+}
+
   Future<bool> deletePlan(String planID) async {
     final url = Uri.parse("$apiKey/deletePlan/$planID");
     var token = await getToken();

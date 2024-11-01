@@ -472,7 +472,7 @@ class _PlanScreenState extends State<PlanScreen> {
         toolbarHeight: 80,
         leading: IconButton(
           icon: const Icon(
-            Icons.arrow_back_ios,
+            Icons.arrow_back_ios_new,
             color: Colors.white,
           ),
           onPressed: widget.onClose,

@@ -337,7 +337,7 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: widget.onClose,
         ),
         actions: [
