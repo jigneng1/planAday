@@ -38,48 +38,62 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
   }
 
   Future<void> _fetchPlaceDetails() async {
-  try {
-    final placeDetails = await apiService.getPlaceDetails(widget.placeID);
-    print(placeDetails);
+    try {
+      final placeDetails = await apiService.getPlaceDetails(widget.placeID);
+      print(placeDetails);
 
-    // Check if `currentOpeningHours` is a list
-    String formattedOpenHours = '';
-    if (placeDetails?['currentOpeningHours'] is List) {
-      formattedOpenHours = (placeDetails?['currentOpeningHours'] as List<dynamic>).join('\n');
-    } else if (placeDetails?['currentOpeningHours'] is String) {
-      formattedOpenHours = placeDetails?['currentOpeningHours'] as String;
+      // Check if `currentOpeningHours` is a list
+      String formattedOpenHours = '';
+      if (placeDetails?['currentOpeningHours'] is List) {
+        formattedOpenHours =
+            (placeDetails?['currentOpeningHours'] as List<dynamic>).join('\n');
+      } else if (placeDetails?['currentOpeningHours'] is String) {
+        formattedOpenHours = placeDetails?['currentOpeningHours'] as String;
+      }
+
+      setState(() {
+        imageUrl = placeDetails?['photo'];
+        title = placeDetails?['displayName'];
+        rating = placeDetails?['rating'];
+        openHours = formattedOpenHours;
+        tagsData = {
+          'Wheelchair Parking': placeDetails!['accessibilityOptions']
+                  ?['wheelchairAccessibleParking'] ??
+              false,
+          'Wheelchair Entrance': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleEntrance'] ??
+              false,
+          'Wheelchair Restroom': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleRestroom'] ??
+              false,
+          'Wheelchair Seating': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleSeating'] ??
+              false,
+          'Free Parking Lot':
+              placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
+          'Free Street Parking':
+              placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
+          'Takeout': placeDetails['takeout'] ?? false,
+          'Dog Friendly': placeDetails['allowsDogs'] ?? false,
+          'Live Music': placeDetails['liveMusic'] ?? false,
+        };
+        ladtitude =
+            double.tryParse(placeDetails['location']['latitude'].toString()) ??
+                0.0;
+        longtitude =
+            double.tryParse(placeDetails['location']['longitude'].toString()) ??
+                0.0;
+
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle the error appropriately, e.g., show a dialog or a message
+      print('Error fetching place details: $error');
     }
-
-    setState(() {
-      imageUrl = placeDetails?['photo'];
-      title = placeDetails?['displayName'];
-      rating = placeDetails?['rating'];
-      openHours = formattedOpenHours;
-      tagsData = {
-        'Wheelchair Parking': placeDetails!['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
-        'Wheelchair Entrance': placeDetails['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
-        'Wheelchair Restroom': placeDetails['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
-        'Wheelchair Seating': placeDetails['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
-        'Free Parking Lot': placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
-        'Free Street Parking': placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
-        'Takeout': placeDetails['takeout'] ?? false,
-        'Dog Friendly': placeDetails['allowsDogs'] ?? false,
-        'Live Music': placeDetails['liveMusic'] ?? false,
-      };
-      ladtitude = double.tryParse(placeDetails['location']['latitude'].toString()) ?? 0.0;
-      longtitude = double.tryParse(placeDetails['location']['longitude'].toString()) ?? 0.0;
-
-      isLoading = false;
-    });
-  } catch (error) {
-    setState(() {
-      isLoading = false;
-    });
-    // Handle the error appropriately, e.g., show a dialog or a message
-    print('Error fetching place details: $error');
   }
-}
-
 
   Widget _buildTag(String text) {
     return Container(
@@ -150,12 +164,6 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
               },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             ),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(left: 18, right: 18),
-                child: Icon(Icons.favorite_border, color: Colors.white),
-              ),
-            ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(60),
               child: Container(
@@ -203,12 +211,18 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                           // Rating section
                           Row(
                             children: [
-                              if (rating != 0)
-                                StarRating(
-                                  rating: rating,
-                                  color: Colors.orange,
-                                ),
-                              const SizedBox(width: 4),
+                              rating != 0.0
+                                  ? StarRating(
+                                      rating: rating,
+                                      color: Colors.orange,
+                                    )
+                                  : const Text(
+                                      'No Rating:',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
                               const SizedBox(width: 4),
                               Text(
                                 rating.toString(),
@@ -227,12 +241,11 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                             ),
                           ),
                           const SizedBox(height: 16),
-
-                          // Add the Google Map widget here
+                          // Google Map widget here
                           Padding(
-                            padding: const EdgeInsets.all(24.0),
+                            padding: const EdgeInsets.symmetric(horizontal: 2),
                             child: SizedBox(
-                              height: 200, // Set a fixed height for the map
+                              height: 200, 
                               child: GoogleMap(
                                 onTap: (LatLng latlng) {
                                   _openGoogleMaps(ladtitude, longtitude);
@@ -253,26 +266,6 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                             ),
                           ),
                         ],
-                      ),
-                    ),
-                    // Add the Google Map widget here
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: SizedBox(
-                        height: 200, // Set a fixed height for the map
-                        child: GoogleMap(
-                          initialCameraPosition: CameraPosition(
-                              target: LatLng(ladtitude, longtitude), zoom: 14),
-                          onMapCreated: (GoogleMapController controller) {
-                            _controller.complete(controller);
-                          },
-                          markers: {
-                            Marker(
-                              markerId: const MarkerId('placeLocation'),
-                              position: LatLng(ladtitude, longtitude),
-                            ),
-                          },
-                        ),
                       ),
                     ),
                   ],
