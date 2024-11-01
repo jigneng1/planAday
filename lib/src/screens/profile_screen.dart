@@ -76,7 +76,7 @@ class ProfileScreen extends StatelessWidget {
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
-                                const BookmarkedPlanScreen(),
+                                const BookmarkPlanScreen(savedPlans: [],),
                           ),
                         );
                       },
