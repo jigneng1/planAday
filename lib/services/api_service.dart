@@ -482,7 +482,7 @@ class ApiService {
     }
 
     try {
-      final response = await http.post(url, headers: {
+      final response = await http.delete(url, headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer $token'
       });
@@ -493,7 +493,7 @@ class ApiService {
           print('Bookmark $planID deleted successfully');
           return true;
         } else {
-          print('Failed to send data: ${response.statusCode}');
+          print('Failed to delete bookmark: ${response.statusCode}');
           return false;
         }
       } else {
@@ -501,7 +501,7 @@ class ApiService {
         return false;
       }
     } catch (e) {
-      print('Error fetching place details: $e');
+      print('Error fetching delete bookmark: $e');
       return false;
     }
   }

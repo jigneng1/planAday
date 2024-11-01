@@ -251,7 +251,8 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Bookmark plan successfully!'),
+              backgroundColor: Colors.white,
+              content: Text('Bookmark plan successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
               behavior: SnackBarBehavior.floating),
         );
       }
@@ -264,7 +265,8 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
       });
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content: Text('Remove bookmark successfully!'),
+            backgroundColor: Colors.white,
+              content: Text('Remove bookmark successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
               behavior: SnackBarBehavior.floating),
         );
       }
