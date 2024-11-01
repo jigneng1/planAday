@@ -372,7 +372,6 @@ class _PlanScreenState extends State<EditPlanScreen> {
                             location: details['shortFormattedAddress'] ??
                                 'No location',
                             placeID: details['id'] ?? 'No place ID',
-                            onViewPlaceDetail: widget.onViewPlaceDetail,
                           ),
                           index ==
                               updatedPlan['selectedPlaces'].length -

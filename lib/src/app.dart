@@ -321,7 +321,6 @@ class _MainLayoutState extends State<MainLayout> {
       PlaceDetailPage(
         placeID: placeID,
         planID: planID,
-        onBack: _goBack,
       ),
       OtherPlanScreen(
         onClose: _goBack,

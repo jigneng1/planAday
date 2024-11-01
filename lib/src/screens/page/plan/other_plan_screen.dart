@@ -314,7 +314,6 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         routingWidgets.length == selectedPlaces!.length - 1,
         routingWidgets.length < travelTimes.length

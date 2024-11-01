@@ -8,12 +8,10 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class PlaceDetailPage extends StatefulWidget {
   final String placeID;
   final String planID;
-  final VoidCallback onBack;
 
   const PlaceDetailPage(
       {super.key,
       required this.placeID,
-      required this.onBack,
       required this.planID});
 
   @override
@@ -146,7 +144,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
             ),
             leading: IconButton(
               onPressed: () {
-                widget.onBack();
+                Navigator.pop(context);
               },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             ),

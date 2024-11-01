@@ -451,7 +451,6 @@ class _PlanScreenState extends State<PlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         i == selectedPlaces!.length - 1, // Check if it's the last item
         i < travelTimes.length ? travelTimes[i] : null,
