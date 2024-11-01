@@ -4,8 +4,9 @@ import 'package:plan_a_day/src/screens/components/plan_card.dart';
 
 class SuggestScreen extends StatefulWidget {
   final VoidCallback onClose;
+  final Function(String planId) onViewPlan;
 
-  const SuggestScreen({super.key, required this.onClose});
+  const SuggestScreen({super.key, required this.onClose, required this.onViewPlan});
 
   @override
   _SuggestedPlansScreenState createState() => _SuggestedPlansScreenState();
@@ -123,11 +124,16 @@ class _SuggestedPlansScreenState extends State<SuggestScreen>
               final plan = plans[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 24.0),
-                child: PlanCard(
-                  imageUrl: plan['imageURL'] ?? '',
-                  title: plan['planName'] ?? '',
-                  subtitle: '${plan['numberofPlaces']} places',
-                  time: "2",
+                child: GestureDetector(
+                  onTap: () {
+                    widget.onViewPlan(plan['planId']);
+                  },
+                  child: PlanCard(
+                    imageUrl: plan['imageURL'] ?? '',
+                    title: plan['planName'] ?? '',
+                    subtitle: '${plan['numberofPlaces']} places',
+                    time: "2",
+                  ),
                 ),
               );
             },

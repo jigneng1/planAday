@@ -316,6 +316,7 @@ class _MainLayoutState extends State<MainLayout> {
       const LoginScreen(),
       SuggestScreen(
         onClose: _goToHomeScreen,
+        onViewPlan: _goToOtherPlanScreen,
       ),
       GeneratedPlanScreen(
         onClose: _goToHomeScreen,
