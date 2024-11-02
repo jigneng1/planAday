@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-// import 'package:plan_a_day/src/screens/bookmark_plan.dart';
-// import 'package:plan_a_day/src/screens/history_plan_screen.dart';
-import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
+import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   final VoidCallback onBookmarkTap;
@@ -20,7 +19,6 @@ class ProfileScreen extends StatelessWidget {
         MaterialPageRoute(builder: (context) => const LoginScreen()),
       );
     } catch (e) {
-      // Handle any errors that might occur during logout
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error during logout: ${e.toString()}'),
@@ -30,8 +28,16 @@ class ProfileScreen extends StatelessWidget {
     }
   }
 
+  Future<String?> _fetchUsername() async {
+    final userDetails = await ApiService().getUserDetail();
+    return userDetails?['username'];
+  }
+
   @override
   Widget build(BuildContext context) {
+    // Fetch username directly without a loading indicator
+    final Future<String?> usernameFuture = _fetchUsername();
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -41,18 +47,28 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 24),
-              const Text(
-                "username",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
+              FutureBuilder<String?>(
+                future: usernameFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return const Text(
+                      'Error loading username',
+                      style: TextStyle(fontSize: 22, color: Colors.red),
+                    );
+                  } else {
+                    return Text(
+                      snapshot.data ?? '',
+                      style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                    );
+                  }
+                },
               ),
               const SizedBox(height: 8),
               const Divider(thickness: 1, indent: 40, endIndent: 40),
-
-              // Menu items
               Expanded(
                 child: ListView(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -79,9 +95,7 @@ class ProfileScreen extends StatelessWidget {
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
-                      onTap: () {
-                        
-                      },
+                      onTap: () {},
                     ),
                     const SizedBox(height: 20),
                     const Divider(thickness: 1),
@@ -89,7 +103,7 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.logout,
                       text: 'Logout',
                       onTap: () => _handleLogout(context),
-                      color: Colors.red, // Red icon for logout
+                      color: Colors.red,
                     ),
                   ],
                 ),
@@ -101,12 +115,11 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  // Menu item widget builder
   Widget _buildProfileMenuItem({
     required IconData icon,
     required String text,
     required VoidCallback onTap,
-    Color color = const Color(0xFFFF6838), // Default icon color
+    Color color = const Color(0xFFFF6838),
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
