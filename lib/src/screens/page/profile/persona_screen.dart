@@ -70,7 +70,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 254, 109, 64),
-                      padding: const EdgeInsets.symmetric(vertical: 12.0),
+                      padding: const EdgeInsets.symmetric(vertical: 16.0),
                     ),
                     child: const Text(
                       'Done',
