@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../../../../../../../services/api_service.dart';
-import '../../bookmark_plan.dart';
 import '../../components/place_card.dart'; // Import the custom card widget
 
 class OtherPlanScreen extends StatefulWidget {
