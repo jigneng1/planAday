@@ -1,7 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../../../../services/api_service.dart';
 import '../../bookmark_plan.dart';
 import '../../components/place_card.dart'; // Import the custom card widget
@@ -13,8 +11,7 @@ class OtherPlanScreen extends StatefulWidget {
   final Function(String placeID, String planID) onViewPlaceDetail;
   final Function(String planID) onStartPlan;
   final VoidCallback onStopPlan;
-  final Function(Map<String, dynamic> planData) onBookmarkAdded;
-  final List<String>? bookmarkedPlans;
+
 
   const OtherPlanScreen({
     super.key,
@@ -24,8 +21,6 @@ class OtherPlanScreen extends StatefulWidget {
     required this.onGoingPlan,
     required this.onStartPlan,
     required this.onStopPlan,
-    required this.onBookmarkAdded,
-    required this.bookmarkedPlans,
   });
 
   @override
@@ -36,14 +31,12 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
   Map<String, dynamic>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
-  bool isBookmarked = false;
+  bool isBookmark = false;
 
   @override
   void initState() {
     super.initState();
     _initializePlan();
-    _loadBookmarkState();
-    isBookmarkedNotifier = ValueNotifier<bool>(isBookmarked);
   }
 
   late ValueNotifier<bool> isBookmarkedNotifier;
@@ -111,35 +104,6 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
         print('Error fetching travel time data: $e');
       }
     }
-  }
-
-  Future<void> _saveBookmarkState(bool value) async {
-    final prefs = await SharedPreferences.getInstance();
-    final bookmarkedPlans = prefs.getStringList('bookmarkedPlans') ?? [];
-
-    if (value) {
-      if (!bookmarkedPlans.contains(widget.planData['_id'])) {
-        bookmarkedPlans.add(widget.planData['_id']);
-        await prefs.setStringList('bookmarkedPlans', bookmarkedPlans);
-        await prefs.setString(
-          'bookmarkedPlanData_${widget.planData['_id']}',
-          json.encode(widget.planData),
-        );
-      }
-    } else {
-      bookmarkedPlans.remove(widget.planData['_id']);
-      await prefs.setStringList('bookmarkedPlans', bookmarkedPlans);
-      await prefs.remove('bookmarkedPlanData_${widget.planData['_id']}');
-    }
-  }
-
-  Future<void> _loadBookmarkState() async {
-    final prefs = await SharedPreferences.getInstance();
-    final bookmarkedPlans = prefs.getStringList('bookmarkedPlans') ?? [];
-
-    setState(() {
-      isBookmarked = bookmarkedPlans.contains(widget.planData['_id']);
-    });
   }
 
   void handleStartPlan() {
@@ -281,6 +245,37 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
     );
   }
 
+  void handleBookmark() async{
+    if(!isBookmark){
+      bool setBookmark = await apiService.createBookmark(widget.planData['_id']);
+      if(setBookmark){
+        setState(() {
+        isBookmark = true;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+              backgroundColor: Colors.white,
+              content: Text('Bookmark plan successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
+              behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+    else{
+      bool setBookmark = await apiService.deleteBookmark(widget.planData['_id']);
+      if(setBookmark){
+        setState(() {
+        isBookmark = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: Colors.white,
+              content: Text('Remove bookmark successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
+              behavior: SnackBarBehavior.floating),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     print('At plan Received plan data: ${widget.planData}');
@@ -322,7 +317,6 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         routingWidgets.length == selectedPlaces!.length - 1,
         routingWidgets.length < travelTimes.length
@@ -330,54 +324,6 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
             : null,
       ));
     });
-
-Widget bookmarkButton({
-  required ValueNotifier<bool> isBookmarked,
-  required ValueChanged<bool> onToggle,
-}) {
-  return ValueListenableBuilder<bool>(
-    valueListenable: isBookmarked,
-    builder: (context, isBookmarkedValue, child) {
-      return IconButton(
-        onPressed: () async {
-          isBookmarked.value = !isBookmarkedValue;
-          await _saveBookmarkState(isBookmarked.value);
-
-          onToggle(isBookmarked.value);
-          if (isBookmarked.value) {
-            widget.onBookmarkAdded(widget.planData);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const BookmarkPlanScreen(savedPlans: [],), 
-              ),
-            );
-          }
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                isBookmarked.value
-                    ? 'Plan bookmarked successfully!'
-                    : 'Bookmark removed!',
-                style: const TextStyle(color: Color.fromARGB(255, 231, 81, 0)),
-              ),
-              backgroundColor: Colors.white,
-              behavior: SnackBarBehavior.floating,
-              margin: const EdgeInsets.only(top: 30),
-              duration: const Duration(seconds: 2),
-            ),
-          );
-        },
-        icon: Icon(
-          isBookmarkedValue ? Icons.bookmark_added : Icons.bookmark_border,
-          color: Colors.white,
-          size: 30,
-        ),
-      );
-    },
-  );
-}
-
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -393,17 +339,13 @@ Widget bookmarkButton({
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white),
           onPressed: widget.onClose,
         ),
         actions: [
-          bookmarkButton(
-            isBookmarked: isBookmarkedNotifier,
-            onToggle: (newState) {
-              setState(() {
-                isBookmarked = newState;
-              });
-            },
+          IconButton(
+            onPressed: handleBookmark,
+            icon: isBookmark ? const Icon(Icons.bookmark, color: Colors.white, size: 30,) : const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
           ),
         ],
       ),

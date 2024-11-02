@@ -284,7 +284,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       if (errorMessages.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(errorMessages.join('\n')),
+              backgroundColor: Colors.white,
+              content: Text(errorMessages.join('\n'), style: const TextStyle(color: Color(0xFFFF6838))),
               behavior: SnackBarBehavior.floating),
         );
         return;

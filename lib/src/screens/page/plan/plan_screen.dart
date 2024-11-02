@@ -41,15 +41,10 @@ class _PlanScreenState extends State<PlanScreen> {
     super.dispose();
   }
 
-  void _initializePlan() async{
-    // final publicPlan = await apiService.sharePlan(widget.planData['_id']);
-
-    // if (publicPlan) {
-    //   setState(() {
-    //     isPublic = true;
-    //   });
-    // }
-    // Use existing selected places if available
+  void _initializePlan() async {
+    setState(() {
+      isPublic = widget.planData['public'] ?? false;
+    });
     if (widget.planData.containsKey('selectedPlaces')) {
       // Ensure that 'selectedPlaces' is a list
       if (widget.planData['selectedPlaces'] is List) {
@@ -245,7 +240,7 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
-  void publicPlan() async{
+  void deletePlan() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -262,10 +257,10 @@ class _PlanScreenState extends State<PlanScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 // Image at the top
-                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                Image.asset('assets/images/undraw_Throw_away_re_x60k.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'If you share this plan, it will be visible to everyone. Are you sure you want to share this plan?',
+                  'Are you sure you want to delete this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -273,12 +268,106 @@ class _PlanScreenState extends State<PlanScreen> {
                 Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: ElevatedButton(
-                      onPressed: () {
-                        apiService.sharePlan(widget.planData['_id']);
-                        setState(() {
-                          isPublic = true;
-                        });
-                        Navigator.of(context).pop();
+                      onPressed: () async {
+                        bool isDeleted =
+                            await apiService.deletePlan(widget.planData['_id']);
+                        if (isDeleted) {
+                          Navigator.of(context).pop();
+                          widget.onClose();
+                        } else {
+                          print('Error deleting plan');
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size.fromHeight(50),
+                        backgroundColor: Colors.red,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20.0),
+                        ),
+                      ),
+                      child: const Text(
+                        'Delete plan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 16,
+                        ),
+                      ),
+                    )),
+                const SizedBox(height: 15),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: const Text(
+                    'No',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void publicPlan() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20.0),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                // Image at the top
+                SizedBox(
+                  height: 200,
+                  child: Image.asset(
+                      'assets/images/undraw_sharing_knowledge_03vp.png'),
+                ),
+                const SizedBox(height: 16),
+                const Text(
+                  'If you share plan, it will be visible to everyone.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 30),
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        bool success =
+                            await apiService.sharePlan(widget.planData['_id']);
+                        if (success) {
+                          setState(() {
+                            isPublic = true;
+                          });
+                          Navigator.of(context).pop();
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('This plan is now public!'),
+                                behavior: SnackBarBehavior.floating),
+                          );
+                        }else{
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Error sharing this plan!'),
+                                behavior: SnackBarBehavior.floating),
+                          );
+                          print('Error sharing plan');
+                        }
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
@@ -362,7 +451,6 @@ class _PlanScreenState extends State<PlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         i == selectedPlaces!.length - 1, // Check if it's the last item
         i < travelTimes.length ? travelTimes[i] : null,
@@ -374,22 +462,62 @@ class _PlanScreenState extends State<PlanScreen> {
       appBar: AppBar(
         title: Text(
           widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
+          style: const TextStyle(
+              fontWeight: FontWeight.w600, fontSize: 24, color: Colors.white),
         ),
         backgroundColor: primaryColor,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white,),
+          icon: const Icon(
+            Icons.arrow_back_ios_new,
+            color: Colors.white,
+          ),
           onPressed: widget.onClose,
         ),
         actions: [
-          isPublic ?
-          IconButton(
-            onPressed: publicPlan,
-            icon: const Icon(Icons.share, color: Colors.white,),
-          ) : const SizedBox(),
+          isPublic
+              ? IconButton(
+                  onPressed: deletePlan,
+                  icon: const Icon(
+                    Icons.delete,
+                    color: Colors.white,
+                  ),
+                )
+              : PopupMenuButton<String>(
+                  onSelected: (String value) {
+                    if (value == 'share') {
+                      publicPlan(); // Call the publicPlan function when 'Share' is selected
+                    } else if (value == 'delete') {
+                      deletePlan(); // Call the deletePlan function when 'Delete' is selected
+                    }
+                  },
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<String>>[
+                    const PopupMenuItem<String>(
+                      value: 'share',
+                      child: ListTile(
+                        leading: const Icon(Icons.share),
+                        title: const Text('Share'),
+                      ),
+                    ),
+                    const PopupMenuItem<String>(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: const Icon(Icons.delete),
+                        title: const Text('Delete'),
+                      ),
+                    ),
+                  ],
+                  icon: const Icon(
+                    Icons.more_vert,
+                    color: Colors.white,
+                  ),
+                  // Offset to show the popup at the bottom of the icon
+                  offset: const Offset(0, 70),
+                  color: Colors.white,
+                ),
         ],
       ),
       body: SingleChildScrollView(
@@ -430,6 +558,26 @@ class _PlanScreenState extends State<PlanScreen> {
                       const SizedBox(width: 5),
                       Text(
                         'User',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      isPublic ? Icon(Icons.public, size: 25, color: primaryColor) : Icon(Icons.lock, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Visible:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        isPublic ? 'Public' : 'Private',
                         style: TextStyle(fontSize: 16, color: primaryColor),
                       ),
                     ],
@@ -528,18 +676,17 @@ class _PlanScreenState extends State<PlanScreen> {
                         child: SizedBox(
                           width: buttonWidth,
                           child: Center(
-                            child:
-                                widget.onGoingPlan != widget.planData['_id']
-                                    ? const Text(
-                                        'Start the plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      )
-                                    : const Text(
-                                        'Stop the Plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      ),
+                            child: widget.onGoingPlan != widget.planData['_id']
+                                ? const Text(
+                                    'Start the plan',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  )
+                                : const Text(
+                                    'Stop the Plan',
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
                           ),
                         ),
                       ),
@@ -585,49 +732,49 @@ class _PlanScreenState extends State<PlanScreen> {
             placeCard,
             const SizedBox(height: 16),
             if (!isLast)
-                Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding:
-                      const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.directions_walk,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['walking'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Icon(Icons.directions_car,
-                              size: 24, color: primaryColor),
-                          const SizedBox(width: 5),
-                          Text(
-                            travelTime?['driving'] ?? 'Loading',
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: Colors.black87,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(8),
                 ),
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.directions_walk,
+                            size: 24, color: primaryColor),
+                        const SizedBox(width: 5),
+                        Text(
+                          travelTime?['walking'] ?? 'Loading',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      children: [
+                        Icon(Icons.directions_car,
+                            size: 24, color: primaryColor),
+                        const SizedBox(width: 5),
+                        Text(
+                          travelTime?['driving'] ?? 'Loading',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),

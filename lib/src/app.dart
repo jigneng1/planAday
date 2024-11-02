@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/page/plan/create_plan_screen.dart';
-import 'package:plan_a_day/src/screens/data/place_details.dart';
 import 'package:plan_a_day/src/screens/page/plan/edit_plan_screen.dart';
 import 'package:plan_a_day/src/screens/page/plan/generated_screen.dart';
 import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 import 'package:plan_a_day/src/screens/page/plan/other_plan_screen.dart';
-import 'package:plan_a_day/src/screens/persona_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/bookmark_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/page/plan/plan_screen.dart';
-import 'package:plan_a_day/src/screens/profile_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/profile_screen.dart';
 import 'package:plan_a_day/src/screens/page/authen/register_screen.dart';
 import 'package:plan_a_day/src/screens/suggest_screen.dart';
 import 'package:plan_a_day/src/screens/page/authen/welcome_screen.dart';
@@ -42,6 +42,7 @@ class _MainLayoutState extends State<MainLayout> {
       setState(() {
         _isLoading = true;
         _currentIndex = index;
+        _indexBeforeCreate = index;
         _isLoading = false;
       });
     });
@@ -125,7 +126,6 @@ class _MainLayoutState extends State<MainLayout> {
       setState(() {
         _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
         _currentIndex = 7;
-        _indexBeforeCreate = 7;
         _isLoading = false;
       });
     }
@@ -265,6 +265,26 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _goToBookmarkPlanScreen() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _currentIndex = 13;
+      _indexBeforeCreate = 13;
+      _isLoading = false;
+    });
+  }
+
+  void _goToProfile() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _currentIndex = 1;
+      _indexBeforeCreate = 1;
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final List<Widget> children = [
@@ -277,7 +297,7 @@ class _MainLayoutState extends State<MainLayout> {
         onGoingPlan: _ongoingplanData,
         onEndGoingPlan: _onStopPlan,
       ),
-      const ProfileScreen(),
+      ProfileScreen(onBookmarkTap: _goToBookmarkPlanScreen,),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
         onGeneratePlan: _handleGeneratePlan,
@@ -301,10 +321,9 @@ class _MainLayoutState extends State<MainLayout> {
       PlaceDetailPage(
         placeID: placeID,
         planID: planID,
-        onBack: _goBack,
       ),
       OtherPlanScreen(
-        onClose: _goToHomeScreen,
+        onClose: _goBack,
         planData: _planData,
         onViewPlaceDetail: _goToPlaceDetailScreen,
         onGoingPlan: _ongoingPlanID,
@@ -316,6 +335,7 @@ class _MainLayoutState extends State<MainLayout> {
       const LoginScreen(),
       SuggestScreen(
         onClose: _goToHomeScreen,
+        onViewPlan: _goToOtherPlanScreen,
       ),
       GeneratedPlanScreen(
         onClose: _goToHomeScreen,
@@ -324,6 +344,10 @@ class _MainLayoutState extends State<MainLayout> {
         onDone: onDone,
         onViewPlaceDetail: _goToPlaceDetailScreen,
         onRegeneratePlan: _handleGeneratePlan,
+      ),
+      BookmarkPlanScreen(
+        onClose: _goToProfile,
+        onViewPlan: _goToOtherPlanScreen,
       ),
     ];
 

@@ -414,7 +414,6 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
         i == selectedPlaces!.length - 1, // Check if it's the last item
         i < travelTimes.length ? travelTimes[i] : null,
@@ -592,7 +591,7 @@ class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
                           child: ElevatedButton(
                             onPressed: _handleRegeneratePlan,
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFFF9574),
+                              backgroundColor: primaryColor,
                             ),
                             child: const Padding(
                               padding: EdgeInsets.symmetric(

@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:plan_a_day/src/screens/bookmark_plan.dart';
-import 'package:plan_a_day/src/screens/history_plan_screen.dart';
-import 'package:plan_a_day/src/screens/persona_screen.dart';
+// import 'package:plan_a_day/src/screens/bookmark_plan.dart';
+// import 'package:plan_a_day/src/screens/history_plan_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
-  const ProfileScreen({super.key});
+  final VoidCallback onBookmarkTap;
+  const ProfileScreen({super.key, required this.onBookmarkTap});
 
   // Function to handle logout
   void _handleLogout(BuildContext context) async {
@@ -72,25 +73,14 @@ class ProfileScreen extends StatelessWidget {
                       icon: Icons.bookmark_added_outlined,
                       text: 'Saved',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) =>
-                                const BookmarkPlanScreen(savedPlans: [],),
-                          ),
-                        );
+                        onBookmarkTap();
                       },
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
                       onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const HistoryPlanScreen(),
-                          ),
-                        );
+                        
                       },
                     ),
                     const SizedBox(height: 20),
@@ -116,7 +106,7 @@ class ProfileScreen extends StatelessWidget {
     required IconData icon,
     required String text,
     required VoidCallback onTap,
-    Color color = Colors.orange, // Default icon color
+    Color color = const Color(0xFFFF6838), // Default icon color
   }) {
     return ListTile(
       leading: Icon(icon, color: color),
