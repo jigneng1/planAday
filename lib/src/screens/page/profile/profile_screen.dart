@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
-import 'package:plan_a_day/services/api_service.dart'; // Import your apiService
+import 'package:plan_a_day/services/api_service.dart'; 
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onBookmarkTap;
@@ -16,32 +17,53 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   ApiService apiService = ApiService();
-  String username = 'Username';
-
+  String username = 'Loading...';
+  
   @override
-  void initState() {
-    super.initState();
-    _fetchUserDetails();
-  }
+void initState() {
+  super.initState();
+  _checkAndFetchUserDetails();
+}
 
-  Future<void> _fetchUserDetails() async {
-    try {
-      final userDetails = await apiService.getUserDetail();
-      setState(() {
-        username = userDetails?['username'] ?? 'Unknown User';
-      });
-    } catch (e) {
-      setState(() {
-        username = 'Error fetching username';
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error fetching user details: ${e.toString()}'),
-          backgroundColor: Colors.red,
-        ),
-      );
-    }
+Future<void> _checkAndFetchUserDetails() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  bool hasFetchedUsername = prefs.getBool('hasFetchedUsername') ?? false;
+
+  if (!hasFetchedUsername) {
+    await _fetchUserDetails();
+    await prefs.setBool('hasFetchedUsername', true);
+  } else {
+    setState(() {
+      username = prefs.getString('username') ?? 'Unknown User';
+    });
   }
+}
+
+Future<void> _fetchUserDetails() async {
+  try {
+    final userDetails = await apiService.getUserDetail();
+    String fetchedUsername = userDetails?['username'] ?? 'Unknown User';
+
+    setState(() {
+      username = fetchedUsername;
+    });
+
+    // Store the username locally for future loads
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('username', fetchedUsername);
+
+  } catch (e) {
+    setState(() {
+      username = 'Error fetching username';
+    });
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Error fetching user details: ${e.toString()}'),
+        backgroundColor: Colors.red,
+      ),
+    );
+  }
+}
 
   // Function to handle logout
   void _handleLogout(BuildContext context) async {
@@ -117,9 +139,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
-                      onTap: () {
-                        // Implement your history screen navigation here
-                      },
+                      onTap: widget.onHistoryTap,
                     ),
                     const SizedBox(height: 20),
                     const Divider(thickness: 1),
