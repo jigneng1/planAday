@@ -55,14 +55,14 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  void getPlanHistory() async {
+void getPlanHistory() async {
     final List<Map<String, dynamic>>? plans = await apiService.getPlanHistory();
     if (mounted) {
       setState(() {
-        allPlans = plans!;
+        allPlans = plans ?? []; 
       });
     }
-  }
+}
 
   @override
   Widget build(BuildContext context) {
