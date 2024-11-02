@@ -10,6 +10,7 @@ class OtherPlanScreen extends StatefulWidget {
   final Function(String placeID, String planID) onViewPlaceDetail;
   final Function(String planID) onStartPlan;
   final VoidCallback onStopPlan;
+  final bool fromHistory;
 
   const OtherPlanScreen({
     super.key,
@@ -19,6 +20,7 @@ class OtherPlanScreen extends StatefulWidget {
     required this.onGoingPlan,
     required this.onStartPlan,
     required this.onStopPlan,
+    required this.fromHistory,
   });
 
   @override
@@ -44,30 +46,36 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
   }
 
   void _initializePlan() {
-  // Check if planData contains selectedPlaces
-  if (widget.planData.containsKey('selectedPlaces')) {
-    // Convert the List of places into a Map with id as key
-    List<dynamic> placesList = widget.planData['selectedPlaces'];
-    selectedPlaces = {};
-    
-    for (var place in placesList) {
-      // Use the place's id as the key and the entire place object as the value
-      selectedPlaces![place['id']] = {
-        'id': place['id'],
-        'displayName': place['displayName'],
-        'primaryType': place['primaryType'] ?? 'unknown',
-        'shortFormattedAddress': place['shortFormattedAddress'],
-        'photosUrl': place['photosUrl'],
-      };
+    if (mounted) {
+      setState(() {
+        isBookmark =
+            widget.fromHistory; // Ensure a default value
+      });
     }
-    
-    if (selectedPlaces!.isNotEmpty) {
-      getTimeTravel();
+    // Check if planData contains selectedPlaces
+    if (widget.planData.containsKey('selectedPlaces')) {
+      // Convert the List of places into a Map with id as key
+      List<dynamic> placesList = widget.planData['selectedPlaces'];
+      selectedPlaces = {};
+
+      for (var place in placesList) {
+        // Use the place's id as the key and the entire place object as the value
+        selectedPlaces![place['id']] = {
+          'id': place['id'],
+          'displayName': place['displayName'],
+          'primaryType': place['primaryType'] ?? 'unknown',
+          'shortFormattedAddress': place['shortFormattedAddress'],
+          'photosUrl': place['photosUrl'],
+        };
+      }
+
+      if (selectedPlaces!.isNotEmpty) {
+        getTimeTravel();
+      }
+    } else {
+      selectedPlaces = {}; // Initialize with an empty map if not available
     }
-  } else {
-    selectedPlaces = {}; // Initialize with an empty map if not available
   }
-}
 
   String formatType(String type) {
     return type
@@ -242,31 +250,38 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
     );
   }
 
-  void handleBookmark() async{
-    if(!isBookmark){
-      bool setBookmark = await apiService.createBookmark(widget.planData['_id']);
-      if(setBookmark){
+  void handleBookmark() async {
+    if (!isBookmark) {
+      bool setBookmark =
+          await apiService.createBookmark(widget.planData['_id']);
+      if (setBookmark) {
         setState(() {
-        isBookmark = true;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
+          isBookmark = true;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               backgroundColor: Colors.white,
-              content: Text('Bookmark plan successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
+              content: Text(
+                'Bookmark plan successfully!',
+                style: TextStyle(color: Color(0xFFFF6838)),
+              ),
               behavior: SnackBarBehavior.floating),
         );
       }
-    }
-    else{
-      bool setBookmark = await apiService.deleteBookmark(widget.planData['_id']);
-      if(setBookmark){
+    } else {
+      bool setBookmark =
+          await apiService.deleteBookmark(widget.planData['_id']);
+      if (setBookmark) {
         setState(() {
-        isBookmark = false;
-      });
-      ScaffoldMessenger.of(context).showSnackBar(
+          isBookmark = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            backgroundColor: Colors.white,
-              content: Text('Remove bookmark successfully!', style: TextStyle(color: Color(0xFFFF6838)),),
+              backgroundColor: Colors.white,
+              content: Text(
+                'Remove bookmark successfully!',
+                style: TextStyle(color: Color(0xFFFF6838)),
+              ),
               behavior: SnackBarBehavior.floating),
         );
       }
@@ -342,7 +357,17 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
         actions: [
           IconButton(
             onPressed: handleBookmark,
-            icon: isBookmark ? const Icon(Icons.bookmark, color: Colors.white, size: 30,) : const Icon(Icons.bookmark_border, color: Colors.white, size: 30,),
+            icon: isBookmark
+                ? const Icon(
+                    Icons.bookmark,
+                    color: Colors.white,
+                    size: 30,
+                  )
+                : const Icon(
+                    Icons.bookmark_border,
+                    color: Colors.white,
+                    size: 30,
+                  ),
           ),
         ],
       ),
@@ -467,10 +492,9 @@ class _OtherPlanScreenState extends State<OtherPlanScreen> {
                       : handleStartPlan();
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      widget.onGoingPlan != widget.planData['_id']
-                          ? primaryColor
-                          : Colors.red,
+                  backgroundColor: widget.onGoingPlan != widget.planData['_id']
+                      ? primaryColor
+                      : Colors.red,
                 ),
                 child: Padding(
                   padding:

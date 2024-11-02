@@ -37,6 +37,11 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Map<String, dynamic>> _allPlans = [];
   // final List<Map<String, dynamic>> _suggestPlans = getSuggestPlan();
 
+  bool fromHistory() {
+    // Ensure _indexBeforeCreate is not null before comparing
+    return (_indexBeforeCreate ?? 0) == 13; // Use a default value if null
+  }
+
   void onTabTapped(int index) {
     if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -54,8 +59,8 @@ class _MainLayoutState extends State<MainLayout> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       setState(() {
         _isLoading = true;
-      _currentIndex = 0;
-      _isLoading = false;
+        _currentIndex = 0;
+        _isLoading = false;
       });
     });
   }
@@ -88,7 +93,7 @@ class _MainLayoutState extends State<MainLayout> {
     }
   }
 
-  void _goBack(){
+  void _goBack() {
     setState(() {
       _currentIndex = _indexBeforeCreate;
     });
@@ -308,7 +313,10 @@ class _MainLayoutState extends State<MainLayout> {
         onGoingPlan: _ongoingplanData,
         onEndGoingPlan: _onStopPlan,
       ),
-      ProfileScreen(onBookmarkTap: _goToBookmarkPlanScreen,onHistoryTap: _goToHistoryPlanScreen,),
+      ProfileScreen(
+        onBookmarkTap: _goToBookmarkPlanScreen,
+        onHistoryTap: _goToHistoryPlanScreen,
+      ),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
         onGeneratePlan: _handleGeneratePlan,
@@ -340,6 +348,7 @@ class _MainLayoutState extends State<MainLayout> {
         onGoingPlan: _ongoingPlanID,
         onStopPlan: _onStopPlan,
         onStartPlan: _onStartPlan,
+        fromHistory: fromHistory(),
       ),
       const WelcomeScreen(),
       const RegisterScreen(),
@@ -411,45 +420,45 @@ class _MainLayoutState extends State<MainLayout> {
               ),
             ),
       bottomNavigationBar: Builder(
-        builder: (BuildContext context){
+        builder: (BuildContext context) {
           return BottomAppBar(
-          color: Colors.white,
-          child: Container(
-            margin: const EdgeInsets.only(left: 12.0, right: 12.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
-                  child: IconButton(
+            color: Colors.white,
+            child: Container(
+              margin: const EdgeInsets.only(left: 12.0, right: 12.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.fromLTRB(0, 0, 80, 0),
+                    child: IconButton(
+                      onPressed: () {
+                        onTabTapped(0);
+                      },
+                      iconSize: _currentIndex == 0 ? 40 : 30,
+                      icon: Icon(
+                        Icons.home_filled,
+                        color: _currentIndex == 0
+                            ? Colors.orange.shade900
+                            : Colors.grey.shade400,
+                      ),
+                    ),
+                  ),
+                  IconButton(
                     onPressed: () {
-                      onTabTapped(0);
+                      onTabTapped(1);
                     },
-                    iconSize: _currentIndex == 0 ? 40 : 30,
+                    iconSize: _currentIndex == 1 ? 40 : 30,
                     icon: Icon(
-                      Icons.home_filled,
-                      color: _currentIndex == 0
+                      Icons.person,
+                      color: _currentIndex == 1
                           ? Colors.orange.shade900
                           : Colors.grey.shade400,
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {
-                    onTabTapped(1);
-                  },
-                  iconSize: _currentIndex == 1 ? 40 : 30,
-                  icon: Icon(
-                    Icons.person,
-                    color: _currentIndex == 1
-                        ? Colors.orange.shade900
-                        : Colors.grey.shade400,
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
+          );
         },
       ),
     );
