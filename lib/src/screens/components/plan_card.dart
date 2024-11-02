@@ -53,15 +53,18 @@ class PlanCard extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              title,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                            Flexible(
+  child: Text(
+    title,
+    overflow: TextOverflow.ellipsis,
+    maxLines: 1,
+    style: const TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+    ),
+  ),
+),
+
                             Row(
                           children: [
                             const Icon(
@@ -69,16 +72,21 @@ class PlanCard extends StatelessWidget {
                               size: 20,
                               color: Color(0xFFFF6838),
                             ),
-                            const SizedBox(width: 7),
+                            const SizedBox(width: 4),
+                            // const Text('~',
+                            //     style: TextStyle(
+                            //       fontWeight: FontWeight.w900,
+                            //       fontSize: 14,
+                            //     )),
                             Text(time,
                                 style: const TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                 )),
                             const Text(' Hours',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 14,
+                                  fontSize: 12,
                                 )),
                           ],
                         )

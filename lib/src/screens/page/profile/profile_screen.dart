@@ -1,19 +1,52 @@
 import 'package:flutter/material.dart';
-// import 'package:plan_a_day/src/screens/bookmark_plan.dart';
-// import 'package:plan_a_day/src/screens/history_plan_screen.dart';
 import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
+import 'package:plan_a_day/services/api_service.dart'; // Import your apiService
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   final VoidCallback onBookmarkTap;
-  const ProfileScreen({super.key, required this.onBookmarkTap});
+  final VoidCallback onHistoryTap;
+
+  const ProfileScreen({super.key, required this.onBookmarkTap, required this.onHistoryTap});
+
+  @override
+  _ProfileScreenState createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  ApiService apiService = ApiService();
+  String username = 'Username';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchUserDetails();
+  }
+
+  Future<void> _fetchUserDetails() async {
+    try {
+      final userDetails = await apiService.getUserDetail();
+      setState(() {
+        username = userDetails?['username'] ?? 'Unknown User';
+      });
+    } catch (e) {
+      setState(() {
+        username = 'Error fetching username';
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error fetching user details: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   // Function to handle logout
   void _handleLogout(BuildContext context) async {
     try {
       await clearToken(); // Clear the stored token
-
       // Navigate to login page and remove all previous routes
       Navigator.pushReplacement(
         context,
@@ -41,15 +74,22 @@ class ProfileScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(height: 24),
-              const Text(
-                "username",
+              Center(
+                child: Image.asset(
+                  'assets/images/launchLogo2.png',
+                  height: 120,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                username,
                 style: const TextStyle(
                   fontSize: 22,
                   fontWeight: FontWeight.bold,
                   color: Colors.black,
                 ),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 12),
               const Divider(thickness: 1, indent: 40, endIndent: 40),
 
               // Menu items
@@ -70,17 +110,15 @@ class ProfileScreen extends StatelessWidget {
                       },
                     ),
                     _buildProfileMenuItem(
-                      icon: Icons.bookmark_added_outlined,
-                      text: 'Saved',
-                      onTap: () {
-                        onBookmarkTap();
-                      },
+                      icon: Icons.bookmark_border,
+                      text: 'Bookmark',
+                      onTap: widget.onBookmarkTap,
                     ),
                     _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
                       onTap: () {
-                        
+                        // Implement your history screen navigation here
                       },
                     ),
                     const SizedBox(height: 20),
