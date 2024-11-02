@@ -372,7 +372,7 @@ class ApiService {
     }
   }
 
-  Future<List<Map<String, dynamic>>?> getPlanHistory() async {
+  Future<List<Map<String, dynamic>>> getPlanHistory() async {
     final url = Uri.parse('$apiKey/getPlanHistory');
     var token = await getToken();
 
@@ -380,20 +380,26 @@ class ApiService {
       url,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
+        'Authorization': 'Bearer $token',
       },
     );
 
     if (response.statusCode == 200) {
       final responseData = jsonDecode(response.body);
-      final List<dynamic> plansList = responseData['planHistory'];
-      final List<Map<String, dynamic>> historyPlans =
-          plansList.map((plan) => plan as Map<String, dynamic>).toList();
-
-      return historyPlans;
+      // Check if planHistory is present and is a list
+      if (responseData['planHistory'] is List) {
+        final List<dynamic> plansList = responseData['planHistory'];
+        final List<Map<String, dynamic>> historyPlans =
+            plansList.map((plan) => plan as Map<String, dynamic>).toList();
+        print('Response data: $responseData');
+        return historyPlans;
+      } else {
+        print('planHistory is null or not a List');
+        return [];
+      }
     } else {
       print('Failed to fetch suggest plans: ${response.statusCode}');
-      return null;
+      return [];
     }
   }
 

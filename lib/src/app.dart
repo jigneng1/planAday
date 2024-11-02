@@ -7,6 +7,7 @@ import 'package:plan_a_day/src/screens/home_screen.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 import 'package:plan_a_day/src/screens/page/plan/other_plan_screen.dart';
 import 'package:plan_a_day/src/screens/page/profile/bookmark_screen.dart';
+import 'package:plan_a_day/src/screens/page/profile/history_screen.dart';
 import 'package:plan_a_day/src/screens/page/profile/persona_screen.dart';
 import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 import 'package:plan_a_day/src/screens/page/plan/plan_screen.dart';
@@ -275,6 +276,16 @@ class _MainLayoutState extends State<MainLayout> {
     });
   }
 
+  void _goToHistoryPlanScreen() {
+    if (!mounted) return;
+    setState(() {
+      _isLoading = true;
+      _currentIndex = 14;
+      _indexBeforeCreate = 14;
+      _isLoading = false;
+    });
+  }
+
   void _goToProfile() {
     if (!mounted) return;
     setState(() {
@@ -297,7 +308,7 @@ class _MainLayoutState extends State<MainLayout> {
         onGoingPlan: _ongoingplanData,
         onEndGoingPlan: _onStopPlan,
       ),
-      ProfileScreen(onBookmarkTap: _goToBookmarkPlanScreen,),
+      ProfileScreen(onBookmarkTap: _goToBookmarkPlanScreen,onHistoryTap: _goToHistoryPlanScreen,),
       CreatePlanScreen(
         onClose: _goToHomeScreen,
         onGeneratePlan: _handleGeneratePlan,
@@ -349,6 +360,7 @@ class _MainLayoutState extends State<MainLayout> {
         onClose: _goToProfile,
         onViewPlan: _goToOtherPlanScreen,
       ),
+      HistoryPlanScreen(onClose: _goToProfile, onViewPlan: _goToPlanScreen),
     ];
 
     return Scaffold(
