@@ -18,7 +18,7 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   ApiService apiService = ApiService();
   String username = 'Loading...';
-  
+
   @override
 void initState() {
   super.initState();
@@ -132,14 +132,14 @@ Future<void> _fetchUserDetails() async {
                       },
                     ),
                     _buildProfileMenuItem(
-                      icon: Icons.bookmark_border,
-                      text: 'Bookmark',
-                      onTap: widget.onBookmarkTap,
-                    ),
-                    _buildProfileMenuItem(
                       icon: Icons.history,
                       text: 'History',
                       onTap: widget.onHistoryTap,
+                    ),
+                    _buildProfileMenuItem(
+                      icon: Icons.bookmark_border,
+                      text: 'Bookmark',
+                      onTap: widget.onBookmarkTap,
                     ),
                     const SizedBox(height: 20),
                     const Divider(thickness: 1),
