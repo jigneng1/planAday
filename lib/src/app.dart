@@ -234,6 +234,9 @@ class _MainLayoutState extends State<MainLayout> {
   }
 
   void onDone(Map<String, dynamic> planData) async {
+    setState(() {
+      _isLoading = true;
+    });
     final planId = await apiService.savePlan(planData);
 
     _goToPlanScreen(planId);
@@ -253,6 +256,7 @@ class _MainLayoutState extends State<MainLayout> {
 
           _currentIndex = 12;
           _indexBeforeCreate = 12;
+          _isLoading = false;
         });
       } else {
         print('Failed to receive new plan data');
