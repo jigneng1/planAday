@@ -264,9 +264,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       List<String> errorMessages = [];
 
-      // if (_selectedLocation == null) {
-      //   errorMessages.add('Please select a location on the map.');
-      // }
+      if (_selectedLocation == null) {
+        errorMessages.add('Please select a location on the map.');
+      }
       if (_planNameController.text.isEmpty) {
         errorMessages.add('Please enter the plan name.');
       }
@@ -304,10 +304,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             .map((activity) => activity.toLowerCase())
             .toList(),
         'startDay': _dayOfWeek,
-        // 'lad': _selectedLocation?.latitude.toString(),
-        // 'lng': _selectedLocation?.longitude.toString(),
-        'lad': '13.651366869948392',
-        'lng': '100.49641061073015',
+        'lad': _selectedLocation?.latitude.toString(),
+        'lng': _selectedLocation?.longitude.toString(),
+        // 'lad': '13.651366869948392',
+        // 'lng': '100.49641061073015',
       };
 
       // print(planData);
