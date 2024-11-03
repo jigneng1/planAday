@@ -70,17 +70,17 @@ class _PlanScreenState extends State<PlanScreen> {
   }
 
   String _formatDate(String dateString) {
-  try {
-    // Parse the date from the `dd/MM` format
-    final parsedDate = DateFormat('dd/MM').parse(dateString);
-    
-    // Format the date to `dd MMM`
-    return DateFormat('d MMM').format(parsedDate);
-  } catch (e) {
-    // Return "Today" if parsing fails or if dateString is empty
-    return 'Today';
+    try {
+      // Parse the date from the `dd/MM` format
+      final parsedDate = DateFormat('dd/MM').parse(dateString);
+
+      // Format the date to `dd MMM`
+      return DateFormat('d MMM').format(parsedDate);
+    } catch (e) {
+      // Return "Today" if parsing fails or if dateString is empty
+      return 'Today';
+    }
   }
-}
 
   void getTimeTravel() async {
     if (widget.planData['numberOfPlaces'] > 1) {
@@ -540,167 +540,169 @@ class _PlanScreenState extends State<PlanScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-  decoration: BoxDecoration(
-    borderRadius: BorderRadius.circular(15),
-    color: Colors.white,
-    boxShadow: [
-      BoxShadow(
-        color: Colors.grey.withOpacity(0.15),
-        blurRadius: 10,
-        offset: const Offset(0, 4),
-      ),
-    ],
-  ),
-  padding: const EdgeInsets.all(10),
-  child: Row(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      // Visibility Box
-      Expanded(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-            ],
-          ),
-          padding: const EdgeInsets.all(15),
-          margin: const EdgeInsets.only(bottom: 15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              isPublic
-                  ? Icon(Icons.public, size: 25, color: primaryColor)
-                  : Icon(Icons.lock, size: 25, color: primaryColor),
-              const SizedBox(width: 10),
-              const Text(
-                'Visible',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
+              padding: const EdgeInsets.all(10),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  // Visibility Box
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.only(bottom: 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          isPublic
+                              ? Icon(Icons.public,
+                                  size: 25, color: primaryColor)
+                              : Icon(Icons.lock, size: 25, color: primaryColor),
+                          const SizedBox(height: 1),
+                          const Text(
+                            'Visible',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            isPublic ? 'Public' : 'Private',
+                            style: TextStyle(fontSize: 16, color: primaryColor),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Duration Box
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.only(bottom: 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.timer, size: 25, color: primaryColor),
+                          const SizedBox(height: 1),
+                          const Text(
+                            'Duration',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            widget.planData['numberOfPlaces'] != null
+                                ? '${widget.planData['numberOfPlaces']} hours'
+                                : 'Unknown',
+                            style: TextStyle(fontSize: 16, color: primaryColor),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  // Start Date Box
+                  Expanded(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.3),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      padding: const EdgeInsets.all(15),
+                      margin: const EdgeInsets.only(bottom: 15),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.calendar_today,
+                              size: 25, color: primaryColor),
+                          const SizedBox(height: 1),
+                          const Text(
+                            'Date',
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                          const SizedBox(height: 5),
+                          Text(
+                            _formatDate(
+                                widget.planData['startDate'] ?? 'Today'),
+                            style: TextStyle(fontSize: 16, color: primaryColor),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(width: 5),
-              Text(
-                isPublic ? 'Public' : 'Private',
-                style: TextStyle(fontSize: 16, color: primaryColor),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(width: 10),
-      // Duration Box
-      Expanded(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(15),
-          margin: const EdgeInsets.only(bottom: 15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.timer, size: 25, color: primaryColor),
-              const SizedBox(width: 10),
-              const Text(
-                'Duration',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                widget.planData['numberOfPlaces'] != null
-                    ? '${widget.planData['numberOfPlaces']} hours'
-                    : 'Unknown',
-                style: TextStyle(fontSize: 16, color: primaryColor),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
-              ),
-            ],
-          ),
-        ),
-      ),
-      const SizedBox(width: 10),
-      // Start Date Box
-      Expanded(
-        child: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withOpacity(0.3),
-                spreadRadius: 2,
-                blurRadius: 5,
-                offset: Offset(0, 3),
-              ),
-            ],
-          ),
-          padding: const EdgeInsets.all(15),
-          margin: const EdgeInsets.only(bottom: 15),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.calendar_today, size: 25, color: primaryColor),
-              const SizedBox(width: 10),
-              const Text(
-                'Date',
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
-                ),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
-              ),
-              const SizedBox(width: 5),
-              Text(
-                _formatDate(widget.planData['startDate'] ?? 'Today'),
-                style: TextStyle(fontSize: 16, color: primaryColor),
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
-                maxLines: 1,
-              ),
-            ],
-          ),
-        ),
-      ),
-    ],
-  ),
-),
-
+            ),
             const SizedBox(height: 20),
             Container(
               decoration: BoxDecoration(
