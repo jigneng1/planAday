@@ -107,7 +107,6 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
 // Iterate over the list of selected places
     for (int i = 0; i < places.length; i++) {
-      final details = places[i];
 
       // Calculate the time for each place
       final placeTime = startTime.add(Duration(hours: i));

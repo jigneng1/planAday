@@ -50,10 +50,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
   @override
   void initState() {
     super.initState();
-    _getCurrentLocation();
-    // _selectedPlaceName = 'Default Current Place';
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _getCurrentLocation();
+    });
 
-    // Add listeners to update `_hasTriedSubmitting` when input changes
     _planNameController.addListener(_onInputChange);
     _startTimeController.addListener(_onInputChange);
     _startDateController.addListener(_onInputChange);
@@ -264,9 +264,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       List<String> errorMessages = [];
 
-      if (_selectedLocation == null) {
-        errorMessages.add('Please select a location on the map.');
-      }
+      // if (_selectedLocation == null) {
+      //   errorMessages.add('Please select a location on the map.');
+      // }
       if (_planNameController.text.isEmpty) {
         errorMessages.add('Please enter the plan name.');
       }
@@ -285,13 +285,15 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
               backgroundColor: Colors.white,
-              content: Text(errorMessages.join('\n'), style: const TextStyle(color: Color(0xFFFF6838))),
+              content: Text(errorMessages.join('\n'),
+                  style: const TextStyle(color: Color(0xFFFF6838))),
               behavior: SnackBarBehavior.floating),
         );
         return;
       }
 
-      final startTime = _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
+      final startTime =
+          _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
 
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
@@ -302,10 +304,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
             .map((activity) => activity.toLowerCase())
             .toList(),
         'startDay': _dayOfWeek,
-        'lad': _selectedLocation?.latitude.toString(),
-        'lng': _selectedLocation?.longitude.toString(),
-        // 'lad': '13.651366869948392',
-        // 'lng': '100.49641061073015',
+        // 'lad': _selectedLocation?.latitude.toString(),
+        // 'lng': _selectedLocation?.longitude.toString(),
+        'lad': '13.651366869948392',
+        'lng': '100.49641061073015',
       };
 
       // print(planData);
@@ -336,269 +338,278 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
       ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
-          child: GestureDetector(
-  onTap: () {
-    FocusScope.of(context).unfocus(); // Dismiss the keyboard when tapping outside the TextField
-  },
-  child: Form(
-    key: _formKey,
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Plan name',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        TextFormField(
-          controller: _planNameController,
-          decoration: InputDecoration(
-            floatingLabelStyle: TextStyle(color: primaryColor),
-            hintText: 'What\'s your plan called?',
-            border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20)),
-            ),
-          ),
-          validator: (value) {
-            if (_hasTriedSubmitting &&
-                (value == null || value.isEmpty)) {
-              return 'Please enter a plan name';
-            }
-            return null;
-          },
-        ),
-        const SizedBox(height: 30),
-        const Text(
-          'Select place',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        Wrap(
-          spacing: 10,
-          runSpacing: 5,
-          children: _activities.map((activity) {
-            final isSelected = _selectedActivities.contains(activity);
-            return FilterChip(
-              label: Text(
-                activity,
-                style: TextStyle(
-                    color: isSelected ? Colors.white : primaryColor),
-              ),
-              selected: isSelected,
-              selectedColor: primaryColor,
-              showCheckmark: false,
-              side: BorderSide(
-                  color: isSelected ? primaryColor : primaryColor),
-              onSelected: (bool selected) {
-                _toggleActivity(activity);
+            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+            child: GestureDetector(
+              onTap: () {
+                FocusScope.of(context)
+                    .unfocus(); // Dismiss the keyboard when tapping outside the TextField
               },
-            );
-          }).toList(),
-        ),
-        const SizedBox(height: 30),
-        const Text(
-          'Location area',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          height: 200,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(8),
-              color: Colors.grey.shade300,
-            ),
-            child: _currentLocation == null
-                ? const Center(child: CircularProgressIndicator())
-                : GoogleMap(
-                    onMapCreated: _onMapCreated,
-                    initialCameraPosition: CameraPosition(
-                      target: _currentLocation!,
-                      zoom: 14.0,
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Plan name',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
-                    onTap: _onMapTap,
-                    markers: _selectedLocation != null
-                        ? {
-                            Marker(
-                              markerId: const MarkerId('selected_location'),
-                              position: _selectedLocation!,
-                            ),
-                          }
-                        : {},
-                    myLocationEnabled: true,
-                    myLocationButtonEnabled: true,
-                    scrollGesturesEnabled: true,
-                    zoomGesturesEnabled: true,
-                    rotateGesturesEnabled: false,
-                    tiltGesturesEnabled: false,
-                    gestureRecognizers: Platform.isIOS
-                        ? <Factory<OneSequenceGestureRecognizer>>{
-                            Factory<OneSequenceGestureRecognizer>(
-                              () => EagerGestureRecognizer(),
-                            ),
-                          }
-                        : {},
-                  ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (_selectedLocation != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.location_on, color: primaryColor),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Selected location',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                          color: primaryColor,
+                    const SizedBox(height: 12),
+                    TextFormField(
+                      controller: _planNameController,
+                      decoration: InputDecoration(
+                        floatingLabelStyle: TextStyle(color: primaryColor),
+                        hintText: 'What\'s your plan called?',
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                       ),
-                      Text(
-                        _selectedPlaceName ?? 'No place selected',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                      validator: (value) {
+                        if (_hasTriedSubmitting &&
+                            (value == null || value.isEmpty)) {
+                          return 'Please enter a plan name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Select place',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Wrap(
+                      spacing: 10,
+                      runSpacing: 5,
+                      children: _activities.map((activity) {
+                        final isSelected =
+                            _selectedActivities.contains(activity);
+                        return FilterChip(
+                          label: Text(
+                            activity,
+                            style: TextStyle(
+                                color:
+                                    isSelected ? Colors.white : primaryColor),
+                          ),
+                          selected: isSelected,
+                          selectedColor: primaryColor,
+                          showCheckmark: false,
+                          side: BorderSide(
+                              color: isSelected ? primaryColor : primaryColor),
+                          onSelected: (bool selected) {
+                            _toggleActivity(activity);
+                          },
+                        );
+                      }).toList(),
+                    ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Location area',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 200,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.grey.shade300,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        child: _currentLocation == null
+                            ? const Center(child: CircularProgressIndicator())
+                            : GoogleMap(
+                                onMapCreated: _onMapCreated,
+                                initialCameraPosition: CameraPosition(
+                                  target: _currentLocation!,
+                                  zoom: 14.0,
+                                ),
+                                onTap: _onMapTap,
+                                markers: _selectedLocation != null
+                                    ? {
+                                        Marker(
+                                          markerId: const MarkerId(
+                                              'selected_location'),
+                                          position: _selectedLocation!,
+                                        ),
+                                      }
+                                    : {},
+                                myLocationEnabled: true,
+                                myLocationButtonEnabled: true,
+                                scrollGesturesEnabled: true,
+                                zoomGesturesEnabled: true,
+                                rotateGesturesEnabled: false,
+                                tiltGesturesEnabled: false,
+                                gestureRecognizers: Platform.isIOS
+                                    ? <Factory<OneSequenceGestureRecognizer>>{
+                                        Factory<OneSequenceGestureRecognizer>(
+                                          () => EagerGestureRecognizer(),
+                                        ),
+                                      }
+                                    : {},
+                              ),
                       ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        const SizedBox(height: 30),
-        Row(
-          children: [
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _selectStartDate(context),
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    controller: _startDateController,
-                    decoration: const InputDecoration(
-                      labelText: 'Start date',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      prefixIcon: Icon(Icons.calendar_today),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 16.0),
                     ),
-                    validator: (value) {
-                      if (_hasTriedSubmitting &&
-                          (value == null || value.isEmpty)) {
-                        return 'Please select a start date';
-                      }
-                      return null;
-                    },
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: GestureDetector(
-                onTap: () => _selectStartTime(context),
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    controller: _startTimeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Start time',
-                      border: OutlineInputBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20))),
-                      prefixIcon: Icon(Icons.access_time),
-                      contentPadding: EdgeInsets.symmetric(
-                          vertical: 20.0, horizontal: 16.0),
+                    const SizedBox(height: 12),
+                    if (_selectedLocation != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Icons.location_on, color: primaryColor),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Selected location',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: primaryColor,
+                                    ),
+                                  ),
+                                  Text(
+                                    _selectedPlaceName ?? 'No place selected',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    const SizedBox(height: 30),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _selectStartDate(context),
+                            child: AbsorbPointer(
+                              child: TextFormField(
+                                controller: _startDateController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Start date',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  prefixIcon: Icon(Icons.calendar_today),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 20.0, horizontal: 16.0),
+                                ),
+                                validator: (value) {
+                                  if (_hasTriedSubmitting &&
+                                      (value == null || value.isEmpty)) {
+                                    return 'Please select a start date';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: GestureDetector(
+                            onTap: () => _selectStartTime(context),
+                            child: AbsorbPointer(
+                              child: TextFormField(
+                                controller: _startTimeController,
+                                decoration: const InputDecoration(
+                                  labelText: 'Start time',
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.all(
+                                          Radius.circular(20))),
+                                  prefixIcon: Icon(Icons.access_time),
+                                  contentPadding: EdgeInsets.symmetric(
+                                      vertical: 20.0, horizontal: 16.0),
+                                ),
+                                validator: (value) {
+                                  if (_hasTriedSubmitting &&
+                                      (value == null || value.isEmpty)) {
+                                    return 'Please select a start time';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                    validator: (value) {
-                      if (_hasTriedSubmitting &&
-                          (value == null || value.isEmpty)) {
-                        return 'Please select a start time';
-                      }
-                      return null;
-                    },
-                  ),
+                    const SizedBox(height: 30),
+                    const Text(
+                      'Number of places',
+                      style:
+                          TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove),
+                          onPressed: _decrementNumberOfPlaces,
+                        ),
+                        SizedBox(
+                          width: 80,
+                          child: TextField(
+                            controller: _numberOfPlacesController,
+                            decoration: const InputDecoration(
+                              border: OutlineInputBorder(),
+                              contentPadding:
+                                  EdgeInsets.symmetric(horizontal: 16),
+                            ),
+                            keyboardType: TextInputType.number,
+                            textAlign: TextAlign.center,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.add),
+                          onPressed: _incrementNumberOfPlaces,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _generatePlan,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: primaryColor,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 18),
+                          ),
+                          child: const Text(
+                            'Generate Plan',
+                            style: TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                  ],
                 ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 30),
-        const Text(
-          'Number of places',
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            IconButton(
-              icon: const Icon(Icons.remove),
-              onPressed: _decrementNumberOfPlaces,
-            ),
-            SizedBox(
-              width: 80,
-              child: TextField(
-                controller: _numberOfPlacesController,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                ),
-                keyboardType: TextInputType.number,
-                textAlign: TextAlign.center,
-                inputFormatters: [
-                  FilteringTextInputFormatter.digitsOnly,
-                ],
-              ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: _incrementNumberOfPlaces,
-            ),
-          ],
-        ),
-        const SizedBox(height: 40),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: _generatePlan,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryColor,
-                foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(
-                    vertical: 18),
-              ),
-              child: const Text(
-                'Generate Plan',
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.w600),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 30),
-      ],
-    ),
-  ),
-)
-        ),
+            )),
       ),
     );
   }
