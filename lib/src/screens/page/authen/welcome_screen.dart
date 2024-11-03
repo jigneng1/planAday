@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:plan_a_day/services/auth_token.dart';
 import 'package:plan_a_day/src/app.dart';
-import 'package:plan_a_day/src/screens/login_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:plan_a_day/src/screens/welcome_screen.dart';
+import 'package:plan_a_day/src/screens/page/authen/welcome_screen.dart';
 
 void main() async {
   await dotenv.load(fileName: ".env");

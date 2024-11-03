@@ -1,35 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import '../../services/api_service.dart';
-import 'components/place_card.dart'; // Import the custom card widget
+import '../../../../services/api_service.dart';
+import '../../components/place_card.dart'; // Import the custom card widget
 
-class PlanScreen extends StatefulWidget {
+class GeneratedPlanScreen extends StatefulWidget {
   final Map<String, dynamic> planData;
   final VoidCallback onClose;
-  final Function(String planID) onStartPlan;
   final Function(String placeID, String planID) onViewPlaceDetail;
-  final VoidCallback onStopPlan;
-  final String onGoingPlan;
   final Function(Map<String, dynamic>) onEditPlan;
   final Function(Map<String, dynamic>) onRegeneratePlan;
+  final Function(Map<String, dynamic>) onDone;
 
-  const PlanScreen(
+
+  const GeneratedPlanScreen(
       {super.key,
       required this.onClose,
       required this.planData,
       required this.onEditPlan,
-      required this.onStartPlan,
-      required this.onGoingPlan,
-      required this.onStopPlan,
+      required this.onDone,
       required this.onViewPlaceDetail,
       required this.onRegeneratePlan});
 
   @override
-  _PlanScreenState createState() => _PlanScreenState();
+  _GeneratedPlanScreenState createState() => _GeneratedPlanScreenState();
 }
 
-class _PlanScreenState extends State<PlanScreen> {
-  Map<String, dynamic>? selectedPlaces;
+class _GeneratedPlanScreenState extends State<GeneratedPlanScreen> {
+  List<Map<String, dynamic>>? selectedPlaces;
   List<Map<String, String>> travelTimes = [];
   final ApiService apiService = ApiService();
 
@@ -47,13 +44,18 @@ class _PlanScreenState extends State<PlanScreen> {
   void _initializePlan() {
     // Use existing selected places if available
     if (widget.planData.containsKey('selectedPlaces')) {
-      selectedPlaces =
-          Map<String, dynamic>.from(widget.planData['selectedPlaces']);
-      if (selectedPlaces != null) {
-        getTimeTravel();
+      // Ensure that 'selectedPlaces' is a list
+      if (widget.planData['selectedPlaces'] is List) {
+        selectedPlaces =
+            List<Map<String, dynamic>>.from(widget.planData['selectedPlaces']);
+        getTimeTravel(); // Call to get travel times if places are selected
+      } else {
+        // Handle the case where 'selectedPlaces' is not a list
+        print('selectedPlaces is not a List.');
+        selectedPlaces = []; // Initialize with an empty list if not available
       }
     } else {
-      selectedPlaces = {}; // Initialize with an empty map if not available
+      selectedPlaces = []; // Initialize with an empty list if not available
     }
   }
 
@@ -157,7 +159,7 @@ class _PlanScreenState extends State<PlanScreen> {
         if (plan != null && plan.isNotEmpty) {
           if (mounted) {
             setState(() {
-              selectedPlaces = Map<String, dynamic>.from(plan);
+              selectedPlaces = List<Map<String, dynamic>>.from(plan);
               getTimeTravel(); // Call the travel time fetching function
               Map<String, dynamic> planDetail = {
                 'planName': widget.planData['planName'],
@@ -175,7 +177,7 @@ class _PlanScreenState extends State<PlanScreen> {
           print('API returned no plan.');
           if (mounted) {
             setState(() {
-              selectedPlaces = {}; // Fallback to an empty map
+              selectedPlaces = []; // Fallback to an empty map
             });
           }
         }
@@ -183,7 +185,7 @@ class _PlanScreenState extends State<PlanScreen> {
         print('Error fetching new places: $e');
         if (mounted) {
           setState(() {
-            selectedPlaces = {}; // Fallback in case of error
+            selectedPlaces = []; // Fallback in case of error
           });
         }
       }
@@ -201,9 +203,15 @@ class _PlanScreenState extends State<PlanScreen> {
   void getTimeTravel() async {
     if (widget.planData['numberOfPlaces'] > 1) {
       try {
+        // Extract place IDs from the selectedPlaces list and cast them to List<String>
+        final placeIds = selectedPlaces
+                ?.map((place) =>
+                    place['id'] as String) // Explicitly cast to String
+                .toList() ??
+            [];
+
         // Fetch the travel time data
-        final placeId = selectedPlaces!.keys.toList();
-        final travelTime = await apiService.getTimeTravel(placeId);
+        final travelTime = await apiService.getTimeTravel(placeIds);
         print(
             'Fetched travel time: $travelTime'); // Log the fetched travel time
 
@@ -224,7 +232,7 @@ class _PlanScreenState extends State<PlanScreen> {
     }
   }
 
-  void handleStartPlan() {
+  void onBack(){
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -241,10 +249,10 @@ class _PlanScreenState extends State<PlanScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 // Image at the top
-                Image.asset('assets/images/undraw_Navigation_re_wxx4.png'),
+                Image.asset('assets/images/undraw_Throw_away_re_x60k.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'Are you ready to start the plan?',
+                  'The plan will be discarded. Are you sure you want to close this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -253,19 +261,18 @@ class _PlanScreenState extends State<PlanScreen> {
                     padding: const EdgeInsets.symmetric(horizontal: 30),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Handle notifications enabling
                         Navigator.of(context).pop();
-                        widget.onStartPlan(widget.planData['planID']);
+                        widget.onClose();
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
-                        backgroundColor: const Color(0xFFFF6838),
+                        backgroundColor: Theme.of(context).primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                       ),
                       child: const Text(
-                        'Start the plan',
+                        'Yes',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -278,7 +285,7 @@ class _PlanScreenState extends State<PlanScreen> {
                     Navigator.of(context).pop(); // Close the dialog
                   },
                   child: const Text(
-                    'Not now',
+                    'No',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16,
@@ -294,7 +301,7 @@ class _PlanScreenState extends State<PlanScreen> {
     );
   }
 
-  void handleStopPlan() {
+  void savePlan(){
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -311,10 +318,10 @@ class _PlanScreenState extends State<PlanScreen> {
               mainAxisSize: MainAxisSize.min,
               children: <Widget>[
                 // Image at the top
-                Image.asset('assets/images/undraw_Coolness_re_sllr.png'),
+                Image.asset('assets/images/undraw_Notify_re_65on.png'),
                 const SizedBox(height: 16),
                 const Text(
-                  'Are you sure you want to end this plan?',
+                  'If you click done, the plan cannot be edit anymore. Are you sure you want to save this plan?',
                   textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
                 ),
@@ -324,17 +331,17 @@ class _PlanScreenState extends State<PlanScreen> {
                     child: ElevatedButton(
                       onPressed: () {
                         Navigator.of(context).pop();
-                        widget.onStopPlan();
+                        widget.onDone(widget.planData);
                       },
                       style: ElevatedButton.styleFrom(
                         minimumSize: const Size.fromHeight(50),
-                        backgroundColor: Colors.red,
+                        backgroundColor: Theme.of(context).primaryColor,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20.0),
                         ),
                       ),
                       child: const Text(
-                        'End the plan',
+                        'Yes',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 16,
@@ -347,7 +354,7 @@ class _PlanScreenState extends State<PlanScreen> {
                     Navigator.of(context).pop(); // Close the dialog
                   },
                   child: const Text(
-                    'Not now',
+                    'No',
                     style: TextStyle(
                       color: Colors.grey,
                       fontSize: 16,
@@ -375,24 +382,27 @@ class _PlanScreenState extends State<PlanScreen> {
 
     // Generate routing widgets based on the selected places
     List<Widget> routingWidgets = [];
-    selectedPlaces!.forEach((key, details) {
-      // Parse the startTime from 'HH:mm' format
-      final startTimeString = widget.planData['startTime'];
-      DateTime startTime;
+    final startTimeString = widget.planData['startTime'];
+    DateTime startTime;
 
-      try {
-        startTime = DateFormat('HH:mm')
-            .parse(startTimeString); // Parse the time as a DateTime object
-      } catch (e) {
-        startTime = DateTime(2024, 1, 1, 9, 0);
-        print('Error parsing start time: $e');
-      }
+    try {
+      startTime = DateFormat('HH:mm')
+          .parse(startTimeString); // Parse the time as a DateTime object
+    } catch (e) {
+      startTime = DateTime(2024, 1, 1, 9, 0);
+      print('Error parsing start time: $e');
+    }
+
+// Iterate over the list of selected places
+    for (int i = 0; i < selectedPlaces!.length; i++) {
+      final details = selectedPlaces![i];
 
       // Calculate the time for each place
-      final placeTime = startTime.add(Duration(hours: routingWidgets.length));
+      final placeTime = startTime.add(Duration(hours: i));
       final time = DateFormat('h:mm a').format(placeTime);
 
-      selectedPlaces![key]['time'] = time;
+      // Update the 'time' field in the current place details
+      selectedPlaces![i]['time'] = time;
 
       routingWidgets.add(buildRouting(
         primaryColor,
@@ -404,219 +414,248 @@ class _PlanScreenState extends State<PlanScreen> {
           type: formatType(details['primaryType'] ?? 'No Type'),
           location: details['shortFormattedAddress'] ?? 'No Location',
           placeID: details['id'] ?? 'No ID',
-          onViewPlaceDetail: widget.onViewPlaceDetail,
         ),
-        routingWidgets.length == selectedPlaces!.length - 1,
-        routingWidgets.length < travelTimes.length
-            ? travelTimes[routingWidgets.length]
-            : null,
+        i == selectedPlaces!.length - 1, // Check if it's the last item
+        i < travelTimes.length ? travelTimes[i] : null,
       ));
-    });
+    }
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(
-          widget.planData['planName'] ?? 'Plan',
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 24),
+        title: Column(
+          children: [
+            Text(
+              widget.planData['planName'] ?? 'No Name',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+            const SizedBox(height: 5),
+            const Text(
+              'Draft plan',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey,
+              ),
+            ),
+          ],
         ),
         backgroundColor: Colors.transparent,
         scrolledUnderElevation: 0,
         centerTitle: true,
         toolbarHeight: 80,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios),
-          onPressed: widget.onClose,
+          icon: const Icon(Icons.close, color: Colors.black,size: 30,),
+          onPressed: onBack,
         ),
         actions: [
           IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.share),
+            onPressed: savePlan,
+            icon: const Icon(Icons.check, color: Colors.black,size: 30,),
           ),
         ],
       ),
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row(
-            //   children: [
-            //     Icon(Icons.person, size: 25, color: primaryColor),
-            //     const SizedBox(width: 10),
-            //     const Text(
-            //       'Generated by  ',
-            //       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            //     ),
-            //     const Text('User', style: TextStyle(fontSize: 16)),
-            //   ],
-            // ),
-            // const SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.timer, size: 25, color: primaryColor),
-                const SizedBox(width: 10),
-                const Text(
-                  'Time duration  ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.planData['numberOfPlaces'] != null
-                      ? '${widget.planData['numberOfPlaces']!} hours'
-                      : 'Unknown',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Duration Row
+                  Row(
+                    children: [
+                      Icon(Icons.person, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Generated by:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        'User',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  Row(
+                    children: [
+                      Icon(Icons.timer, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Time Duration:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.planData['numberOfPlaces'] != null
+                            ? '${widget.planData['numberOfPlaces']} hours'
+                            : 'Unknown',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 15),
+                  // Start Date Row
+                  Row(
+                    children: [
+                      Icon(Icons.calendar_today, size: 25, color: primaryColor),
+                      const SizedBox(width: 10),
+                      const Text(
+                        'Start Date:',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(width: 5),
+                      Text(
+                        widget.planData['startDate'] ?? 'Today',
+                        style: TextStyle(fontSize: 16, color: primaryColor),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 10),
-            Row(
-              children: [
-                Icon(Icons.calendar_today, size: 25, color: primaryColor),
-                const SizedBox(width: 10),
-                const Text(
-                  'Start date  ',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  widget.planData['startDate'] ?? 'Today',
-                  style: const TextStyle(fontSize: 16),
-                ),
-              ],
-            ),
-            const SizedBox(height: 40),
-            ...routingWidgets,
-            const SizedBox(height: 50),
-            // const Row(
-            //   children: [
-            //     Icon(Icons.location_on, size: 30),
-            //     SizedBox(width: 8),
-            //     Text(
-            //       'Routing Path',
-            //       style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
-            //     ),
-            //   ],
-            // ),
-            // const SizedBox(height: 12),
-            // Container(
-            //   height: 220,
-            //   width: double.infinity,
-            //   decoration: BoxDecoration(
-            //     borderRadius: BorderRadius.circular(8),
-            //     color: Colors.grey.shade300,
-            //   ),
-            //   child: const Center(
-            //     child: Icon(Icons.map, size: 100, color: Colors.grey),
-            //   ),
-            // ),
             const SizedBox(height: 20),
-            Column(
-              children: [
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    double buttonWidth = constraints.maxWidth > 200
-                        ? constraints.maxWidth
-                        : constraints.maxWidth * 0.4;
-                    double halfWidth = constraints.maxWidth / 2 -
-                        20; // Adjust for padding between buttons
-
-                    return Column(
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.grey.withOpacity(0.15),
+                    spreadRadius: 1,
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...routingWidgets,
+                ],
+              ),
+            ),
+            const SizedBox(height: 30),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                double buttonWidth = constraints.maxWidth > 200
+                    ? constraints.maxWidth
+                    : constraints.maxWidth * 0.4;
+                return Column(
+                  children: [
+                    const Text(
+                      'Want to adjust plan?',
+                      style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey),
+                    ),
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        ElevatedButton(
-                          onPressed: () {
-                            widget.onGoingPlan == widget.planData['planID']
-                                ? handleStopPlan()
-                                : handleStartPlan();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                widget.onGoingPlan != widget.planData['planID']
-                                    ? primaryColor
-                                    : Colors.red,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 12),
-                            child: SizedBox(
-                              width: buttonWidth, // Fit the screen width
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: _handleRegeneratePlan,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: primaryColor,
+                            ),
+                            child: const Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 12),
                               child: Center(
-                                child: widget.onGoingPlan !=
-                                        widget.planData['planID']
-                                    ? const Text(
-                                        'Start the plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      )
-                                    : const Text(
-                                        'Stop the Plan',
-                                        style: TextStyle(
-                                            color: Colors.white, fontSize: 12),
-                                      ),
+                                child: Text(
+                                  'Regenerate',
+                                  style: TextStyle(
+                                      color: Colors.white, fontSize: 12),
+                                ),
                               ),
                             ),
                           ),
                         ),
-                        const SizedBox(height: 30),
-                        const Text('Want to adjust plan?',
-                            style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey)),
-                        const SizedBox(height: 24),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: ElevatedButton(
-                                onPressed: () {
-                                  _handleRegeneratePlan();
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: const Color(0xFFFF9574),
-                                ),
-                                child: const Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 12),
-                                  child: Center(
-                                    child: Text(
-                                      'Regenerate',
-                                      style: TextStyle(
-                                          color: Colors.white, fontSize: 12),
-                                    ),
-                                  ),
+                        const SizedBox(width: 20),
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: _handleEditPlan,
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: primaryColor, width: 2),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 0, vertical: 12),
+                              child: Center(
+                                child: Text(
+                                  'Edit Plan',
+                                  style: TextStyle(
+                                      color: primaryColor, fontSize: 12),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 20),
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: () {
-                                  _handleEditPlan();
-                                },
-                                style: OutlinedButton.styleFrom(
-                                  side:
-                                      BorderSide(color: primaryColor, width: 2),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 0, vertical: 12),
-                                  child: Center(
-                                    child: Text(
-                                      'Edit Plan',
-                                      style: TextStyle(
-                                          color: primaryColor, fontSize: 12),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                       ],
-                    );
-                  },
-                ),
-                const SizedBox(height: 50),
-              ],
-            )
+                    ),
+                    const SizedBox(height: 50),
+                    // ElevatedButton(
+                    //   onPressed: () {
+                    //     savePlan();
+                    //   },
+                    //   style: ElevatedButton.styleFrom(
+                    //     backgroundColor: primaryColor,
+                    //   ),
+                    //   child: Padding(
+                    //     padding: const EdgeInsets.symmetric(
+                    //         horizontal: 20, vertical: 12),
+                    //     child: SizedBox(
+                    //       width: buttonWidth,
+                    //       child: const Center(
+                    //         child: Text(
+                    //                     'Done',
+                    //                     style: TextStyle(
+                    //                         color: Colors.white, fontSize: 12),
+                    //                   )
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                  ],
+                );
+              },
+            ),
+            // const SizedBox(height: 50),
           ],
         ),
       ),

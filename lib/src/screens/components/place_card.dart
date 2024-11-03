@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/src/screens/placeDetail_screen.dart';
 
 class PlaceCard extends StatefulWidget {
   final String planID;
@@ -7,7 +8,6 @@ class PlaceCard extends StatefulWidget {
   final String type;
   final String location;
   final String placeID;
-  final Function(String placeID, String planID) onViewPlaceDetail;
 
   const PlaceCard({
     super.key,
@@ -15,7 +15,7 @@ class PlaceCard extends StatefulWidget {
     required this.title,
     required this.type,
     required this.location,
-    required this.placeID, required this.onViewPlaceDetail, required this.planID,
+    required this.placeID, required this.planID,
   });
 
   @override
@@ -30,9 +30,15 @@ class _PlaceDetailCardState extends State<PlaceCard> {
 
     return GestureDetector(
       onTap: (){
-        widget.onViewPlaceDetail(widget.placeID, widget.planID);
+        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PlaceDetailPage(placeID: widget.placeID, planID:widget.planID),
+                          ),
+                        );
       }, // Handle tap
       child: Card(
+        color: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),

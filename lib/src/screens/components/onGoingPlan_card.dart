@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class OngoingPlanWidget extends StatefulWidget {
@@ -91,9 +92,29 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> places = widget.plan['selectedPlaces'].values
-        .cast<Map<String, dynamic>>()
-        .toList();
+    List<Map<String, dynamic>> places = (widget.plan['selectedPlaces'] as List).cast<Map<String, dynamic>>();
+
+    final startTimeString = widget.plan['startTime'];
+    DateTime startTime;
+
+    try {
+      startTime = DateFormat('HH:mm')
+          .parse(startTimeString); // Parse the time as a DateTime object
+    } catch (e) {
+      startTime = DateTime(2024, 1, 1, 9, 0);
+      print('Error parsing start time: $e');
+    }
+
+// Iterate over the list of selected places
+    for (int i = 0; i < places.length; i++) {
+
+      // Calculate the time for each place
+      final placeTime = startTime.add(Duration(hours: i));
+      final time = DateFormat('h:mm a').format(placeTime);
+
+      // Update the 'time' field in the current place details
+      places[i]['time'] = time;
+    }
     
     // Function to launch the map with the current place
     Future<void> launchMapUrl() async {

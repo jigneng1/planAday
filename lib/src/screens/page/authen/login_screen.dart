@@ -1,94 +1,68 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
-import 'package:plan_a_day/src/screens/login_screen.dart';
+import 'package:plan_a_day/services/auth_token.dart';
+import 'package:plan_a_day/src/app.dart';
+import 'package:plan_a_day/src/screens/page/authen/register_screen.dart';
 
-class RegisterScreen extends StatefulWidget {
-  const RegisterScreen({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  _RegisterScreenState createState() => _RegisterScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _RegisterScreenState extends State<RegisterScreen> {
-  final TextEditingController _userNameController = TextEditingController();
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
+  String? _errorMessage; // To hold error messages
   AuthService authService = AuthService();
-
-  String? _errorMessage; // To display error messages
 
   @override
   void dispose() {
-    _userNameController.dispose();
+    _usernameController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Function to validate all fields
-  bool _validateFields() {
-    final userName = _userNameController.text;
-    final password = _passwordController.text;
-
-    if (userName.isEmpty || password.isEmpty) {
+// Handle login process
+  void _login() async {
+    if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
       setState(() {
-        _errorMessage = 'Please fill in all fields.';
+        _errorMessage = 'Please enter both username and password';
       });
-      return false;
+      return;
     }
 
-    if (password.length < 8) {
-      setState(() {
-        _errorMessage = 'Password must be at least 8 characters long.';
-      });
-      return false;
-    }
-
-    return true;
-  }
-
-  void _onSuccessfulAuth() {
-    // Clear any existing navigation stack and navigate to home
-    Navigator.pushNamedAndRemoveUntil(
-      context,
-      '/home', // Replace with your home route
-      (route) => false,
+    // Call the AuthService instance to login
+    final result = await authService.loginUser(
+      _usernameController.text,
+      _passwordController.text,
     );
-  }
-
-  // Handle registration process
-  void _register() async {
-    if (_validateFields()) {
-      // Call the AuthService instance to register the user
-      final result = await authService.registerUser(
-        _userNameController.text,
-        _passwordController.text,
+    if (result['status'] == 'success') {
+      // Store token
+      await storeToken(result['token']);
+      // Navigate to Home (Main Layout)
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainLayout()),
       );
-
-      if (result['status'] == 'success') {
-        setState(() {
-          _errorMessage = null;
-        });
-        _onSuccessfulAuth();
-        // Handle successful registration, e.g., navigate to login screen
-        print('Registration successful');
-      } else {
-        setState(() {
-          _errorMessage = result['message'];
-        });
-      }
     } else {
-      print('Validation failed');
+      setState(() {
+        _errorMessage = result['message'];
+      });
     }
   }
 
-  void _navigateToSignIn() {
+  // Function to navigate to the Sign Up screen with a right swipe animation
+  void _navigateToSignUp() {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const LoginScreen(),
+            const RegisterScreen(),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          const begin = Offset(1.0, 0.0);
+          const begin = Offset(-1.0, 0.0);
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
@@ -123,7 +97,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
             child: const Padding(
               padding: EdgeInsets.only(top: 60.0, left: 22),
               child: Text(
-                'Create Your\nAccount',
+                'Hello\nSign in!',
                 style: TextStyle(
                   fontSize: 30,
                   color: Colors.white,
@@ -150,9 +124,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Full Name field
+                    // Username field
                     TextField(
-                      controller: _userNameController,
+                      controller: _usernameController,
                       decoration: InputDecoration(
                         label: Text(
                           'Username',
@@ -190,7 +164,20 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 36),
+                    const SizedBox(height: 12),
+                    // Forgot Password
+                    const Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        'Forgot Password?',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                          color: Color(0xff281537),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 70),
                     // Error message (if any)
                     if (_errorMessage != null) ...[
                       Text(
@@ -200,10 +187,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 12),
                     ],
+                    // Sign In Button
                     GestureDetector(
-                      onTap: _register,
+                      onTap: _login,
                       child: Container(
                         height: 55,
                         width: 300,
@@ -215,7 +203,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         child: const Center(
                           child: Text(
-                            'SIGN UP',
+                            'SIGN IN',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 20,
@@ -225,23 +213,23 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 120),
-                    // Don't have an account text
+                    const SizedBox(height: 80),
+                    // Sign Up Option
                     Align(
                       alignment: Alignment.center,
                       child: Column(
                         children: [
                           const Text(
-                            "Already have an account?",
+                            "Don't have an account?",
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: Colors.grey,
                             ),
                           ),
                           GestureDetector(
-                            onTap: _navigateToSignIn,
+                            onTap: _navigateToSignUp,
                             child: const Text(
-                              "Sign in",
+                              "Sign up",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

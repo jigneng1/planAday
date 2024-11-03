@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:plan_a_day/services/auth_token.dart';
@@ -34,6 +35,7 @@ class ApiService {
 
       if (response.statusCode == 200) {
         print('Plan data sent successfully');
+        print(response.body);
 
         // Parsing the response and getting the plan ID
         final responseData = jsonDecode(response.body);
@@ -52,11 +54,18 @@ class ApiService {
           // Parse the places data
           final planData = jsonDecode(placesResponse.body);
           final List<dynamic> places = planData['data'];
-          final Map<String, dynamic> placesMap = {
-            for (var place in places) place['id']: place
-          };
+          final List<Map<String, dynamic>> placesList = [
+            for (var place in places)
+              {
+                "id": place['id'],
+                "displayName": place['displayName'],
+                "primaryType": place['primaryType'],
+                "shortFormattedAddress": place['shortFormattedAddress'],
+                "photosUrl": place['photosUrl'],
+                "time": place['time']
+              }
+          ];
 
-          // If onlyPlace is false, return the full plan
           final Map<String, dynamic> fullPlan = {
             'planName': inputplanData['planName'],
             'startTime': inputplanData['startTime'],
@@ -64,7 +73,7 @@ class ApiService {
             'category': inputplanData['categories'],
             'numberOfPlaces': inputplanData['numberOfPlaces'],
             'planID': planID,
-            'selectedPlaces': placesMap,
+            'selectedPlaces': placesList,
           };
           return fullPlan;
         } else {
@@ -81,7 +90,7 @@ class ApiService {
     }
   }
 
-  Future<Map<String, dynamic>?> getRandomPlaces(
+  Future<List<Map<String, dynamic>?>?> getRandomPlaces(
       String planID, int numberOfPlace) async {
     var token = await getToken();
     final placesUrl =
@@ -95,11 +104,13 @@ class ApiService {
       // Parse the places data
       final planData = jsonDecode(placesResponse.body);
       final List<dynamic> places = planData['data'];
-      final Map<String, dynamic> placesMap = {
-        for (var place in places) place['id']: place
-      };
 
-      return placesMap;
+      // Convert the List<dynamic> to List<Map<String, dynamic>?>
+      List<Map<String, dynamic>?> placesList = [
+        for (var place in places) Map<String, dynamic>.from(place)
+      ];
+
+      return placesList; // Return the list instead of a map
     } else {
       print('Failed to fetch random places: ${placesResponse.statusCode}');
       return null;
@@ -118,7 +129,8 @@ class ApiService {
       final travelTimeUrl = Uri.parse(
           "$apiKey/timeTravel?origin=$origin&destination=$destination");
 
-      final travelTimeResponse = await http.get(travelTimeUrl, headers: {'Authorization': 'Bearer $token'});
+      final travelTimeResponse = await http
+          .get(travelTimeUrl, headers: {'Authorization': 'Bearer $token'});
 
       if (travelTimeResponse.statusCode == 200) {
         // print('Travel time fetched successfully between $origin and $destination');
@@ -149,8 +161,8 @@ class ApiService {
     var token = await getToken();
 
     try {
-      final response =
-          await http.get(Uri.parse('$apiKey/placeDetail/$placeId'), headers: {'Authorization': 'Bearer $token'});
+      final response = await http.get(Uri.parse('$apiKey/placeDetail/$placeId'),
+          headers: {'Authorization': 'Bearer $token'});
       if (response.statusCode == 200) {
         final Map<String, dynamic> jsonResponse = jsonDecode(response.body);
 
@@ -170,6 +182,26 @@ class ApiService {
     }
   }
 
+  Future<Map<String, dynamic>?> getPlanDetail(String planID) async {
+    final url = Uri.parse('$apiKey/getPlanDetailByid/$planID');
+    var token = await getToken();
+
+    try {
+      final response =
+          await http.get(url, headers: {'Authorization': 'Bearer $token'});
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        return responseData;
+      } else {
+        print('Failed to fetch plan details: ${response.statusCode}');
+        return null;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return {}; // Return an empty map in case of error
+    }
+  }
+
   //ส่งสถานที่ทั้งหมดไปให้ API
   Future<Map<String, dynamic>?> getNewPlace(
       String placeReplaceID, List<String> places) async {
@@ -179,7 +211,10 @@ class ApiService {
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
         body: jsonEncode({
           "placeReplaceId": placeReplaceID,
           "placesList": places,
@@ -207,11 +242,14 @@ class ApiService {
       String planID, List<String> places) async {
     final url = Uri.parse("$apiKey/getGenMorePlace");
     var token = await getToken();
-    
+
     try {
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer $token'},
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token'
+        },
         body: jsonEncode({
           "planId": planID,
           "placesList": places,
@@ -234,6 +272,374 @@ class ApiService {
       return {}; // Return an empty map in case of error
     }
   }
+
+  Future<String> savePlan(Map<String, dynamic>? planData) async {
+    final url = Uri.parse("$apiKey/createPlan");
+    var token = await getToken();
+
+    // Check if planData is null before proceeding
+    if (planData == null) {
+      print('Plan data is null');
+      return ''; // Return false if no plan data is provided
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode(planData), // Send the full planData as JSON
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] = true) {
+          print('Plan saved successfully');
+          return responseData['planId']; // Return the plan ID if successful
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return ''; // Return an empty string if there was an error
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return ''; // Return false if there was an error
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return ''; // Return false in case of error
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getSuggestPlansbyCategory(
+      String category) async {
+    final url = Uri.parse('$apiKey/getPlanByInterest/$category');
+    var token = await getToken();
+
+    final response = await http.get(url, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    });
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      if (responseData['success']) {
+        final List<dynamic> plansList = responseData['plansList'];
+        final List<Map<String, dynamic>> suggestPlans =
+            plansList.map((plan) => plan as Map<String, dynamic>).toList();
+
+        return suggestPlans;
+      }
+    } else {
+      print('Failed to fetch suggest plans: ${response.statusCode}');
+      return [];
+    }
+    return [];
+  }
+
+  Future<List<Map<String, dynamic>>?> getHomeSuggestPlans() async {
+    final url = Uri.parse('$apiKey/suggestPlan');
+    var token = await getToken();
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      // print(responseData);
+      final List<dynamic> plansList = responseData['plansList'];
+
+      // Convert each item in plansList to Map<String, dynamic>
+      final List<Map<String, dynamic>> allPlans =
+          plansList.map((plan) => plan as Map<String, dynamic>).toList();
+
+      // Shuffle and get the first 3 items if the list is large enough
+      if (allPlans.length > 3) {
+        allPlans.shuffle(Random());
+        return allPlans.take(3).toList();
+      }
+
+      // If less than or exactly 3 items, return the entire list
+      return allPlans;
+    } else {
+      print('Failed to fetch suggest plans: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getPlanHistory() async {
+    final url = Uri.parse('$apiKey/getPlanHistory');
+    var token = await getToken();
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      // Check if planHistory is present and is a list
+      if (responseData['planHistory'] is List) {
+        final List<dynamic> plansList = responseData['planHistory'];
+        final List<Map<String, dynamic>> historyPlans =
+            plansList.map((plan) => plan as Map<String, dynamic>).toList();
+        // print('Response data: $responseData');
+        return historyPlans;
+      } else {
+        print('planHistory is null or not a List');
+        return [];
+      }
+    } else {
+      print('Failed to fetch suggest plans: ${response.statusCode}');
+      return [];
+    }
+  }
+
+  Future<bool> sharePlan(String planID) async {
+    final url = Uri.parse("$apiKey/createpublicPlan");
+    var token = await getToken();
+
+    // Check if planID is null or empty before proceeding
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false; // Return false if no plan ID is provided
+    }
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+        body: jsonEncode({
+          'planId': planID,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] = true) {
+          print('Plan shared public successfully');
+          return true; // Return true if the data was sent successfully
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false; // Return false if there was an error
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false; // Handle non-200 status codes
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false; // Return false in case of error
+    }
+  }
+
+  Future<bool> createBookmark(String planID) async {
+    final url = Uri.parse("$apiKey/createBookmark/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false;
+    }
+
+    try {
+      final response = await http.post(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == "success") {
+          print('Bookmark $planID created successfully');
+          return true;
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false;
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false;
+    }
+  }
+
+  Future<bool> deleteBookmark(String planID) async {
+    final url = Uri.parse("$apiKey/deleteBookmark/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false;
+    }
+
+    try {
+      final response = await http.delete(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['status'] == "success") {
+          print('Bookmark $planID deleted successfully');
+          return true;
+        } else {
+          print('Failed to delete bookmark: ${response.statusCode}');
+          return false;
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching delete bookmark: $e');
+      return false;
+    }
+  }
+
+Future<List<Map<String, dynamic>>> getBookmarkLists() async {
+  final url = Uri.parse('$apiKey/getBookmark');
+  var token = await getToken();
+
+  try {
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      
+      // Check if the response indicates success and contains the planList
+      if (responseData['success']) {
+        final List<dynamic> plansList = responseData['planList'];
+        
+        // Ensure that we correctly map the plansList to List<Map<String, dynamic>>
+        final List<Map<String, dynamic>> historyPlans = 
+            List<Map<String, dynamic>>.from(plansList.map((plan) => plan as Map<String, dynamic>));
+
+        return historyPlans;
+      } else {
+        print('Failed to fetch Bookmark lists: No plan list found or not successful');
+        return []; // Return an empty list if no plans found
+      }
+    } else {
+      print('Failed to fetch Bookmark lists: ${response.statusCode}');
+      return []; // Return an empty list on HTTP error
+    }
+  } catch (e) {
+    print('Error fetching Bookmark lists: $e');
+    return []; // Return an empty list on error
+  }
+}
+
+  Future<bool> deletePlan(String planID) async {
+    final url = Uri.parse("$apiKey/deletePlan/$planID");
+    var token = await getToken();
+
+    if (planID == '') {
+      print('Plan ID is empty');
+      return false;
+    }
+
+    try {
+      final response = await http.delete(url, headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      });
+
+      if (response.statusCode == 200) {
+        final responseData = jsonDecode(response.body);
+        if (responseData['success'] = true) {
+          print('Plan $planID deleted successfully');
+          return true;
+        } else {
+          print('Failed to send data: ${response.statusCode}');
+          return false;
+        }
+      } else {
+        print('Failed to send data: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('Error fetching place details: $e');
+      return false;
+    }
+  }
+
+  Future<Map<String, dynamic>?> getUserDetail() async {
+    final url = Uri.parse('$apiKey/userDetail');
+    var token = await getToken();
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+
+      // Check if the request was successful and return the user data
+      if (responseData['success']) {
+        return responseData['user']; // Return the user data directly
+      } else {
+        print('Failed to fetch user details: No user data');
+        return null;
+      }
+    } else {
+      print('Failed to fetch user details: ${response.statusCode}');
+      return null;
+    }
+  }
+
+  Future<List<String>> getInterest() async {
+  final url = Uri.parse('$apiKey/getInterest');
+  var token = await getToken();
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = jsonDecode(response.body);
+
+    if (responseData['status'] == 'success' && responseData['interest'] is List) {
+      // Explicitly cast to List<String>
+      return List<String>.from(responseData['interest']);
+    } else {
+      print('Failed to fetch user interests: No user data');
+      return [];
+    }
+  } else {
+    print('Failed to fetch user interests: ${response.statusCode}');
+    return [];
+  }
+}
 }
 
 class AuthService {
