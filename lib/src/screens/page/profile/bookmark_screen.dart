@@ -87,9 +87,16 @@ class _BookmarkPlanScreenState extends State<BookmarkPlanScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text(
-          "Bookmark List",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: const Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              "Bookmark List",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 5),
+            Icon(Icons.bookmark, color: Colors.black),
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),

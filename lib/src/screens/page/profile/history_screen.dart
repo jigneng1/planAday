@@ -87,9 +87,16 @@ class _HistoryPlanScreenState extends State<HistoryPlanScreen> {
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text(
-          "Plan History",
-          style: TextStyle(fontWeight: FontWeight.bold),
+        title: const Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Text(
+              "Plan History",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            SizedBox(width: 5),
+            Icon(Icons.history), // Add history icon
+          ],
         ),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
