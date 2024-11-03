@@ -391,7 +391,7 @@ class ApiService {
         final List<dynamic> plansList = responseData['planHistory'];
         final List<Map<String, dynamic>> historyPlans =
             plansList.map((plan) => plan as Map<String, dynamic>).toList();
-        print('Response data: $responseData');
+        // print('Response data: $responseData');
         return historyPlans;
       } else {
         print('planHistory is null or not a List');

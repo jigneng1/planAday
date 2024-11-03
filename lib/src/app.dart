@@ -60,6 +60,7 @@ class _MainLayoutState extends State<MainLayout> {
       setState(() {
         _isLoading = true;
         _currentIndex = 0;
+        _indexBeforeCreate = 0;
         _isLoading = false;
       });
     });
