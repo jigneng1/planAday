@@ -98,7 +98,9 @@ class _PlaceDetailCardState extends State<PlaceCard> {
                             fontSize: 12,
                             color: Colors.grey[600],
                             fontWeight: FontWeight.bold,
+                            overflow: TextOverflow.ellipsis,
                           ),
+                          maxLines: 2,
                         ),
                       ),
                       // Location
