@@ -138,8 +138,12 @@ class _SuggestedPlansScreenState extends State<SuggestScreen>
                   child: PlanCard(
                     imageUrl: plan['imageURL'] ?? '',
                     title: plan['planName'] ?? '',
-                    subtitle: '${plan['numberofPlaces']} places',
-                    time: "2",
+                    subtitle: (plan['category']
+                                                as List<dynamic>)
+                                            .map((e) => e.toString())
+                                            .join(', '),
+                    time: plan['numberofPlaces']
+                                            .toString(),
                   ),
                 ),
               );

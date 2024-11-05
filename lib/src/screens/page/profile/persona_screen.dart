@@ -105,7 +105,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
                                 _selectedInterests.add(interest.label.toLowerCase());
                               }
                               // Debug print statement
-                              print("Selected Interests: $_selectedInterests");
+                              // print("Selected Interests: $_selectedInterests");
                             });
                           },
                         );
