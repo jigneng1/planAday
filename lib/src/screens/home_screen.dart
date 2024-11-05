@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 children: [
                   Container(
                     width: double.infinity,
-                    height: widget.ongoingPlanID != '' ? 410 : 300,
+                    height: widget.ongoingPlanID != '' ? 420 : 300,
                     decoration: const BoxDecoration(
                       gradient: LinearGradient(
                         colors: [Color(0xfffb9a4b), Color(0xffff6838)],

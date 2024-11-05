@@ -248,15 +248,19 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                                 ),
                               ),
                               const SizedBox(width: 6),
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                constraints: const BoxConstraints(),
-                                onPressed: launchMapUrl,
-                                iconSize: 20,
-                                icon: const Icon(
-                                Icons.map,
-                                color: Color(0xFFFF6838),
-                              ),)
+                              Container(
+                                padding: const EdgeInsets.all(0.0),
+                                height: 20,
+                                child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  onPressed: launchMapUrl,
+                                  iconSize: 20,
+                                  icon: const Icon(
+                                  Icons.map,
+                                  color: Color(0xFFFF6838),
+                                ),),
+                              )
                             ],
                           ),
                         ),
