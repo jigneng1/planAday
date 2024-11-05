@@ -215,6 +215,7 @@ class _MainLayoutState extends State<MainLayout> {
           _ongoingPlanID = planID;
           _ongoingplanData = selectedPlan;
           _currentIndex = 0;
+          _indexBeforeCreate = 0;
           _isLoading = false;
         });
       });
@@ -229,6 +230,7 @@ class _MainLayoutState extends State<MainLayout> {
     setState(() {
       _ongoingPlanID = '';
       // _currentIndex = 0;
+      _indexBeforeCreate = 0;
     });
     });
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
+import 'package:plan_a_day/services/auth_token.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonaScreen extends StatefulWidget {
@@ -41,15 +42,31 @@ class _PersonaScreenState extends State<PersonaScreen> {
 
   void _saveInterests() async {
     final bool success = await apiService.saveInterest(_selectedInterests.toList());
+    if(_selectedInterests.isEmpty){
+      clearAllSharedPreferences();
+      Navigator.pop(context);
+      return;
+    }
     if(success){
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setStringList('interests', _selectedInterests.toList());
+      setState(() {
+        _selectedInterests.clear();
+      });
       Navigator.pop(context);
+    }
+    else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save interests. Please try again.'),
+        ),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    print(_selectedInterests);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
@@ -231,10 +248,10 @@ class Interest {
 final List<Interest> interests = [
   Interest(Icons.local_cafe, 'Cafe'),
   Interest(Icons.fastfood, 'Restaurant'),
-  Interest(Icons.shopping_bag, 'Shopping'),
+  Interest(Icons.shopping_bag, 'Store'),
   Interest(Icons.park, 'Park'),
-  Interest(Icons.fitness_center, 'Sport'),
-  Interest(Icons.theater_comedy, 'Entertainment'),
+  Interest(Icons.fitness_center, 'Gym'),
+  Interest(Icons.theater_comedy, 'Movie_Theater'),
   Interest(Icons.museum, 'Museum'),
-  Interest(Icons.local_florist, 'Services'),
+  Interest(Icons.palette, 'Art_Gallery'),
 ];
