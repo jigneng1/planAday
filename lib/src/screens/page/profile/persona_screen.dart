@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:plan_a_day/services/api_service.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PersonaScreen extends StatefulWidget {
   const PersonaScreen({super.key});
@@ -8,8 +10,43 @@ class PersonaScreen extends StatefulWidget {
 }
 
 class _PersonaScreenState extends State<PersonaScreen> {
+  ApiService apiService = ApiService();
   final Set<String> _selectedInterests = {};
   static const int maxSelection = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    getInterests();
+  }
+
+  Future<void> getInterests() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String>? savedInterests = prefs.getStringList('interests');
+
+    if (savedInterests != null && savedInterests.isNotEmpty) {
+      setState(() {
+        _selectedInterests.addAll(savedInterests);
+      });
+    } else {
+      final List<String> interest = await apiService.getInterest();
+      if (mounted) {
+        setState(() {
+          _selectedInterests.addAll(interest);
+        });
+        await prefs.setStringList('interests', interest); // Save to SharedPreferences
+      }
+    }
+  }
+
+  void _saveInterests() async {
+    final bool success = await apiService.saveInterest(_selectedInterests.toList());
+    if(success){
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setStringList('interests', _selectedInterests.toList());
+      Navigator.pop(context);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,16 +79,16 @@ class _PersonaScreenState extends State<PersonaScreen> {
                         return InterestCard(
                           iconData: interest.icon,
                           label: interest.label,
-                          isSelected:
-                              _selectedInterests.contains(interest.label),
+                          isSelected: _selectedInterests.contains(interest.label.toLowerCase()),
                           onTap: () {
                             setState(() {
-                              if (_selectedInterests.contains(interest.label)) {
-                                _selectedInterests.remove(interest.label);
-                              } else if (_selectedInterests.length <
-                                  maxSelection) {
-                                _selectedInterests.add(interest.label);
+                              if (_selectedInterests.contains(interest.label.toLowerCase())) {
+                                _selectedInterests.remove(interest.label.toLowerCase());
+                              } else if (_selectedInterests.length < maxSelection) {
+                                _selectedInterests.add(interest.label.toLowerCase());
                               }
+                              // Debug print statement
+                              print("Selected Interests: $_selectedInterests");
                             });
                           },
                         );
@@ -66,7 +103,7 @@ class _PersonaScreenState extends State<PersonaScreen> {
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      _saveInterests();
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color.fromARGB(255, 254, 109, 64),
@@ -193,7 +230,7 @@ class Interest {
 
 final List<Interest> interests = [
   Interest(Icons.local_cafe, 'Cafe'),
-  Interest(Icons.fastfood, 'Resturant'),
+  Interest(Icons.fastfood, 'Restaurant'),
   Interest(Icons.shopping_bag, 'Shopping'),
   Interest(Icons.park, 'Park'),
   Interest(Icons.fitness_center, 'Sport'),

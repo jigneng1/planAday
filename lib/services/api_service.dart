@@ -640,6 +640,40 @@ Future<List<Map<String, dynamic>>> getBookmarkLists() async {
     return [];
   }
 }
+  Future<bool> saveInterest(List<String> interests) async {
+  final url = Uri.parse('$apiKey/updateInterest');
+  var token = await getToken();
+
+  // Convert all interests to lowercase
+  final lowercaseInterests = interests.map((interest) => interest.toLowerCase()).toList();
+
+  final response = await http.put(
+    url,
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer $token'
+    },
+    body: jsonEncode({
+      'interest': lowercaseInterests,
+    }),
+  );
+
+  if (response.statusCode == 200) {
+    final responseData = jsonDecode(response.body);
+
+    if (responseData['status'] == 'success') {
+      return true;
+    } else {
+      print('Failed to fetch user interests: No user data');
+      return false;
+    }
+  } else {
+    print('Failed to fetch user interests: ${response.statusCode}');
+    return false;
+  }
+}
+
+
 }
 
 class AuthService {
