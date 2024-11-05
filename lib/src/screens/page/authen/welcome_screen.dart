@@ -142,7 +142,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   ),
                   SizedBox(height: 12),
                   Text(
-                    'Suggest trip in one day',
+                    'Suggest one day plan',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
