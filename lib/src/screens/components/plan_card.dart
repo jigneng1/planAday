@@ -54,42 +54,41 @@ class PlanCard extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Flexible(
-  child: Text(
-    title,
-    overflow: TextOverflow.ellipsis,
-    maxLines: 1,
-    style: const TextStyle(
-      fontSize: 20,
-      fontWeight: FontWeight.bold,
-    ),
-  ),
-),
-
-                            Row(
-                          children: [
-                            const Icon(
-                              Icons.timer,
-                              size: 20,
-                              color: Color(0xFFFF6838),
-                            ),
-                            const SizedBox(width: 4),
-                            // const Text('~',
-                            //     style: TextStyle(
-                            //       fontWeight: FontWeight.w900,
-                            //       fontSize: 14,
-                            //     )),
-                            Text(time,
+                              child: Text(
+                                title,
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                                 style: const TextStyle(
+                                  fontSize: 20,
                                   fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                )),
-                            const Text(' Hours',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 12,
-                                )),
-                          ],
-                        )
+                                ),
+                              ),
+                            ),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.location_on,
+                                  size: 20,
+                                  color: Color(0xFFFF6838),
+                                ),
+                                const SizedBox(width: 4),
+                                // const Text('~',
+                                //     style: TextStyle(
+                                //       fontWeight: FontWeight.w900,
+                                //       fontSize: 14,
+                                //     )),
+                                Text(time,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    )),
+                                Text(time == "1" ? ' Place': " Places",
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 12,
+                                    )),
+                              ],
+                            )
                           ],
                         ),
                         const SizedBox(height: 5),

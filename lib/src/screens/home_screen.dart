@@ -369,6 +369,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1.2,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                             const SizedBox(height: 4),
