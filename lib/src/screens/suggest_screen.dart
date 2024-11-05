@@ -17,7 +17,7 @@ class _SuggestedPlansScreenState extends State<SuggestScreen>
   TabController? _tabController;
   ApiService apiService = ApiService();
   List<String> _interest = [];
-  Map<String, List<Map<String, dynamic>>> _plansByCategory = {};
+  final Map<String, List<Map<String, dynamic>>> _plansByCategory = {};
   final List<String> defaultCategories = [
     'Restaurant',
     'Cafe',
@@ -45,13 +45,20 @@ class _SuggestedPlansScreenState extends State<SuggestScreen>
   Future<void> _fetchInterestAndPlans() async {
     final List<String> interest = await apiService.getInterest();
     if (mounted) {
-      setState(() {
-        _interest = interest.isNotEmpty ? interest : defaultCategories;
-        _tabController = TabController(length: _interest.length, vsync: this);
-      });
+      // Add "All" to the beginning of the interest list
+      _interest = ['All'] + (interest.isNotEmpty ? interest : defaultCategories);
+      _tabController = TabController(length: _interest.length, vsync: this);
+
+      // Fetch all plans for the "All" tab
+      final allPlans = await apiService.getAllSuggestPlans();
+      if (mounted) {
+        setState(() {
+          _plansByCategory['All'] = allPlans ?? [];
+        });
+      }
 
       // Fetch plans for each category
-      for (var category in _interest) {
+      for (var category in _interest.skip(1)) { // Skip "All"
         final plans = await apiService.getSuggestPlansbyCategory(category.toLowerCase());
         if (mounted) {
           setState(() {
@@ -89,7 +96,7 @@ class _SuggestedPlansScreenState extends State<SuggestScreen>
         bottom: _isLoading
             ? null
             : PreferredSize(
-                preferredSize: Size.fromHeight(48.0),
+                preferredSize: const Size.fromHeight(48.0),
                 child: TabBar(
                   controller: _tabController,
                   isScrollable: true,
