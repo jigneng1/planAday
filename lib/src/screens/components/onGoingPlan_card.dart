@@ -136,14 +136,14 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
     return Card(
       color: const Color.fromARGB(255, 255, 255, 255),
-      margin: const EdgeInsets.fromLTRB(40, 80, 40, 30),
+      margin: const EdgeInsets.fromLTRB(30, 80, 30, 30),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
       ),
       elevation: 10,
       child: Padding(
         padding: const EdgeInsets.symmetric(
-          horizontal: 30,
+          horizontal: 24,
           vertical: 25,
         ),
         child: Column(
@@ -191,7 +191,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
             //   thickness: 1,
             //   height: 30,
             // ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
             if (places.isNotEmpty)
               Row(
                 children: [
@@ -247,12 +247,12 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                                   maxLines: 1,
                                 ),
                               ),
-                              const SizedBox(width: 4),
+                              const SizedBox(width: 6),
                               IconButton(
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: launchMapUrl,
-                                // iconSize: 12,
+                                iconSize: 20,
                                 icon: const Icon(
                                 Icons.map,
                                 color: Color(0xFFFF6838),
