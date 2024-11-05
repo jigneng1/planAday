@@ -8,10 +8,12 @@ class OngoingPlanWidget extends StatefulWidget {
   final Function(String) onViewOngoingPlan;
   final VoidCallback onEndPlan;
 
-  const OngoingPlanWidget({super.key, 
+  const OngoingPlanWidget({
+    super.key,
     required this.planID,
     required this.plan,
-    required this.onViewOngoingPlan, required this.onEndPlan,
+    required this.onViewOngoingPlan,
+    required this.onEndPlan,
   });
 
   @override
@@ -92,7 +94,8 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
   @override
   Widget build(BuildContext context) {
-    List<Map<String, dynamic>> places = (widget.plan['selectedPlaces'] as List).cast<Map<String, dynamic>>();
+    List<Map<String, dynamic>> places =
+        (widget.plan['selectedPlaces'] as List).cast<Map<String, dynamic>>();
 
     final startTimeString = widget.plan['startTime'];
     DateTime startTime;
@@ -107,7 +110,6 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
 
 // Iterate over the list of selected places
     for (int i = 0; i < places.length; i++) {
-
       // Calculate the time for each place
       final placeTime = startTime.add(Duration(hours: i));
       final time = DateFormat('h:mm a').format(placeTime);
@@ -115,13 +117,9 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
       // Update the 'time' field in the current place details
       places[i]['time'] = time;
     }
-    
-    // Function to launch the map with the current place
+
     Future<void> launchMapUrl() async {
-      // Get the current place's display name
       String currentPlace = places[currentIndex]['displayName'];
-      
-      // Construct the Google Maps URL for the current place
       String baseUrl = 'https://www.google.co.th/maps/dir/My+Location/';
       String location = Uri.encodeComponent(currentPlace.replaceAll(' ', '+'));
       String url = baseUrl + location;
@@ -130,12 +128,14 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
       if (await canLaunchUrl(googleMapsUrl)) {
         await launchUrl(googleMapsUrl);
       } else {
-        throw 'Could not launch $googleMapsUrl';
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Could not open map.')),
+        );
       }
     }
 
     return Card(
-      color: const Color.fromARGB(174, 255, 255, 255),
+      color: const Color.fromARGB(255, 255, 255, 255),
       margin: const EdgeInsets.fromLTRB(40, 80, 40, 30),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
@@ -156,32 +156,42 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text('Ongoing Plan', style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey,
-                )),
-                Text(
-              widget.plan['planName'] ?? 'Plan name',
-              style: const TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-              overflow: TextOverflow.ellipsis,
-              maxLines: 1, 
-            ),
+                    const Text('Ongoing Plan',
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        )),
+                    Text(
+                      widget.plan['planName'] ?? 'Plan name',
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFF6838),
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
                   ],
                 ),
                 IconButton(
                   onPressed: () {
-                    launchMapUrl();
+                    widget.onViewOngoingPlan(widget.planID);
                   },
-                  icon: const Icon(Icons.map, color: Colors.grey, size: 30,)
+                  icon: const Icon(
+                    Icons.info,
+                    color: Color(0xFFFF6838),
+                    size: 30,
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 15),
+            // Divider(
+            //   color: Colors.black54,
+            //   thickness: 1,
+            //   height: 30,
+            // ),
+            const SizedBox(height: 20),
             if (places.isNotEmpty)
               Row(
                 children: [
@@ -196,23 +206,58 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          places[currentIndex]['displayName'] ?? 'No title',
-                          style: const TextStyle( 
-                            fontWeight: FontWeight.bold,
-                            color: Color(0xFFFF6838),
-                            fontSize: 15,
-                          ),
-                          overflow:
-                              TextOverflow.ellipsis, // Ellipsis for long text
-                          maxLines: 1,
+                        Row(
+                          children: [
+                            const SizedBox(width: 8),
+                            Text(
+                              places[currentIndex]['time'] ?? 'Unknown',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color.fromARGB(255, 70, 70, 70),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 2),
-                        Text(
-                          places[currentIndex]['time'] ?? 'Unknown', // Add time if available
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Color(0xFFFF6838),
+                        Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Color(0xFFFF6838),
+                                width: 1), // Border color and width
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 8), // Padding inside the border
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  places[currentIndex]['displayName'] ??
+                                      'No title',
+                                  style: const TextStyle(
+                                    // fontWeight: FontWeight.bold,
+                                    color: Color(0xFFFF6838),
+                                    fontSize: 15,
+                                  ),
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                ),
+                              ),
+                              const SizedBox(width: 4),
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                constraints: const BoxConstraints(),
+                                onPressed: launchMapUrl,
+                                // iconSize: 12,
+                                icon: const Icon(
+                                Icons.map,
+                                color: Color(0xFFFF6838),
+                              ),)
+                            ],
                           ),
                         ),
                       ],
@@ -220,7 +265,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                   ),
                 ],
               ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             if (places.length > currentIndex + 1)
               Row(
                 children: [
@@ -237,6 +282,15 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
+                          places[currentIndex + 1]['time'] ??
+                              'Unknown', // Add time if available
+                          style: const TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
                           places[currentIndex + 1]['displayName'] ?? 'No title',
                           style: const TextStyle(
                             fontSize: 12,
@@ -247,14 +301,6 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                               TextOverflow.ellipsis, // Ellipsis for long text
                           maxLines: 1,
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          places[currentIndex + 1]['time'] ?? 'Unknown', // Add time if available
-                          style: const TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey,
-                          ),
-                        ),
                       ],
                     ),
                   ),
@@ -263,7 +309,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
             const Spacer(),
             Align(
               alignment: Alignment.bottomRight,
-              child : ElevatedButton(
+              child: ElevatedButton(
                 onPressed: () {
                   setState(() {
                     if (currentIndex < places.length - 1) {
@@ -278,7 +324,9 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                     horizontal: 40,
                     vertical: 8,
                   ),
-                  backgroundColor: currentIndex == places.length - 1 ?  Colors.red :const Color(0xFFFF6838), 
+                  backgroundColor: currentIndex == places.length - 1
+                      ? Colors.red
+                      : const Color(0xFFFF6838),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),

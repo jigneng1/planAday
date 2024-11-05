@@ -91,7 +91,7 @@ class _HistoryPlanScreenState extends State<HistoryPlanScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "Plan History",
+              "History",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 5),

@@ -69,6 +69,7 @@ Future<void> _fetchUserDetails() async {
   void _handleLogout(BuildContext context) async {
     try {
       await clearToken(); // Clear the stored token
+      await clearAllSharedPreferences(); // Clear all SharedPreferences data
       // Navigate to login page and remove all previous routes
       Navigator.pushReplacement(
         context,
