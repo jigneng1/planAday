@@ -22,14 +22,14 @@ class _HistoryPlanScreenState extends State<HistoryPlanScreen> {
   String? _selectedCategory; // Selected category
   final List<String> _categories = [
     'All', // Option to show all categories
-    'restaurant',
-    'cafe',
-    'park',
-    'store',
-    'gym',
-    'art_gallery',
-    'movie_theater',
-    'museum',
+    'Restaurant',
+    'Cafe',
+    'Park',
+    'Store',
+    'Gym',
+    'Art_gallery',
+    'Movie_theater',
+    'Museum',
   ];
 
   @override

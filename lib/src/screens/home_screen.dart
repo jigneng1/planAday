@@ -79,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // Main scrollable content
               Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
                     width: double.infinity,

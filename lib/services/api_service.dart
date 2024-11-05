@@ -337,6 +337,34 @@ class ApiService {
     return [];
   }
 
+  Future<List<Map<String, dynamic>>?> getAllSuggestPlans() async {
+    final url = Uri.parse('$apiKey/suggestPlan');
+    var token = await getToken();
+
+    final response = await http.get(
+      url,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token'
+      },
+    );
+
+    if (response.statusCode == 200) {
+      final responseData = jsonDecode(response.body);
+      // print(responseData);
+      final List<dynamic> plansList = responseData['plansList'];
+
+      // Convert each item in plansList to Map<String, dynamic>
+      final List<Map<String, dynamic>> allPlans =
+          plansList.map((plan) => plan as Map<String, dynamic>).toList();
+
+      // If less than or exactly 3 items, return the entire list
+      return allPlans;
+    } else {
+      print('Failed to fetch suggest plans: ${response.statusCode}');
+      return null;
+    }
+  }
   Future<List<Map<String, dynamic>>?> getHomeSuggestPlans() async {
     final url = Uri.parse('$apiKey/suggestPlan');
     var token = await getToken();
