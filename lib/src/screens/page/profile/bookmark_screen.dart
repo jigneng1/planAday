@@ -91,7 +91,7 @@ class _BookmarkPlanScreenState extends State<BookmarkPlanScreen> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "Bookmark List",
+              "Bookmark",
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
             SizedBox(width: 5),
