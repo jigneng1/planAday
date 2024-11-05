@@ -135,7 +135,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
     }
 
     return Card(
-      color: const Color.fromARGB(174, 255, 255, 255),
+      color: const Color.fromARGB(255, 255, 255, 255),
       margin: const EdgeInsets.fromLTRB(40, 80, 40, 30),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(30),
@@ -160,14 +160,14 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                         style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: Colors.grey,
+                          color: Colors.black87,
                         )),
                     Text(
                       widget.plan['planName'] ?? 'Plan name',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 30,
                         fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                        color: Color(0xFFFF6838),
                       ),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1,
@@ -186,7 +186,12 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            // Divider(
+            //   color: Colors.black54,
+            //   thickness: 1,
+            //   height: 30,
+            // ),
+            const SizedBox(height: 20),
             if (places.isNotEmpty)
               Row(
                 children: [
