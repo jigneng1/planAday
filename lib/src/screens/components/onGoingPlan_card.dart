@@ -153,26 +153,29 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Ongoing Plan',
-                        style: TextStyle(
-                          fontSize: 14,
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Ongoing Plan',
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          )),
+                      Text(
+                        widget.plan['planName'] ?? 'Plan name',
+                        style: const TextStyle(
+                          fontSize: 30,
                           fontWeight: FontWeight.bold,
-                          color: Colors.black87,
-                        )),
-                    Text(
-                      widget.plan['planName'] ?? 'Plan name',
-                      style: TextStyle(
-                        fontSize: 30,
-                        fontWeight: FontWeight.bold,
-                        color: Color(0xFFFF6838),
+                          color: Color(0xFFFF6838),
+                        ),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
                       ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 1,
-                    ),
-                  ],
+                      
+                    ],
+                  ),
                 ),
                 IconButton(
                   onPressed: () {
@@ -186,12 +189,7 @@ class _OngoingPlanWidgetState extends State<OngoingPlanWidget> {
                 ),
               ],
             ),
-            // Divider(
-            //   color: Colors.black54,
-            //   thickness: 1,
-            //   height: 30,
-            // ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             if (places.isNotEmpty)
               Row(
                 children: [
