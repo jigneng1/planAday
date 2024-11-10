@@ -365,40 +365,35 @@ class ApiService {
       return null;
     }
   }
+
   Future<List<Map<String, dynamic>>?> getHomeSuggestPlans() async {
-    final url = Uri.parse('$apiKey/suggestPlan');
-    var token = await getToken();
+  final interests = await getInterest();
+  List<Map<String, dynamic>> allPlans = [];
 
-    final response = await http.get(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token'
-      },
-    );
+  for (String category in interests) {
+    final categoryPlans = await getSuggestPlansbyCategory(category);
+    allPlans.addAll(categoryPlans);
+  }
 
-    if (response.statusCode == 200) {
-      final responseData = jsonDecode(response.body);
-      // print(responseData);
-      final List<dynamic> plansList = responseData['plansList'];
 
-      // Convert each item in plansList to Map<String, dynamic>
-      final List<Map<String, dynamic>> allPlans =
-          plansList.map((plan) => plan as Map<String, dynamic>).toList();
+  if (allPlans.isNotEmpty) {
+    allPlans.shuffle(Random());
 
-      // Shuffle and get the first 3 items if the list is large enough
-      if (allPlans.length > 3) {
-        allPlans.shuffle(Random());
-        return allPlans.take(3).toList();
-      }
-
-      // If less than or exactly 3 items, return the entire list
-      return allPlans;
-    } else {
-      print('Failed to fetch suggest plans: ${response.statusCode}');
-      return null;
+    return allPlans.length > 3 ? allPlans.take(3).toList() : allPlans;
+  } else {
+    final plans = await getAllSuggestPlans();
+    if(plans!.isNotEmpty){
+      plans.shuffle(Random());
+      print('Return all plan');
+      return plans;
+    }
+    else{
+      print('No plans available');
+      return [];
     }
   }
+}
+
 
   Future<List<Map<String, dynamic>>> getPlanHistory() async {
     final url = Uri.parse('$apiKey/getPlanHistory');

@@ -296,7 +296,7 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Padding(
           padding: EdgeInsets.all(16.0),
           child: Text(
-            'Loading plan...',
+            'No plans available now.',
             style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
         ),
