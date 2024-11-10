@@ -148,12 +148,6 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
               },
               icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
             ),
-            actions: const [
-              Padding(
-                padding: EdgeInsets.only(left: 18, right: 18),
-                child: Icon(Icons.favorite_border, color: Colors.white),
-              ),
-            ],
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(60),
               child: Container(
