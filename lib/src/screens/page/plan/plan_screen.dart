@@ -370,8 +370,9 @@ class _PlanScreenState extends State<PlanScreen> {
                           Navigator.of(context).pop();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
-                                content: Text('This plan is now public!'),
-                                behavior: SnackBarBehavior.floating),
+                                content: Text('This plan is now public!', style: TextStyle(color: Color(0xFFFF6838)),),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.white,),
                           );
                         } else {
                           ScaffoldMessenger.of(context).showSnackBar(
