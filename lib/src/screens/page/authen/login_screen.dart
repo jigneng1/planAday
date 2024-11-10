@@ -171,18 +171,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      // Forgot Password
-                      const Align(
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                          'Forgot Password?',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                            color: Color(0xff281537),
-                          ),
-                        ),
-                      ),
                       const SizedBox(height: 30),
                       // Error message (if any)
                       if (_errorMessage != null) ...[
