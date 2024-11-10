@@ -68,16 +68,13 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToPlanScreen(String planID) async {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-    setState(() {
-      _isLoading = true;
-    });
-  });
+      setState(() {
+        _isLoading = true;
+      });
 
     // Await the async call to get the plan detail
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
 
-    if (!mounted) return;
     if (selectedPlan != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
@@ -90,108 +87,104 @@ class _MainLayoutState extends State<MainLayout> {
     } else {
       print('Plan with ID $planID not found.');
       WidgetsBinding.instance.addPostFrameCallback((_) {
-    setState(() {
-      _isLoading = false;
-    });
-  });
+        setState(() {
+          _isLoading = false;
+        });
+      });
     }
   }
 
   void _goBack() {
-    if(!mounted) return;
+    if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    setState(() {
-      _currentIndex = _indexBeforeCreate;
+      setState(() {
+        _currentIndex = _indexBeforeCreate;
+      });
     });
-  });
   }
 
   void _goToGeneratedPlanScreen(String planID) {
-    if(!mounted) return;
+    if (!mounted) return;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    setState(() {
-      _isLoading = true;
-    });
-
-    Map<String, dynamic>? selectedPlan = _allPlans
-        .firstWhere((plan) => plan['planID'] == planID, orElse: () => {});
-
-    if (selectedPlan.isNotEmpty) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        setState(() {
-          _planData = selectedPlan;
-          _currentIndex = 12;
-          _indexBeforeCreate = 12;
-          _isLoading = false;
-        });
+      setState(() {
+        _isLoading = true;
       });
-    } else {
-      print('Plan with ID $planID not found.');
-    }
+
+      Map<String, dynamic>? selectedPlan = _allPlans
+          .firstWhere((plan) => plan['planID'] == planID, orElse: () => {});
+
+      if (selectedPlan.isNotEmpty) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          setState(() {
+            _planData = selectedPlan;
+            _currentIndex = 12;
+            _indexBeforeCreate = 12;
+            _isLoading = false;
+          });
+        });
+      } else {
+        print('Plan with ID $planID not found.');
+      }
     });
   }
 
   void _goToOtherPlanScreen(String planID) async {
-    if(!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
+    if (!mounted) return;
     setState(() {
       _isLoading = true;
     });
 
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
 
-    if (mounted) {
-      setState(() {
-        _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
-        _currentIndex = 7;
-        _isLoading = false;
-      });
-    }
+    setState(() {
+      _planData = selectedPlan ?? {}; // Fallback in case selectedPlan is null
+      _currentIndex = 7;
+      _isLoading = false;
     });
   }
 
   void _goToCreatePlanScreen() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-      _currentIndex = 2;
-      _indexBeforeCreate = 2;
-      _isLoading = false;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = 2;
+        _indexBeforeCreate = 2;
+        _isLoading = false;
+      });
     });
   }
 
   void _goToSuggestPlanScreen() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-      _currentIndex = 11;
-      _indexBeforeCreate = 11;
-      _isLoading = false;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = 11;
+        _indexBeforeCreate = 11;
+        _isLoading = false;
+      });
     });
   }
 
   void _goToPlaceDetailScreen(String placeIDinput, String planIDinput) {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+      });
     });
 
     print('Place ID: $placeIDinput');
     if (placeIDinput.isNotEmpty && planIDinput.isNotEmpty) {
       if (!mounted) return;
-      WidgetsBinding.instance.addPostFrameCallback((_) async{
-      setState(() {
-        placeID = placeIDinput;
-        planID = planIDinput;
-        _currentIndex = 6;
-        _isLoading = false;
-      });
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        setState(() {
+          placeID = placeIDinput;
+          planID = planIDinput;
+          _currentIndex = 6;
+          _isLoading = false;
+        });
       });
     } else {
       print('Place ID or Plan ID is empty');
@@ -200,10 +193,10 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _onStartPlan(String planID) async {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+      });
     });
     Map<String, dynamic>? selectedPlan = await apiService.getPlanDetail(planID);
     print('Start Plan: $planID');
@@ -226,12 +219,12 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _onStopPlan() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _ongoingPlanID = '';
-      // _currentIndex = 0;
-      _indexBeforeCreate = 0;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _ongoingPlanID = '';
+        // _currentIndex = 0;
+        _indexBeforeCreate = 0;
+      });
     });
   }
 
@@ -304,37 +297,37 @@ class _MainLayoutState extends State<MainLayout> {
 
   void _goToBookmarkPlanScreen() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-      _currentIndex = 13;
-      _indexBeforeCreate = 13;
-      _isLoading = false;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = 13;
+        _indexBeforeCreate = 13;
+        _isLoading = false;
+      });
     });
   }
 
   void _goToHistoryPlanScreen() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-      _currentIndex = 14;
-      _indexBeforeCreate = 14;
-      _isLoading = false;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = 14;
+        _indexBeforeCreate = 14;
+        _isLoading = false;
+      });
     });
   }
 
   void _goToProfile() {
     if (!mounted) return;
-    WidgetsBinding.instance.addPostFrameCallback((_) async{
-    setState(() {
-      _isLoading = true;
-      _currentIndex = 1;
-      _indexBeforeCreate = 1;
-      _isLoading = false;
-    });
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      setState(() {
+        _isLoading = true;
+        _currentIndex = 1;
+        _indexBeforeCreate = 1;
+        _isLoading = false;
+      });
     });
   }
 
