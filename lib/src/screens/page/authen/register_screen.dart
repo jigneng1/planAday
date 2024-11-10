@@ -113,51 +113,54 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Stack(
-        children: [
-          // Background Gradient
-          Container(
-            height: double.infinity,
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xfffb9a4b), Color(0xffff6838)],
-              ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    resizeToAvoidBottomInset: true, // Helps avoid overflow
+    body: Stack(
+      children: [
+        // Background Gradient
+        Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Color(0xfffb9a4b), Color(0xffff6838)],
             ),
-            child: const Padding(
-              padding: EdgeInsets.only(top: 60.0, left: 22),
-              child: Text(
-                'Create Your\nAccount',
-                style: TextStyle(
-                  fontSize: 30,
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
+          ),
+          child: const Padding(
+            padding: EdgeInsets.only(top: 60.0, left: 22),
+            child: Text(
+              'Create Your\nAccount',
+              style: TextStyle(
+                fontSize: 30,
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
-          // White Container with form
-          Padding(
-            padding: const EdgeInsets.only(top: 200.0),
-            child: Container(
-              decoration: const BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(40),
-                  topRight: Radius.circular(40),
-                ),
-                color: Colors.white,
+        ),
+        // White Container with form
+        Padding(
+          padding: const EdgeInsets.only(top: 200.0),
+          child: Container(
+            decoration: const BoxDecoration(
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(40),
+                topRight: Radius.circular(40),
               ),
-              height: double.infinity,
-              width: double.infinity,
+              color: Colors.white,
+            ),
+            height: double.infinity,
+            width: double.infinity,
+            child: SingleChildScrollView(
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24.0),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Full Name field
+                    const SizedBox(height: 40), // Adjusts top padding for balance
+                    // Username field
                     TextField(
                       controller: _userNameController,
                       decoration: InputDecoration(
@@ -232,8 +235,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 80),
-                    // Don't have an account text
+                    const SizedBox(height: 40), // Reduced bottom padding for balance
+                    // Already have an account
                     Align(
                       alignment: Alignment.bottomCenter,
                       child: Column(
@@ -266,8 +269,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
+
 }
