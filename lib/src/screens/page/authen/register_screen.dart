@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:plan_a_day/services/api_service.dart';
 import 'package:plan_a_day/src/screens/page/authen/login_screen.dart';
-import 'package:email_validator/email_validator.dart'; // For email validation
+
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,7 +12,6 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _userNameController = TextEditingController();
-  final TextEditingController _emailOrPhoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordVisible = false;
   AuthService authService = AuthService();
@@ -22,7 +21,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
   @override
   void dispose() {
     _userNameController.dispose();
-    _emailOrPhoneController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -36,20 +34,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
   // Function to validate all fields
   bool _validateFields() {
     final userName = _userNameController.text;
-    final emailOrPhone = _emailOrPhoneController.text;
     final password = _passwordController.text;
 
-    if (userName.isEmpty || emailOrPhone.isEmpty || password.isEmpty) {
+    if (userName.isEmpty || password.isEmpty) {
       setState(() {
         _errorMessage = 'Please fill in all fields.';
-      });
-      return false;
-    }
-
-    if (!EmailValidator.validate(emailOrPhone) &&
-        !_isValidPhoneNumber(emailOrPhone)) {
-      setState(() {
-        _errorMessage = 'Please enter a valid email or phone number.';
       });
       return false;
     }
@@ -68,7 +57,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     // Clear any existing navigation stack and navigate to home
     Navigator.pushNamedAndRemoveUntil(
       context,
-      '/home', // Replace with your home route
+      '/home', 
       (route) => false,
     );
   }
@@ -174,20 +163,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       decoration: InputDecoration(
                         label: Text(
                           'Username',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    // Phone or Gmail field
-                    TextField(
-                      controller: _emailOrPhoneController,
-                      decoration: InputDecoration(
-                        label: Text(
-                          'Phone or Gmail',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Theme.of(context).primaryColor,
