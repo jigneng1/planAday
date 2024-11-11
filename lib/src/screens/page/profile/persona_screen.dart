@@ -35,27 +35,26 @@ class _PersonaScreenState extends State<PersonaScreen> {
         setState(() {
           _selectedInterests.addAll(interest);
         });
-        await prefs.setStringList('interests', interest); // Save to SharedPreferences
+        await prefs.setStringList('interests', interest);
       }
     }
   }
 
   void _saveInterests() async {
     final bool success = await apiService.saveInterest(_selectedInterests.toList());
-    if(_selectedInterests.isEmpty){
+    if (_selectedInterests.isEmpty) {
       clearAllSharedPreferences();
       Navigator.pop(context);
       return;
     }
-    if(success){
+    if (success) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setStringList('interests', _selectedInterests.toList());
       setState(() {
         _selectedInterests.clear();
       });
       Navigator.pop(context);
-    }
-    else{
+    } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Failed to save interests. Please try again.'),
@@ -64,80 +63,120 @@ class _PersonaScreenState extends State<PersonaScreen> {
     }
   }
 
+  Future<bool> _onWillPop() async {
+    if (_selectedInterests.isNotEmpty) {
+      return await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Unsaved Changes'),
+            content: const Text('You have unsaved changes. Are you sure you want to leave?'),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Stay'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Leave'),
+              ),
+            ],
+          );
+        },
+      ) ?? false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    print(_selectedInterests);
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              const HeaderText(),
-              const SizedBox(height: 18),
-              LayoutBuilder(
-                builder: (context, constraints) {
-                  int crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
-                  return Padding(
-                    padding: const EdgeInsets.only(left: 32, right: 32),
-                    child: GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        crossAxisSpacing: 10,
-                        mainAxisSpacing: 4,
-                        childAspectRatio: 1,
-                      ),
-                      itemCount: interests.length,
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemBuilder: (context, index) {
-                        final interest = interests[index];
-                        return InterestCard(
-                          iconData: interest.icon,
-                          label: interest.label,
-                          isSelected: _selectedInterests.contains(interest.label.toLowerCase()),
-                          onTap: () {
-                            setState(() {
-                              if (_selectedInterests.contains(interest.label.toLowerCase())) {
-                                _selectedInterests.remove(interest.label.toLowerCase());
-                              } else if (_selectedInterests.length < maxSelection) {
-                                _selectedInterests.add(interest.label.toLowerCase());
+    return WillPopScope(
+      onWillPop: _onWillPop,
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                HeaderText(
+                  selectedCount: _selectedInterests.length,
+                  maxSelection: maxSelection,
+                ),
+                const SizedBox(height: 18),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    int crossAxisCount = constraints.maxWidth > 600 ? 4 : 2;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: GridView.builder(
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: crossAxisCount,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 4,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: interests.length,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemBuilder: (context, index) {
+                          final interest = interests[index];
+                          bool isSelected = _selectedInterests.contains(interest.label.toLowerCase());
+                          bool isDisabled = _selectedInterests.length >= maxSelection && !isSelected;
+
+                          return InterestCard(
+                            iconData: interest.icon,
+                            label: interest.label,
+                            isSelected: isSelected,
+                            isDisabled: isDisabled,
+                            onTap: () {
+                              if (isDisabled) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('You can select up to 5 interests only.'),
+                                  ),
+                                );
+                                return;
                               }
-                              // Debug print statement
-                              // print("Selected Interests: $_selectedInterests");
-                            });
-                          },
-                        );
+                              setState(() {
+                                if (isSelected) {
+                                  _selectedInterests.remove(interest.label.toLowerCase());
+                                } else if (_selectedInterests.length < maxSelection) {
+                                  _selectedInterests.add(interest.label.toLowerCase());
+                                }
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  },
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(36, 0, 36, 24),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () {
+                        _saveInterests();
                       },
-                    ),
-                  );
-                },
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(36, 0, 36, 24),
-                child: SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      _saveInterests();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 254, 109, 64),
-                      padding: const EdgeInsets.symmetric(vertical: 16.0),
-                    ),
-                    child: const Text(
-                      'Done',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color.fromARGB(255, 254, 109, 64),
+                        padding: const EdgeInsets.symmetric(vertical: 16.0),
+                      ),
+                      child: const Text(
+                        'Done',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -146,22 +185,42 @@ class _PersonaScreenState extends State<PersonaScreen> {
 }
 
 class HeaderText extends StatelessWidget {
-  const HeaderText({super.key});
+  final int selectedCount;
+  final int maxSelection;
+
+  const HeaderText({
+    required this.selectedCount,
+    required this.maxSelection,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.only(top: 18.0),
-      width: double.infinity,
-      child: const Text(
-        'Choose your interests',
-        style: TextStyle(
-          fontSize: 24,
-          fontWeight: FontWeight.w600,
-          color: Color.fromARGB(255, 254, 109, 64),
+    return Column(
+      children: [
+        Container(
+          padding: const EdgeInsets.only(top: 18.0),
+          width: double.infinity,
+          child: const Text(
+            'Choose your interests',
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.w600,
+              color: Color.fromARGB(255, 254, 109, 64),
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
-        textAlign: TextAlign.center,
-      ),
+        const SizedBox(height: 8),
+        Text(
+          'You can select at most $maxSelection interests. $selectedCount/$maxSelection selected',
+          style: const TextStyle(
+            fontSize: 14,
+            color: Color.fromARGB(255, 132, 132, 132),
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
     );
   }
 }
@@ -170,69 +229,74 @@ class InterestCard extends StatelessWidget {
   final IconData iconData;
   final String label;
   final bool isSelected;
+  final bool isDisabled;
   final VoidCallback onTap;
 
   const InterestCard({
     required this.iconData,
     required this.label,
     required this.isSelected,
+    required this.isDisabled,
     required this.onTap,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Stack(
-            alignment: Alignment.center,
-            children: [
-              // Gradient circumference container
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: isSelected
-                      ? const LinearGradient(
-                          colors: [Color(0xFFFFA726), Color(0xFFFF7043)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
-                      : null,
+    return AnimatedScale(
+      scale: isSelected ? 1.1 : 1.0,
+      duration: const Duration(milliseconds: 200),
+      child: GestureDetector(
+        onTap: onTap,
+        child: Column(
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Container(
+                  width: 90,
+                  height: 90,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    gradient: isSelected
+                        ? const LinearGradient(
+                            colors: [Color(0xFFFFA726), Color(0xFFFF7043)],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: isDisabled ? Colors.grey[300] : null,
+                  ),
                 ),
-              ),
-              // Inner solid color circle container
-              Container(
-                width: 80,
-                height: 80,
-                decoration: const BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.white, // Inner circle color
+                Container(
+                  width: 80,
+                  height: 80,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.white,
+                  ),
+                  child: Icon(
+                    iconData,
+                    size: 40,
+                    color: isDisabled ? Colors.grey : const Color(0xFFFF7043),
+                  ),
                 ),
-                child: Icon(
-                  iconData,
-                  size: 40,
-                  color: isSelected
-                      ? const Color(0xFFFF7043)
-                      : const Color(0xFFFF7043),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 14,
-              color: isSelected
-                  ? const Color(0xFFFF7043)
-                  : const Color.fromARGB(255, 132, 132, 132),
+              ],
             ),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 14,
+                color: isDisabled
+                    ? Colors.grey
+                    : isSelected
+                        ? const Color(0xFFFF7043)
+                        : const Color.fromARGB(255, 132, 132, 132),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
