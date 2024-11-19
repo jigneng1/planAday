@@ -10,9 +10,7 @@ class PlaceDetailPage extends StatefulWidget {
   final String planID;
 
   const PlaceDetailPage(
-      {super.key,
-      required this.placeID,
-      required this.planID});
+      {super.key, required this.placeID, required this.planID});
 
   @override
   _PlaceDetailPageState createState() => _PlaceDetailPageState();
@@ -36,48 +34,62 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
   }
 
   Future<void> _fetchPlaceDetails() async {
-  try {
-    final placeDetails = await apiService.getPlaceDetails(widget.placeID);
-    print(placeDetails);
+    try {
+      final placeDetails = await apiService.getPlaceDetails(widget.placeID);
+      print(placeDetails);
 
-    // Check if `currentOpeningHours` is a list
-    String formattedOpenHours = '';
-    if (placeDetails?['currentOpeningHours'] is List) {
-      formattedOpenHours = (placeDetails?['currentOpeningHours'] as List<dynamic>).join('\n');
-    } else if (placeDetails?['currentOpeningHours'] is String) {
-      formattedOpenHours = placeDetails?['currentOpeningHours'] as String;
+      // Check if `currentOpeningHours` is a list
+      String formattedOpenHours = '';
+      if (placeDetails?['currentOpeningHours'] is List) {
+        formattedOpenHours =
+            (placeDetails?['currentOpeningHours'] as List<dynamic>).join('\n');
+      } else if (placeDetails?['currentOpeningHours'] is String) {
+        formattedOpenHours = placeDetails?['currentOpeningHours'] as String;
+      }
+
+      setState(() {
+        imageUrl = placeDetails?['photo'];
+        title = placeDetails?['displayName'];
+        rating = placeDetails?['rating'];
+        openHours = formattedOpenHours;
+        tagsData = {
+          'Wheelchair Parking': placeDetails!['accessibilityOptions']
+                  ?['wheelchairAccessibleParking'] ??
+              false,
+          'Wheelchair Entrance': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleEntrance'] ??
+              false,
+          'Wheelchair Restroom': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleRestroom'] ??
+              false,
+          'Wheelchair Seating': placeDetails['accessibilityOptions']
+                  ?['wheelchairAccessibleSeating'] ??
+              false,
+          'Free Parking Lot':
+              placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
+          'Free Street Parking':
+              placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
+          'Takeout': placeDetails['takeout'] ?? false,
+          'Dog Friendly': placeDetails['allowsDogs'] ?? false,
+          'Live Music': placeDetails['liveMusic'] ?? false,
+        };
+        ladtitude =
+            double.tryParse(placeDetails['location']['latitude'].toString()) ??
+                0.0;
+        longtitude =
+            double.tryParse(placeDetails['location']['longitude'].toString()) ??
+                0.0;
+
+        isLoading = false;
+      });
+    } catch (error) {
+      setState(() {
+        isLoading = false;
+      });
+      // Handle the error appropriately, e.g., show a dialog or a message
+      print('Error fetching place details: $error');
     }
-
-    setState(() {
-      imageUrl = placeDetails?['photo'];
-      title = placeDetails?['displayName'];
-      rating = placeDetails?['rating'];
-      openHours = formattedOpenHours;
-      tagsData = {
-        'Wheelchair Parking': placeDetails!['accessibilityOptions']?['wheelchairAccessibleParking'] ?? false,
-        'Wheelchair Entrance': placeDetails['accessibilityOptions']?['wheelchairAccessibleEntrance'] ?? false,
-        'Wheelchair Restroom': placeDetails['accessibilityOptions']?['wheelchairAccessibleRestroom'] ?? false,
-        'Wheelchair Seating': placeDetails['accessibilityOptions']?['wheelchairAccessibleSeating'] ?? false,
-        'Free Parking Lot': placeDetails['parkingOptions']?['freeParkingLot'] ?? false,
-        'Free Street Parking': placeDetails['parkingOptions']?['freeStreetParking'] ?? false,
-        'Takeout': placeDetails['takeout'] ?? false,
-        'Dog Friendly': placeDetails['allowsDogs'] ?? false,
-        'Live Music': placeDetails['liveMusic'] ?? false,
-      };
-      ladtitude = double.tryParse(placeDetails['location']['latitude'].toString()) ?? 0.0;
-      longtitude = double.tryParse(placeDetails['location']['longitude'].toString()) ?? 0.0;
-
-      isLoading = false;
-    });
-  } catch (error) {
-    setState(() {
-      isLoading = false;
-    });
-    // Handle the error appropriately, e.g., show a dialog or a message
-    print('Error fetching place details: $error');
   }
-}
-
 
   Widget _buildTag(String text) {
     return Container(
@@ -142,11 +154,28 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
                 },
               ),
             ),
-            leading: IconButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
+            leading: Padding(
+              padding: const EdgeInsets.all(
+                  10.0), // Add some padding to align the icon nicely.
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pop(
+                      context); // Navigate back when the circle is tapped.
+                },
+                child: Container(
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Color(0xFFFF6838), // Set the background color to blue.
+                  ),
+                  padding: const EdgeInsets.all(
+                      8.0), // Add padding inside the circle for the icon.
+                  child: const Icon(
+                    Icons.arrow_back_ios_new,
+                    color: Colors
+                        .white, // Set the icon color to white for contrast.
+                  ),
+                ),
+              ),
             ),
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(60),
