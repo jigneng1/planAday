@@ -1,5 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -649,6 +651,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                 zoomGesturesEnabled: true,
                                 rotateGesturesEnabled: false,
                                 tiltGesturesEnabled: false,
+                                gestureRecognizers: Platform.isIOS
+                                    ? <Factory<OneSequenceGestureRecognizer>>{
+                                        Factory<OneSequenceGestureRecognizer>(
+                                          () => EagerGestureRecognizer(),
+                                        ),
+                                      }
+                                    : {},
                               ),
                       ),
                     ),
