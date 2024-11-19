@@ -424,7 +424,7 @@ class _MainLayoutState extends State<MainLayout> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0.0
+      floatingActionButton: MediaQuery.of(context).viewInsets.bottom != 0.0 || _currentIndex == 2 || _currentIndex == 12
           ? null
           : Container(
               margin: EdgeInsets.only(
