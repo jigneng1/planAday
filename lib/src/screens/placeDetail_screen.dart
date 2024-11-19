@@ -156,7 +156,7 @@ class _PlaceDetailPageState extends State<PlaceDetailPage> {
             ),
             leading: Padding(
               padding: const EdgeInsets.all(
-                  10.0), // Add some padding to align the icon nicely.
+                  8.0), // Add some padding to align the icon nicely.
               child: GestureDetector(
                 onTap: () {
                   Navigator.pop(
