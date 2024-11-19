@@ -263,19 +263,28 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
           'name': data['structured_formatting']['main_text'],
           'id': data['place_id']
         };
-        predictedPlaces.add(prediction);
+        setState(() {
+          predictedPlaces.add(prediction);
+        });
         print(prediction);
       }
+    }
+    else{
+      setState(() {
+      predictedPlaces.clear();
+    });
     }
   }
 
   void setPlaceladlng(String placeId) async {
     final place = await apiService.getPlaceDetails(placeId);
+    print(placeId);
 
     if(place != null){
       setState(() {
         _currentLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
         _selectedLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
+        _selectedPlaceName = place['displayName'];
       });
     }
 
@@ -314,13 +323,19 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     });
 
     if (_formKey.currentState?.validate() ?? false) {
+      final startTime =
+          _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
       List<String> errorMessages = [];
 
-      // if (_selectedLocation == null) {
-      //   errorMessages.add('Please select a location on the map.');
-      // }
+      if (_selectedLocation == null) {
+        errorMessages.add('Please select a location on the map.');
+      }
       if (_planNameController.text.isEmpty) {
-        errorMessages.add('Please enter the plan name.');
+        List<String> placeWords = _selectedPlaceName.toString().split(' ');
+        String areaName = placeWords.take(3).join(' ');
+        setState(() {
+          _planNameController.text = "$areaName at $startTime";
+        });
       }
       if (_startTimeController.text.isEmpty) {
         errorMessages.add('Please select the start time.');
@@ -343,9 +358,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         );
         return;
       }
-
-      final startTime =
-          _startTimeController.text.replaceAll(RegExp(r'[^0-9:]'), '');
 
       final Map<String, dynamic> planData = {
         'planName': _planNameController.text,
@@ -416,13 +428,13 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                           borderRadius: BorderRadius.all(Radius.circular(20)),
                         ),
                       ),
-                      validator: (value) {
-                        if (_hasTriedSubmitting &&
-                            (value == null || value.isEmpty)) {
-                          return 'Please enter a plan name';
-                        }
-                        return null;
-                      },
+                      // validator: (value) {
+                      //   if (_hasTriedSubmitting &&
+                      //       (value == null || value.isEmpty)) {
+                      //     return 'Please enter a plan name';
+                      //   }
+                      //   return null;
+                      // },
                     ),
                     const SizedBox(height: 30),
                     const Text(
@@ -461,24 +473,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
-                    const SizedBox(height: 10),
-                    // TextField(
-                    //   controller: _searchPlaceController,
-                    //   decoration: InputDecoration(
-                    //     hintText: "Search location...",
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(8.0),
-                    //     ),
-                    //     suffixIcon: IconButton(
-                    //       icon: const Icon(Icons.search),
-                    //       onPressed: () {
-                    //         // Call your search function here
-                    //         String searchQuery = _searchPlaceController.text;
-                    //         placeAutoComplete(searchQuery);
-                    //       },
-                    //     ),
-                    //   ),
-                    // ),
+                    const SizedBox(height: 12),
                     Column(
                       children: [
                         TextField(
@@ -543,6 +538,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                       _showDropdown = false;
                                     });
                                     setPlaceladlng(predictedPlaces[index]['id']!);
+                                    predictedPlaces.clear();
                                   },
                                 );
                               },
@@ -550,75 +546,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                           ),
                       ],
                     ),
-                    // GooglePlaceAutoCompleteTextField(
-                    //   textEditingController: _searchPlaceController,
-                    //   googleAPIKey: googleapiKey,
-                    //   inputDecoration: InputDecoration(
-                    //     hintText: "Search places...",
-                    //     border: OutlineInputBorder(
-                    //       borderRadius: BorderRadius.circular(10.0),
-                    //     ),
-                    //     prefixIcon: Icon(Icons.search),
-                    //   ),
-                    //   debounceTime: 800, // Adjust debounce time as needed
-                    //   countries: [
-                    //     "th"
-                    //   ], // Restrict search to specific countries
-                    //   isLatLngRequired: true, // Fetch lat/lng details
-                    //   getPlaceDetailWithLatLng: (Prediction prediction) {
-                    //     print("Latitude: ${prediction.lat}");
-                    //     print("Longitude: ${prediction.lng}");
-                    //   },
-                    //   itemClick: (Prediction prediction) {
-                    //     _searchPlaceController.text =
-                    //         prediction.description ?? "";
-                    //     _searchPlaceController.selection =
-                    //         TextSelection.fromPosition(
-                    //       TextPosition(
-                    //           offset: prediction.description?.length ?? 0),
-                    //     );
-                    //     // Fetch and print latitude and longitude
-                    //     double? latitude = prediction.lat as double?;
-                    //     double? longitude = prediction.lng as double?;
-
-                    //     print("Latitude: $latitude");
-                    //     print("Longitude: $longitude");
-
-                    //     // Update position on the map or store in a variable
-                    //     if (latitude != null && longitude != null) {
-                    //       // Update your map or variable here
-                    //       setState(() {
-                    //         _currentLocation = LatLng(latitude,
-                    //             longitude); // Assuming you're using Google Maps Flutter
-                    //       });
-
-                    //       // Move the camera to the current location
-                    //       if (_mapController != null) {
-                    //         _mapController!.animateCamera(
-                    //           CameraUpdate.newLatLng(_currentLocation!),
-                    //         );
-                    //       }
-                    //     }
-                    //   },
-                    //   itemBuilder: (context, index, Prediction prediction) {
-                    //     return Container(
-                    //       padding: EdgeInsets.all(10),
-                    //       child: Row(
-                    //         children: [
-                    //           Icon(Icons.location_on),
-                    //           SizedBox(width: 7),
-                    //           Expanded(
-                    //             child: Text(prediction.description ?? ""),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //     );
-                    //   },
-                    //   seperatedBuilder: Divider(),
-                    //   isCrossBtnShown: true,
-                    //   containerHorizontalPadding: 10.0,
-                    //   placeType: PlaceType.geocode,
-                    // ),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 200,
