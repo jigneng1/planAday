@@ -1,11 +1,16 @@
+import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_places_flutter/google_places_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:google_places_flutter/model/place_type.dart';
+import 'package:google_places_flutter/model/prediction.dart';
+import 'package:plan_a_day/services/api_service.dart';
+import 'package:plan_a_day/services/network_utility.dart';
 
 class CreatePlanScreen extends StatefulWidget {
   final VoidCallback onClose;
@@ -22,9 +27,12 @@ class CreatePlanScreen extends StatefulWidget {
 }
 
 class _CreatePlanScreenState extends State<CreatePlanScreen> {
+  final ApiService apiService = ApiService();
   final _formKey = GlobalKey<FormState>(); // Key for form validation
+  String googleapiKey = dotenv.env['GOOGLE_MAP_KEY']!;
   final TextEditingController _planNameController = TextEditingController();
   final TextEditingController _startTimeController = TextEditingController();
+  final TextEditingController _searchPlaceController = TextEditingController();
   final TextEditingController _startDateController =
       TextEditingController(); // New date controller
   final TextEditingController _numberOfPlacesController =
@@ -40,12 +48,15 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     'Museum',
   ];
   final Set<String> _selectedActivities = {};
+  List<Map<String, String>> predictedPlaces = [];
+  Map<String, dynamic> selectedSearchPlace = {};
   GoogleMapController? _mapController;
   LatLng? _selectedLocation;
   LatLng? _currentLocation;
   bool _hasTriedSubmitting = false;
   String? _selectedPlaceName;
   int? _dayOfWeek;
+  bool _showDropdown = false;
 
   @override
   void initState() {
@@ -235,6 +246,42 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     await _getPlaceName(location);
   }
 
+  void placeAutoComplete(String query) async {
+    Uri uri = Uri.https(
+        "maps.googleapis.com",
+        '/maps/api/place/autocomplete/json',
+        {"input": query, "key": googleapiKey, "components" : "country:th"});
+
+    Map<String, dynamic>? response = await NetworkUtility.fetchUrl(uri);
+
+    if (response != null && response['predictions'] != null) {
+      predictedPlaces.clear();
+      for (var data in response['predictions']) {
+        Map<String, String> prediction = {
+          'name': data['structured_formatting']['main_text'],
+          'id': data['place_id']
+        };
+        predictedPlaces.add(prediction);
+        print(prediction);
+      }
+    }
+  }
+
+  void setPlaceladlng(String placeId) async {
+    final place = await apiService.getPlaceDetails(placeId);
+
+    if(place != null){
+      _currentLocation = LatLng(place['location']['latitude'], place['location']['latitude']);
+    }
+
+    if (_mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLng(_currentLocation!),
+      );
+    }
+    
+  }
+
   Future<void> _getPlaceName(LatLng location) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(
@@ -264,9 +311,9 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     if (_formKey.currentState?.validate() ?? false) {
       List<String> errorMessages = [];
 
-      if (_selectedLocation == null) {
-        errorMessages.add('Please select a location on the map.');
-      }
+      // if (_selectedLocation == null) {
+      //   errorMessages.add('Please select a location on the map.');
+      // }
       if (_planNameController.text.isEmpty) {
         errorMessages.add('Please enter the plan name.');
       }
@@ -409,6 +456,164 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                       style:
                           TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
                     ),
+                    const SizedBox(height: 10),
+                    // TextField(
+                    //   controller: _searchPlaceController,
+                    //   decoration: InputDecoration(
+                    //     hintText: "Search location...",
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(8.0),
+                    //     ),
+                    //     suffixIcon: IconButton(
+                    //       icon: const Icon(Icons.search),
+                    //       onPressed: () {
+                    //         // Call your search function here
+                    //         String searchQuery = _searchPlaceController.text;
+                    //         placeAutoComplete(searchQuery);
+                    //       },
+                    //     ),
+                    //   ),
+                    // ),
+                    Column(
+                      children: [
+                        TextField(
+                          controller: _searchPlaceController,
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              placeAutoComplete(value);
+                              setState(() {
+                                _showDropdown = true;
+                              });
+                            } else {
+                              setState(() {
+                                _showDropdown = false;
+                              });
+                            }
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Search location...",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8.0),
+                            ),
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.search),
+                              onPressed: () {
+                                String searchQuery =
+                                    _searchPlaceController.text;
+                                placeAutoComplete(searchQuery);
+                                setState(() {
+                                  _showDropdown = true;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        if (_showDropdown && predictedPlaces.isNotEmpty)
+                          Container(
+                            margin: const EdgeInsets.only(top: 4),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.3),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: const Offset(0, 3),
+                                ),
+                              ],
+                            ),
+                            child: ListView.builder(
+                              shrinkWrap: true,
+                              padding: EdgeInsets.zero,
+                              itemCount: predictedPlaces.length,
+                              itemBuilder: (context, index) {
+                                return ListTile(
+                                  title: Text(
+                                      predictedPlaces[index]['name'] ?? ''),
+                                  onTap: () {
+                                    setState(() {
+                                      _searchPlaceController.text =
+                                          predictedPlaces[index]['name'] ?? '';
+                                      _showDropdown = false;
+                                    });
+                                    setPlaceladlng(predictedPlaces[index]['id']!);
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                      ],
+                    ),
+                    // GooglePlaceAutoCompleteTextField(
+                    //   textEditingController: _searchPlaceController,
+                    //   googleAPIKey: googleapiKey,
+                    //   inputDecoration: InputDecoration(
+                    //     hintText: "Search places...",
+                    //     border: OutlineInputBorder(
+                    //       borderRadius: BorderRadius.circular(10.0),
+                    //     ),
+                    //     prefixIcon: Icon(Icons.search),
+                    //   ),
+                    //   debounceTime: 800, // Adjust debounce time as needed
+                    //   countries: [
+                    //     "th"
+                    //   ], // Restrict search to specific countries
+                    //   isLatLngRequired: true, // Fetch lat/lng details
+                    //   getPlaceDetailWithLatLng: (Prediction prediction) {
+                    //     print("Latitude: ${prediction.lat}");
+                    //     print("Longitude: ${prediction.lng}");
+                    //   },
+                    //   itemClick: (Prediction prediction) {
+                    //     _searchPlaceController.text =
+                    //         prediction.description ?? "";
+                    //     _searchPlaceController.selection =
+                    //         TextSelection.fromPosition(
+                    //       TextPosition(
+                    //           offset: prediction.description?.length ?? 0),
+                    //     );
+                    //     // Fetch and print latitude and longitude
+                    //     double? latitude = prediction.lat as double?;
+                    //     double? longitude = prediction.lng as double?;
+
+                    //     print("Latitude: $latitude");
+                    //     print("Longitude: $longitude");
+
+                    //     // Update position on the map or store in a variable
+                    //     if (latitude != null && longitude != null) {
+                    //       // Update your map or variable here
+                    //       setState(() {
+                    //         _currentLocation = LatLng(latitude,
+                    //             longitude); // Assuming you're using Google Maps Flutter
+                    //       });
+
+                    //       // Move the camera to the current location
+                    //       if (_mapController != null) {
+                    //         _mapController!.animateCamera(
+                    //           CameraUpdate.newLatLng(_currentLocation!),
+                    //         );
+                    //       }
+                    //     }
+                    //   },
+                    //   itemBuilder: (context, index, Prediction prediction) {
+                    //     return Container(
+                    //       padding: EdgeInsets.all(10),
+                    //       child: Row(
+                    //         children: [
+                    //           Icon(Icons.location_on),
+                    //           SizedBox(width: 7),
+                    //           Expanded(
+                    //             child: Text(prediction.description ?? ""),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     );
+                    //   },
+                    //   seperatedBuilder: Divider(),
+                    //   isCrossBtnShown: true,
+                    //   containerHorizontalPadding: 10.0,
+                    //   placeType: PlaceType.geocode,
+                    // ),
                     const SizedBox(height: 12),
                     SizedBox(
                       height: 200,
@@ -441,13 +646,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                 zoomGesturesEnabled: true,
                                 rotateGesturesEnabled: false,
                                 tiltGesturesEnabled: false,
-                                gestureRecognizers: Platform.isIOS
-                                    ? <Factory<OneSequenceGestureRecognizer>>{
-                                        Factory<OneSequenceGestureRecognizer>(
-                                          () => EagerGestureRecognizer(),
-                                        ),
-                                      }
-                                    : {},
                               ),
                       ),
                     ),

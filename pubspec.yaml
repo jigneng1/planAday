@@ -31,6 +31,7 @@ dependencies:
   flutter:
     sdk: flutter
   google_maps_flutter : ^2.9.0
+  google_places_flutter: ^2.0.9
   geolocator : ^13.0.1
   carousel_slider: ^5.0.0
   smooth_page_indicator: ^1.2.0

@@ -255,6 +255,12 @@ class _MainLayoutState extends State<MainLayout> {
         });
       } else {
         print('Failed to receive new plan data');
+        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('No place availble right now!', style: TextStyle(color: Colors.red),),
+                                behavior: SnackBarBehavior.floating,
+                                backgroundColor: Colors.white,),
+                          );
       }
 
       print('Plan data sent successfully');
