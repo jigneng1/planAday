@@ -271,7 +271,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     final place = await apiService.getPlaceDetails(placeId);
 
     if(place != null){
-      _currentLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
+      setState(() {
+        _currentLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
+        _selectedLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
+      });
     }
 
     if (_mapController != null) {
