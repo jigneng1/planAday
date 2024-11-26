@@ -252,7 +252,7 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     Uri uri = Uri.https(
         "maps.googleapis.com",
         '/maps/api/place/autocomplete/json',
-        {"input": query, "key": googleapiKey, "components" : "country:th"});
+        {"input": query, "key": googleapiKey, "components": "country:th"});
 
     Map<String, dynamic>? response = await NetworkUtility.fetchUrl(uri);
 
@@ -268,11 +268,10 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         });
         print(prediction);
       }
-    }
-    else{
+    } else {
       setState(() {
-      predictedPlaces.clear();
-    });
+        predictedPlaces.clear();
+      });
     }
   }
 
@@ -280,10 +279,12 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
     final place = await apiService.getPlaceDetails(placeId);
     print(placeId);
 
-    if(place != null){
+    if (place != null) {
       setState(() {
-        _currentLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
-        _selectedLocation = LatLng(place['location']['latitude'], place['location']['longitude']);
+        _currentLocation = LatLng(
+            place['location']['latitude'], place['location']['longitude']);
+        _selectedLocation = LatLng(
+            place['location']['latitude'], place['location']['longitude']);
         _selectedPlaceName = place['displayName'];
       });
     }
@@ -293,7 +294,6 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
         CameraUpdate.newLatLng(_currentLocation!),
       );
     }
-    
   }
 
   Future<void> _getPlaceName(LatLng location) async {
@@ -479,16 +479,14 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                         TextField(
                           controller: _searchPlaceController,
                           onChanged: (value) {
-                            if (value.isNotEmpty) {
-                              placeAutoComplete(value);
-                              setState(() {
+                            setState(() {
+                              if (value.isNotEmpty) {
+                                placeAutoComplete(value);
                                 _showDropdown = true;
-                              });
-                            } else {
-                              setState(() {
+                              } else {
                                 _showDropdown = false;
-                              });
-                            }
+                              }
+                            });
                           },
                           decoration: InputDecoration(
                             hintText: "Search location...",
@@ -496,14 +494,17 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                               borderRadius: BorderRadius.circular(8.0),
                             ),
                             suffixIcon: IconButton(
-                              icon: const Icon(Icons.search),
+                              icon: _searchPlaceController.text.isEmpty
+                                  ? const Icon(Icons.search)
+                                  : const Icon(Icons.close),
                               onPressed: () {
-                                String searchQuery =
-                                    _searchPlaceController.text;
-                                placeAutoComplete(searchQuery);
-                                setState(() {
-                                  _showDropdown = true;
-                                });
+                                if (_searchPlaceController.text.isNotEmpty) {
+                                  // Clear the input and hide the dropdown
+                                  setState(() {
+                                    _searchPlaceController.clear();
+                                    _showDropdown = false;
+                                  });
+                                }
                               },
                             ),
                           ),
@@ -537,7 +538,8 @@ class _CreatePlanScreenState extends State<CreatePlanScreen> {
                                           predictedPlaces[index]['name'] ?? '';
                                       _showDropdown = false;
                                     });
-                                    setPlaceladlng(predictedPlaces[index]['id']!);
+                                    setPlaceladlng(
+                                        predictedPlaces[index]['id']!);
                                     predictedPlaces.clear();
                                   },
                                 );
