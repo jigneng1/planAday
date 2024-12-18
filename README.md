@@ -5,8 +5,8 @@ want to go on a one-day trip without wasting time to create the plan that has ma
 such as searching for places, available hours on each place, finding the route path and so on. The
 application will help reduce the time spent on organizing a one
 
-## Prerequire for Run this proejct
-1.Flutter environment 
+## Prerequisites for Run this proejct
+- Flutter Environtment
 
 ## How to Install this Project 
 
