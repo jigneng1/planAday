@@ -2,6 +2,20 @@
 
 A new Flutter project.
 
+## How to Install this Project 
+
+1.clone this project
+
+` git clone https://github.com/jigneng1/planAday `
+
+2.install dependency
+
+` flutter pub get `
+
+3.Run this project ( via emulator device or physical device )
+
+` flutter run `
+
 ## How to Contribute this project
 
 1.clone this project 
