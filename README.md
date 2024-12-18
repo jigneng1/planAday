@@ -2,6 +2,9 @@
 
 A new Flutter project.
 
+## Prerequire for Run this proejct
+1.Flutter environment 
+
 ## How to Install this Project 
 
 1.clone this project
