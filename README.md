@@ -1,6 +1,9 @@
 # PlanAday
 
-A new Flutter project.
+PlanADay Application: Suggest One Day Trip is a mobile application that helps people who
+want to go on a one-day trip without wasting time to create the plan that has many steps to do
+such as searching for places, available hours on each place, finding the route path and so on. The
+application will help reduce the time spent on organizing a one
 
 ## Prerequire for Run this proejct
 1.Flutter environment 
