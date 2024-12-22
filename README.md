@@ -6,6 +6,7 @@ such as searching for places, available hours on each place, finding the route p
 application will help reduce the time spent on organizing a one
 
 ## Prerequisites for Run this proejct
+- OS : MacOS
 - Flutter Environtment
 
 ## How to Install this Project 
